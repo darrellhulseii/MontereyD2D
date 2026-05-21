@@ -485,6 +485,13 @@ a.btn-line{text-decoration:none}
   text-transform:uppercase;color:var(--green);background:rgba(0,200,83,.14);padding:1px 5px;
   border-radius:4px;vertical-align:1px}
 .og-ev-m{font-size:11.5px;color:var(--muted);line-height:1.45;margin-top:1px}
+.county-strip{display:flex;gap:7px;margin-bottom:13px}
+.cty-tile{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:10px;
+  padding:9px 6px;text-align:center}
+.cty-n{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--sky)}
+.cty-l{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:9.5px;letter-spacing:.4px;
+  text-transform:uppercase;color:var(--muted);margin-top:3px;line-height:1.2}
+.og-ev-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 ::-webkit-scrollbar{width:0;height:0}
 @media(max-width:560px){.tab .tl{font-size:9px}}
 </style>
@@ -583,8 +590,9 @@ a.btn-line{text-decoration:none}
 
     <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Log an Internet Outage</button>
     <div class="card og-card">
-      <div class="card-h">📉 Outage Trend <span class="ch-r" id="ogTotal">—</span></div>
+      <div class="card-h">📉 California Outage Trend <span class="ch-r" id="ogTotal">—</span></div>
       <div class="og-feed" id="outageFeed">Loading outage data…</div>
+      <div class="county-strip" id="countyStrip"></div>
       <div id="outageGraph"></div>
       <div class="og-legend">
         <span><i style="background:#b46bff"></i>Public outage (ThousandEyes)</span>
@@ -734,17 +742,18 @@ var PROVIDERS=['Xfinity / Comcast','Spectrum','Cox','AT&T','Optimum / Altice','T
 
 /* ── TERRITORY CITIES (drives weather + ISP guide) ── */
 var CITIES=[
-  {name:'San Jose, CA',      lat:37.3382, lng:-121.8863, region:'south',    cable:'xfinity'},
-  {name:'Morgan Hill, CA',   lat:37.1305, lng:-121.6544, region:'south',    cable:'xfinity'},
-  {name:'Gilroy, CA',        lat:37.0058, lng:-121.5683, region:'south',    cable:'xfinity'},
-  {name:'Murrieta, CA',      lat:33.5539, lng:-117.2139, region:'inland',   cable:'spectrum'},
-  {name:'Temecula, CA',      lat:33.4936, lng:-117.1484, region:'inland',   cable:'spectrum'},
-  {name:'Lake Elsinore, CA', lat:33.6681, lng:-117.3273, region:'inland',   cable:'spectrum'},
-  {name:'Wildomar, CA',      lat:33.5989, lng:-117.2800, region:'inland',   cable:'spectrum'},
-  {name:'Moreno Valley, CA', lat:33.9425, lng:-117.2297, region:'inland',   cable:'spectrum'},
-  {name:'Redlands, CA',      lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum'},
-  {name:'Big Bear, CA',      lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum', crime:'big+bear+lake'}
+  {name:'San Jose, CA',      lat:37.3382, lng:-121.8863, region:'south',    cable:'xfinity',  county:'Santa Clara'},
+  {name:'Morgan Hill, CA',   lat:37.1305, lng:-121.6544, region:'south',    cable:'xfinity',  county:'Santa Clara'},
+  {name:'Gilroy, CA',        lat:37.0058, lng:-121.5683, region:'south',    cable:'xfinity',  county:'Santa Clara'},
+  {name:'Murrieta, CA',      lat:33.5539, lng:-117.2139, region:'inland',   cable:'spectrum', county:'Riverside'},
+  {name:'Temecula, CA',      lat:33.4936, lng:-117.1484, region:'inland',   cable:'spectrum', county:'Riverside'},
+  {name:'Lake Elsinore, CA', lat:33.6681, lng:-117.3273, region:'inland',   cable:'spectrum', county:'Riverside'},
+  {name:'Wildomar, CA',      lat:33.5989, lng:-117.2800, region:'inland',   cable:'spectrum', county:'Riverside'},
+  {name:'Moreno Valley, CA', lat:33.9425, lng:-117.2297, region:'inland',   cable:'spectrum', county:'Riverside'},
+  {name:'Redlands, CA',      lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum', county:'San Bernardino'},
+  {name:'Big Bear, CA',      lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum', county:'San Bernardino', crime:'big+bear+lake'}
 ];
+var COUNTIES=['Riverside','San Bernardino','Santa Clara'];
 var CITY_NOTE={
   south:'South Bay market — Xfinity is the cable incumbent. Frontier Fiber is strong here (former Verizon territory) and AT&T Fiber is widespread.',
   inland:'Inland Empire market — Spectrum is the cable incumbent. AT&T Fiber and Frontier are expanding; 5G home internet is widely available.',
@@ -1358,18 +1367,23 @@ function renderLegend(){
 function reportOutageSheet(){
   var opts=PROVIDERS.map(function(p){return '<option>'+esc(p)+'</option>';}).join('');
   var loc=curPos;
+  var here=(CITIES[cityIdx]&&CITIES[cityIdx].county)||'Riverside';
+  var ctyOpts=COUNTIES.map(function(n){
+    return '<option value="'+n+'"'+(n===here?' selected':'')+'>'+esc(n)+' County</option>';
+  }).join('')+'<option value="Other CA">Other — California</option>';
   openSheet(
     '<div class="sheet-title">⚡ Log an Outage</div>'+
-    '<div class="sheet-desc">Log an internet outage — one you heard about at the door, or a past one. It plots on the Outage Trend graph.</div>'+
+    '<div class="sheet-desc">Log an internet outage — one you heard about at the door, or a past one. It plots on the Outage Trend graph and the county breakdown.</div>'+
     '<div class="field"><label>Provider down</label><select id="oProv">'+opts+'</select></div>'+
+    '<div class="field"><label>County</label><select id="oCounty">'+ctyOpts+'</select></div>'+
     '<div class="field"><label>When did it happen</label>'+
       '<input type="datetime-local" id="oWhen" value="'+nowLocalInput(true)+'"></div>'+
     '<div class="field"><label>Severity</label><select id="oSev">'+
       '<option value="reported">Reported — one household mentioned it</option>'+
       '<option value="confirmed">Confirmed — multiple homes</option>'+
       '<option value="widespread">Widespread — whole block / street</option></select></div>'+
-    '<div class="field"><label>Area / notes</label>'+
-      '<textarea id="oNotes" placeholder="Street name, how long down, what residents said…"></textarea></div>'+
+    '<div class="field"><label>City / area / notes</label>'+
+      '<textarea id="oNotes" placeholder="City &amp; street, how long down, what residents said…"></textarea></div>'+
     '<div class="field"><label>Location</label><div style="font-size:12.5px;color:var(--muted)">'+
       (loc?('📍 Pinned at '+loc.lat.toFixed(4)+', '+loc.lng.toFixed(4)):'No GPS — saved without a map pin')+
       '</div></div>'+
@@ -1380,10 +1394,10 @@ function reportOutageSheet(){
     var w=$('#oWhen').value, when=w?new Date(w).getTime():Date.now();
     if(isNaN(when))when=Date.now();
     var o={id:uid(),provider:$('#oProv').value,severity:$('#oSev').value,
-      notes:$('#oNotes').value.trim(),ts:when,source:'manual',
+      county:$('#oCounty').value,notes:$('#oNotes').value.trim(),ts:when,source:'manual',
       lat:loc?loc.lat:null,lng:loc?loc.lng:null};
     state.outages.push(o);persist();closeSheet();renderAll();refreshMarkers();
-    toast('<b>⚡ '+esc(o.provider)+'</b> outage logged','Undo',function(){
+    toast('<b>⚡ '+esc(o.provider)+'</b> outage logged — '+esc(o.county),'Undo',function(){
       state.outages=state.outages.filter(function(x){return x.id!==o.id;});
       persist();renderAll();refreshMarkers();toast('Removed');
     });
@@ -1442,42 +1456,60 @@ function renderRadar(){
 }
 
 /* ════════ OUTAGE TREND GRAPH + PUBLIC DATA ════════ */
-/* Verified major U.S. internet outages, last 30 days.
-   Source: Cisco ThousandEyes weekly data via Network World, May 2026. */
+/* Verified internet outages affecting California, last 30 days.
+   Source: Cisco ThousandEyes weekly data via Network World, May 2026.
+   Backbone events are mapped to the territory counties they route through:
+   Los Angeles is the Tier-1 hub serving Riverside & San Bernardino;
+   San Jose is the hub for Santa Clara County. */
 var PUBLIC_OUTAGES=[
-  {d:[2026,3,22],provider:'Verizon Business',mins:63,where:'Phoenix & Chandler AZ, Los Angeles CA',ca:true},
-  {d:[2026,3,25],provider:'Zayo Group (Tier 1)',mins:29,where:'Newark NJ + London backbone',ca:false},
-  {d:[2026,3,28],provider:'AT&T',mins:14,where:'Phoenix AZ → Dallas TX',ca:false},
-  {d:[2026,4,2], provider:'Cogent Communications',mins:17,where:'Los Angeles CA backbone',ca:true},
-  {d:[2026,4,7], provider:'Zayo Group (Tier 1)',mins:39,where:'Newark NJ, Los Angeles & San Jose CA',ca:true},
-  {d:[2026,4,10],provider:'Arelion (Telia Carrier)',mins:39,where:'Los Angeles CA → Ashburn VA',ca:true},
-  {d:[2026,4,13],provider:'Comcast / Xfinity',mins:17,where:'Atlanta GA hub — U.S. + 17 countries',ca:false},
-  {d:[2026,4,13],provider:'AT&T',mins:9, where:'Phoenix AZ → Midland TX',ca:false}
+  {d:[2026,3,22],provider:'Verizon Business',mins:63,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
+  {d:[2026,4,2], provider:'Cogent Communications',mins:17,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
+  {d:[2026,4,7], provider:'Zayo Group (Tier 1)',mins:39,hub:'San Jose & Los Angeles backbone',counties:['Santa Clara','Riverside','San Bernardino']},
+  {d:[2026,4,10],provider:'Arelion (Telia Carrier)',mins:39,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
+  {d:[2026,4,13],provider:'Comcast / Xfinity',mins:17,hub:'Nationwide Xfinity outage',counties:['Santa Clara']}
 ];
 var radarOutages=[];
 function loadPublicOutages(){
   var cut=Date.now()-31*864e5;
   radarOutages=PUBLIC_OUTAGES.map(function(o){
     return {ts:new Date(o.d[0],o.d[1],o.d[2],12,0,0).getTime(),
-            provider:o.provider,mins:o.mins,where:o.where,ca:o.ca};
+            provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties};
   }).filter(function(o){return o.ts>=cut;});
   var fb=$('#outageFeed');
-  if(fb)fb.innerHTML='<span class="og-dot live"></span>Public outage data — '+radarOutages.length+
-    ' major U.S. internet outages logged in the last 30 days. '+
+  if(fb)fb.innerHTML='<span class="og-dot live"></span>California outage data — '+radarOutages.length+
+    ' verified internet outages affecting the territory counties in the last 30 days. '+
     'Source: Cisco ThousandEyes / Network World (snapshot, May 2026).';
-  renderOutageGraph();renderPublicOutages();
+  renderCountyStrip();renderOutageGraph();renderPublicOutages();
+}
+function countyCounts(){
+  var cut=Date.now()-31*864e5, c={};
+  COUNTIES.forEach(function(n){c[n]=0;});
+  radarOutages.forEach(function(o){(o.counties||[]).forEach(function(n){if(c[n]!=null)c[n]++;});});
+  state.outages.forEach(function(o){
+    if(o.ts>=cut&&o.county&&c[o.county]!=null)c[o.county]++;
+  });
+  return c;
+}
+function renderCountyStrip(){
+  var box=$('#countyStrip');if(!box)return;
+  var c=countyCounts();
+  box.innerHTML=COUNTIES.map(function(n){
+    return '<div class="cty-tile"><div class="cty-n">'+c[n]+'</div>'+
+      '<div class="cty-l">'+esc(n)+'<br>County</div></div>';
+  }).join('');
 }
 function renderPublicOutages(){
   var box=$('#ogEvents');if(!box)return;
   var list=radarOutages.slice().sort(function(a,b){return b.ts-a.ts;});
   if(!list.length){box.innerHTML='';return;}
-  box.innerHTML='<div class="og-evhead">⚡ Major outages — last 30 days</div>'+
+  box.innerHTML='<div class="og-evhead">⚡ California outages — last 30 days</div>'+
     list.map(function(o){
       var dt=new Date(o.ts);
+      var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
       return '<div class="og-ev"><span class="og-ev-d">'+(dt.getMonth()+1)+'/'+dt.getDate()+'</span>'+
-        '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+
-        (o.ca?' <span class="og-ev-ca">hit CA</span>':'')+'</div>'+
-        '<div class="og-ev-m">'+esc(o.where)+' · down ~'+o.mins+' min</div></div></div>';
+        '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+'</div>'+
+        '<div class="og-ev-m">'+esc(o.hub)+' · down ~'+o.mins+' min</div>'+
+        '<div class="og-ev-tags">'+tags+'</div></div></div>';
     }).join('');
 }
 function outageDayBuckets(days){
@@ -1513,6 +1545,7 @@ function renderOutageGraph(){
   var pub=days.reduce(function(s,b){return s+b.radar;},0);
   if($('#ogTotal'))$('#ogTotal').textContent=
     pub+' public · '+state.outages.length+' logged · '+auto+' auto';
+  renderCountyStrip();
 }
 
 
