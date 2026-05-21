@@ -363,6 +363,67 @@ input,select,textarea{outline:none}
   color:var(--faint);font-size:12px;text-align:center;padding:20px}
 .crime-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.45}
 a.btn-line{text-decoration:none}
+/* multi-user + leaderboard */
+.rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
+  background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:18px;padding:5px 10px;max-width:42vw}
+.rep-chip:active{background:rgba(0,174,239,.2)}
+.rep-chip-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.3px;
+  color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rep-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--sky)}
+.brand{flex-shrink:0}.ab-right{flex-shrink:0}
+.rep-pick{display:flex;align-items:center;gap:10px;width:100%;background:var(--card2);
+  border:1px solid var(--border2);border-radius:11px;padding:12px;margin-bottom:7px}
+.rep-pick.on{border-color:var(--sky);background:rgba(0,174,239,.1)}
+.rep-pick-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14.5px;color:var(--ink)}
+.rep-pick-chk{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--sky)}
+.color-row{display:flex;gap:8px;flex-wrap:wrap}
+.color-sw{width:34px;height:34px;border-radius:9px;border:2px solid transparent}
+.color-sw.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.team-row{display:flex;align-items:center;gap:9px;background:var(--card2);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 11px;margin-bottom:7px}
+.team-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--ink);flex:1}
+.team-active{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--green);background:rgba(0,200,83,.14);padding:1px 6px;border-radius:5px;margin-left:7px}
+.team-mini{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border2);font-size:13px;color:var(--muted);flex-shrink:0}
+.team-mini.del:active{background:rgba(255,68,68,.22);color:#fff}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card2);
+  border:1px solid var(--border2);border-radius:10px;padding:11px 13px;font-size:14px;color:var(--ink)}
+.toggle-row input{width:42px;height:24px;-webkit-appearance:none;appearance:none;background:var(--border2);
+  border-radius:13px;position:relative;transition:.2s;flex-shrink:0;cursor:pointer}
+.toggle-row input:checked{background:var(--green)}
+.toggle-row input::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;
+  border-radius:50%;background:#fff;transition:.2s}
+.toggle-row input:checked::after{left:20px}
+.help-step{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.help-step b{color:var(--sky)}
+.help-step code{background:var(--card2);border:1px solid var(--border2);border-radius:5px;padding:1px 5px;
+  font-size:11px;color:var(--ink);word-break:break-all}
+.help-note{font-size:11.5px;color:var(--faint);line-height:1.5;background:rgba(0,174,239,.06);
+  border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-top:6px}
+.help-sql{background:#06101c;border:1px solid var(--border2);border-radius:9px;padding:10px 11px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;line-height:1.55;color:#9fe8c4;
+  white-space:pre-wrap;word-break:break-word;margin-bottom:10px;overflow-x:auto}
+.lb-toggle{width:100%;margin-bottom:8px;margin-left:0}
+.lb-toggle button{flex:1;text-align:center}
+.lb-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border2);
+  border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.lb-row.mine{border-color:var(--sky);background:rgba(0,174,239,.08)}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--muted);width:32px;
+  text-align:center;flex-shrink:0}
+.lb-mid{flex:1;min-width:0}
+.lb-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14.5px;color:var(--white);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-you{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--sky);background:rgba(0,174,239,.16);padding:1px 5px;border-radius:4px}
+.lb-bar{height:8px;background:var(--card2);border-radius:5px;overflow:hidden;margin-top:5px}
+.lb-fill{height:100%;border-radius:5px;transition:width .45s ease}
+.lb-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);flex-shrink:0;
+  min-width:48px;text-align:right;letter-spacing:.5px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);
+  margin-right:5px;box-shadow:0 0 6px var(--green)}
+.wx-src{font-size:10px;color:var(--faint);margin-top:9px;text-align:right;letter-spacing:.2px}
 ::-webkit-scrollbar{width:0;height:0}
 @media(max-width:560px){.tab .tl{font-size:9px}}
 </style>
@@ -371,6 +432,7 @@ a.btn-line{text-decoration:none}
 
 <div class="appbar">
   <div class="brand">KNOCK<span>RADAR</span></div>
+  <button class="rep-chip" id="repChip"><span class="rep-dot"></span><span class="rep-chip-name">Rep</span></button>
   <div class="ab-right">
     <div class="conn-dot" id="connDot">··</div>
     <button class="ab-btn" id="settingsBtn">⚙</button>
@@ -507,6 +569,23 @@ a.btn-line{text-decoration:none}
     <div id="installs"></div>
   </section>
 
+  <section class="screen" id="screen-board">
+    <div class="scr-title">🏆 Team Leaderboard</div>
+    <div class="scr-sub">Live ranking across the team. <span id="lbSync"></span></div>
+    <div class="range-toggle lb-toggle" id="lbMetric">
+      <button data-m="doors" class="active">Doors</button>
+      <button data-m="contacts">Contacts</button>
+      <button data-m="sold">Sales</button>
+      <button data-m="commission">Comm.</button>
+    </div>
+    <div class="range-toggle lb-toggle" id="lbRange">
+      <button data-r="today" class="active">Today</button>
+      <button data-r="week">This Week</button>
+      <button data-r="all">All-Time</button>
+    </div>
+    <div id="lbList"></div>
+  </section>
+
 </main>
 
 <nav class="tabbar" id="tabbar">
@@ -516,6 +595,7 @@ a.btn-line{text-decoration:none}
   <button class="tab" data-tab="radar"><span class="ti">📡</span><span class="tl">Intel</span></button>
   <button class="tab" data-tab="pipeline"><span class="ti">📋</span><span class="tl">Pipeline</span></button>
   <button class="tab" data-tab="stats"><span class="ti">📊</span><span class="tl">Stats</span></button>
+  <button class="tab" data-tab="board"><span class="ti">🏆</span><span class="tl">Leaders</span></button>
 </nav>
 
 <div class="sheet-overlay" id="sheetOverlay"><div class="sheet" id="sheet"></div></div>
@@ -657,26 +737,50 @@ var ISPS=[
   pitch:'Mainly a rural / mountain play — a real competitor in Big Bear. Costs more than fiber, has higher latency and a big upfront hardware bill. Wherever fiber reaches, fiber wins on price and latency.'}
 ];
 
-/* ════════ STORAGE ════════ */
-var KEY='knockradar_v2';
+/* ════════ STORAGE — multi-user ════════ */
+var KEY='knockradar_v3';
 var memFallback=null, storageOK=true;
+var REP_COLORS=['#00AEEF','#00C853','#FFD700','#b46bff','#ff8a3c','#00d4c0','#ff5e8a','#5b9bff','#c0e84a','#ff7043'];
 function loadState(){
   try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}
   catch(e){storageOK=false;return memFallback;}
 }
-function persist(){
-  try{localStorage.setItem(KEY,JSON.stringify(state));}
-  catch(e){storageOK=false;memFallback=JSON.parse(JSON.stringify(state));}
-}
-/* migrate from v1 if present */
 function migrate(){
-  try{var old=localStorage.getItem('knockradar_v1');
-    if(old&&!localStorage.getItem(KEY)){var o=JSON.parse(old);if(o&&o.knocks)return o;}
+  try{
+    var prev=localStorage.getItem('knockradar_v2')||localStorage.getItem('knockradar_v1');
+    if(prev){var o=JSON.parse(prev);if(o&&o.knocks)return o;}
   }catch(e){}
   return null;
 }
-var state=loadState()||migrate()||{rep:'',knocks:[],outages:[],connDrops:[]};
+var state=loadState()||migrate()||{};
 state.knocks=state.knocks||[]; state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
+state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true};
+(function(){
+  if(!state.reps.length){
+    var nm=(state.rep&&String(state.rep).trim())||'Rep 1';
+    state.reps=[{id:uid(),name:nm,color:REP_COLORS[0],createdTs:Date.now()}];
+  }
+  if(!state.currentRepId||!state.reps.some(function(r){return r.id===state.currentRepId;}))
+    state.currentRepId=state.reps[0].id;
+  state.knocks.forEach(function(k){
+    if(!k.repId)k.repId=state.currentRepId;
+    if(!k.updatedTs)k.updatedTs=k.ts;
+  });
+  delete state.rep;
+})();
+function currentRep(){return state.reps.filter(function(r){return r.id===state.currentRepId;})[0]||state.reps[0];}
+function repById(id){return state.reps.filter(function(r){return r.id===id;})[0];}
+function myKnocks(){var id=state.currentRepId;return state.knocks.filter(function(k){return k.repId===id;});}
+var bc=null;
+try{bc=new BroadcastChannel('knockradar_sync');}catch(e){}
+function persist(opts){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}
+  catch(e){storageOK=false;memFallback=JSON.parse(JSON.stringify(state));}
+  if(!(opts&&opts.fromSync)){
+    if(bc){try{bc.postMessage({t:'state'});}catch(e){}}
+    cloudPushSoon();
+  }
+}
 
 /* ════════ DATE HELPERS ════════ */
 function dayKey(ts){var d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
@@ -806,7 +910,7 @@ function refreshMarkers(){
   knockMarkers.forEach(function(m){m.setMap(null);});
   outageMarkers.forEach(function(m){m.setMap(null);});
   knockMarkers=[];outageMarkers=[];
-  state.knocks.forEach(function(k){
+  myKnocks().forEach(function(k){
     if(k.lat==null)return;
     var d=DMAP[k.disp]||DISPOS[0];
     var m=new google.maps.Marker({position:{lat:k.lat,lng:k.lng},map:map,
@@ -840,7 +944,7 @@ function reverseGeocode(lat,lng,cb){
 
 /* ════════ KNOCK ACTIONS ════════ */
 function addKnock(obj){
-  var k={id:uid(),ts:Date.now(),disp:obj.disp,
+  var k={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:obj.disp,
     firstName:obj.firstName||'',address:obj.address||'',phone:obj.phone||'',
     notes:obj.notes||'',schedule:obj.schedule||null,
     products:obj.products||[],vas:obj.vas||[],commission:obj.commission||0,
@@ -854,6 +958,7 @@ function updateKnock(id,patch){
   var k=state.knocks.filter(function(x){return x.id===id;})[0];
   if(!k)return;
   Object.keys(patch).forEach(function(p){k[p]=patch[p];});
+  k.updatedTs=Date.now();
   persist();renderAll();refreshMarkers();
 }
 function deleteKnock(id){
@@ -1114,13 +1219,14 @@ function openKnockSheet(id){
 /* ════════ TALLY ════════ */
 var tallyRange='today';
 function knocksInRange(r){
-  if(r==='all')return state.knocks.slice();
-  if(r==='week'){var s=startOfWeek();return state.knocks.filter(function(k){return k.ts>=s;});}
-  var t=todayKey();return state.knocks.filter(function(k){return dayKey(k.ts)===t;});
+  var base=myKnocks();
+  if(r==='all')return base;
+  if(r==='week'){var s=startOfWeek();return base.filter(function(k){return k.ts>=s;});}
+  var t=todayKey();return base.filter(function(k){return dayKey(k.ts)===t;});
 }
 function renderTally(){
   $('#thDate').textContent=fmtDateLong(Date.now());
-  $('#thRep').textContent=state.rep?('Rep: '+state.rep):'Tap ⚙ to set your name';
+  $('#thRep').textContent='Logging as '+currentRep().name;
   var list=knocksInRange(tallyRange);
   var counts={};DISPOS.forEach(function(d){counts[d.k]=0;});
   list.forEach(function(k){if(counts[k.disp]!=null)counts[k.disp]++;});
@@ -1284,7 +1390,7 @@ function loadWeather(city){
         '<div class="wd-lo">'+Math.round(d.temperature_2m_min[i])+'°</div>'+
         '<div class="wd-pop">💧'+(d.precipitation_probability_max[i]||0)+'%</div></div>';
     }
-    wb.innerHTML=h+'</div>';
+    wb.innerHTML=h+'</div><div class="wx-src">● Live data · Open-Meteo — NOAA / ECMWF / national weather models</div>';
   }).catch(function(){weatherFallback(wb,city);});
 }
 function weatherFallback(wb,city){
@@ -1447,9 +1553,10 @@ function plItem(k){
     '<div class="pl-time">'+fmtDate(k.ts)+'<br>'+fmtTime(k.ts)+'</div></div>';
 }
 function renderPipeline(){
-  var chips='<button class="chip '+(plFilter==='all'?'active':'')+'" data-f="all">All ('+state.knocks.length+')</button>';
+  var ks=myKnocks();
+  var chips='<button class="chip '+(plFilter==='all'?'active':'')+'" data-f="all">All ('+ks.length+')</button>';
   DISPOS.forEach(function(d){
-    var n=state.knocks.filter(function(k){return k.disp===d.k;}).length;
+    var n=ks.filter(function(k){return k.disp===d.k;}).length;
     chips+='<button class="chip '+(plFilter===d.k?'active':'')+'" data-f="'+d.k+'">'+esc(d.label)+' ('+n+')</button>';
   });
   $('#plChips').innerHTML=chips;
@@ -1457,12 +1564,12 @@ function renderPipeline(){
 
   var schedHtml='';
   if(plFilter==='all'){
-    var sched=state.knocks.filter(function(k){return k.schedule;}).sort(function(a,b){return a.schedule-b.schedule;});
+    var sched=ks.filter(function(k){return k.schedule;}).sort(function(a,b){return a.schedule-b.schedule;});
     if(sched.length)schedHtml='<div class="section-lbl">⏰ Scheduled</div>'+sched.map(plItem).join('');
   }
   $('#plScheduled').innerHTML=schedHtml;
 
-  var list=state.knocks.slice().sort(function(a,b){return b.ts-a.ts;});
+  var list=ks.slice().sort(function(a,b){return b.ts-a.ts;});
   if(plFilter!=='all')list=list.filter(function(k){return k.disp===plFilter;});
   if(!list.length){
     $('#plList').innerHTML='<div class="empty"><span class="e-ic">📋</span>No knocks logged yet.<br>Start tallying or tap the map to drop your first door.</div>';
@@ -1476,7 +1583,7 @@ function renderPipeline(){
 
 /* ════════ STATS ════════ */
 function renderStats(){
-  var ks=state.knocks;
+  var ks=myKnocks();
   var doors=ks.length;
   var contacts=ks.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   var appts=ks.filter(function(k){return k.disp==='appt';}).length;
@@ -1551,30 +1658,266 @@ function renderStats(){
   }
 }
 
-/* ════════ SETTINGS / DATA ════════ */
+/* ════════ MULTI-USER ════════ */
+function updateRepChip(){
+  var r=currentRep(),chip=$('#repChip');
+  if(chip)chip.innerHTML='<span class="rep-dot" style="background:'+r.color+'"></span>'+
+    '<span class="rep-chip-name">'+esc(r.name)+'</span>';
+}
+function repSwitcherSheet(){
+  var rows=state.reps.map(function(r){
+    return '<button class="rep-pick'+(r.id===state.currentRepId?' on':'')+'" data-r="'+r.id+'">'+
+      '<span class="rep-dot" style="background:'+r.color+'"></span>'+
+      '<span class="rep-pick-name">'+esc(r.name)+'</span>'+
+      (r.id===state.currentRepId?'<span class="rep-pick-chk">✓ active</span>':'')+'</button>';
+  }).join('');
+  openSheet(
+    '<div class="sheet-title">👥 Switch Rep</div>'+
+    '<div class="sheet-desc">Every knock you log is credited to the active rep on the leaderboard.</div>'+
+    rows+
+    '<button class="btn-line" id="repAdd" style="margin-top:10px">＋ Add a Rep</button>'+
+    '<button class="btn-line" id="repManage" style="margin-top:8px">⚙ Manage Team &amp; Sync</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Close</button>'
+  );
+  $$('.rep-pick',sheetEl).forEach(function(b){
+    b.onclick=function(){
+      state.currentRepId=b.dataset.r;persist();renderAll();refreshMarkers();
+      closeSheet();toast('Now logging as <b>'+esc(currentRep().name)+'</b>');
+    };
+  });
+  $('#repAdd').onclick=function(){addRepSheet(null);};
+  $('#repManage').onclick=function(){settingsSheet();};
+}
+function addRepSheet(editId){
+  var ed=editId?repById(editId):null;
+  var chosen=ed?ed.color:REP_COLORS[state.reps.length%REP_COLORS.length];
+  openSheet(
+    '<div class="sheet-title">'+(ed?'✎ Edit Rep':'＋ Add Rep')+'</div>'+
+    '<div class="field"><label>Rep name</label>'+
+      '<input id="repName" placeholder="e.g. Sam T." value="'+esc(ed?ed.name:'')+'"></div>'+
+    '<div class="field"><label>Marker color</label><div class="color-row" id="repColors"></div></div>'+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button>'+
+    '<button class="btn" id="repSave">'+(ed?'Save Changes':'Add Rep')+'</button></div>'
+  );
+  function paint(){
+    $('#repColors').innerHTML=REP_COLORS.map(function(c){
+      return '<button class="color-sw'+(c===chosen?' on':'')+'" data-c="'+c+'" style="background:'+c+'"></button>';
+    }).join('');
+    $$('#repColors .color-sw').forEach(function(s){s.onclick=function(){chosen=s.dataset.c;paint();};});
+  }
+  paint();
+  $('#repSave').onclick=function(){
+    var nm=$('#repName').value.trim();
+    if(!nm){toast('Enter a rep name');return;}
+    if(ed){ed.name=nm;ed.color=chosen;}
+    else{
+      var r={id:uid(),name:nm,color:chosen,createdTs:Date.now()};
+      state.reps.push(r);state.currentRepId=r.id;
+    }
+    persist();renderAll();refreshMarkers();closeSheet();
+    toast(ed?'Rep updated':'Added <b>'+esc(nm)+'</b> — now logging as them');
+  };
+}
+function deleteRep(id){
+  if(state.reps.length<=1)return;
+  var others=state.reps.filter(function(r){return r.id!==id;});
+  var target=others[0].id;
+  state.knocks.forEach(function(k){if(k.repId===id)k.repId=target;});
+  state.reps=others;
+  if(state.currentRepId===id)state.currentRepId=target;
+  persist();renderAll();refreshMarkers();
+}
+
+/* ════════ LEADERBOARD ════════ */
+var lbMetric='doors', lbRange='today';
+var METRICS={doors:'Doors',contacts:'Contacts',sold:'Sales',commission:'Commission'};
+function statsFor(repId,range){
+  var o={doors:0,contacts:0,appts:0,sold:0,commission:0},sw=startOfWeek(),tk=todayKey();
+  state.knocks.forEach(function(k){
+    if(k.repId!==repId)return;
+    if(range==='today'&&dayKey(k.ts)!==tk)return;
+    if(range==='week'&&k.ts<sw)return;
+    o.doors++;
+    if(CONTACT.indexOf(k.disp)>-1)o.contacts++;
+    if(k.disp==='appt')o.appts++;
+    if(k.disp==='sold'){o.sold++;o.commission+=k.commission||0;}
+  });
+  return o;
+}
+function leaderboardData(range){
+  var map={};
+  state.reps.forEach(function(r){
+    var s=statsFor(r.id,range);
+    s.id=r.id;s.name=r.name;s.color=r.color;s.mine=(r.id===state.currentRepId);
+    map[r.id]=s;
+  });
+  state.knocks.forEach(function(k){
+    if(!map[k.repId]){var s=statsFor(k.repId,range);s.id=k.repId;s.name='Rep';s.color='#8b97a8';map[k.repId]=s;}
+  });
+  Object.keys(cloudReps).forEach(function(id){
+    var c=cloudReps[id];
+    if(!c||!c.stats||!c.stats[range])return;
+    if(map[id]&&state.knocks.some(function(k){return k.repId===id;}))return;
+    var s=c.stats[range];
+    map[id]={id:id,name:c.name||'Rep',color:c.color||'#8b97a8',mine:false,
+      doors:s.doors||0,contacts:s.contacts||0,appts:s.appts||0,sold:s.sold||0,commission:s.commission||0};
+  });
+  return Object.keys(map).map(function(k){return map[k];});
+}
+function renderLeaderboard(){
+  var ld=$('#lbList'); if(!ld)return;
+  var data=leaderboardData(lbRange);
+  data.sort(function(a,b){return (b[lbMetric]||0)-(a[lbMetric]||0)||(b.doors-a.doors);});
+  var top=Math.max(1,data.length?data[0][lbMetric]:1);
+  var fmt=function(v){return lbMetric==='commission'?money(v):v;};
+  var medal=['🥇','🥈','🥉'];
+  if(!data.length){
+    ld.innerHTML='<div class="empty"><span class="e-ic">🏆</span>No knocks logged yet.</div>';
+  }else{
+    ld.innerHTML=data.map(function(r,i){
+      var v=r[lbMetric]||0;
+      return '<div class="lb-row'+(r.mine?' mine':'')+'">'+
+        '<span class="lb-rank">'+(i<3?medal[i]:'#'+(i+1))+'</span>'+
+        '<span class="rep-dot" style="background:'+r.color+'"></span>'+
+        '<div class="lb-mid"><div class="lb-name">'+esc(r.name)+(r.mine?' <span class="lb-you">you</span>':'')+'</div>'+
+          '<div class="lb-bar"><div class="lb-fill" style="width:'+Math.round(v/top*100)+'%;background:'+r.color+'"></div></div></div>'+
+        '<span class="lb-val">'+fmt(v)+'</span></div>';
+    }).join('');
+  }
+  var sy=$('#lbSync');
+  if(sy){
+    if(state.cloud&&state.cloud.on)sy.innerHTML='<span class="live-dot"></span>live team sync · '+cloudState;
+    else sy.textContent='this device — enable Team Sync in ⚙ to go live across phones';
+  }
+}
+
+/* ════════ CLOUD SYNC (Supabase REST — live leaderboard) ════════ */
+var SUPA_KEY='sb_publishable_Q43w4Dz7UNbFNCcwO11AXw_NSBUrsgx';
+var SUPA_URL='https://ddlqenoqhsuygwuajeja.supabase.co';
+var SUPA_TABLE='kr_leaderboard';
+var cloudReps={}, cloudState='…', cloudTimer=null, cloudPollTimer=null;
+function cloudBase(){return ((((state.cloud&&state.cloud.url)||SUPA_URL))||'').trim().replace(/\/+$/,'');}
+function cloudKey(){return (((state.cloud&&state.cloud.key)||'').trim())||SUPA_KEY;}
+function cloudHeaders(extra){
+  var h={'apikey':cloudKey(),'Authorization':'Bearer '+cloudKey(),'Content-Type':'application/json'};
+  if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});
+  return h;
+}
+function cloudReady(){return !!(state.cloud&&state.cloud.on&&cloudBase()&&cloudKey());}
+function cloudStatus(s){
+  cloudState=s;
+  if(state.cloud&&state.cloud.on){var sy=$('#lbSync');if(sy)renderLeaderboard();}
+  var cs=$('#cloudStat');if(cs)cs.textContent='Sync '+(state.cloud&&state.cloud.on?'on — '+s:'off');
+}
+function cloudPush(){
+  if(!cloudReady())return;
+  var rows=state.reps.map(function(r){
+    return {rep_id:r.id,name:r.name,color:r.color,
+      stats:{today:statsFor(r.id,'today'),week:statsFor(r.id,'week'),all:statsFor(r.id,'all')}};
+  });
+  fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE,{
+    method:'POST',
+    headers:cloudHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify(rows)
+  }).then(function(r){if(!r.ok)throw 0;cloudStatus('live');})
+    .catch(function(){cloudStatus('offline');});
+}
+function cloudPushSoon(){
+  if(!cloudReady())return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(cloudPush,1400);
+}
+function cloudPull(){
+  if(!cloudReady())return;
+  fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE+'?select=rep_id,name,color,stats',{headers:cloudHeaders()})
+    .then(function(r){if(!r.ok)throw 0;return r.json();})
+    .then(function(arr){
+      var m={};(arr||[]).forEach(function(row){m[row.rep_id]={name:row.name,color:row.color,stats:row.stats};});
+      cloudReps=m;cloudStatus('live');renderLeaderboard();
+    }).catch(function(){cloudStatus('offline');});
+}
+function cloudStart(){
+  if(cloudPollTimer){clearInterval(cloudPollTimer);cloudPollTimer=null;}
+  if(cloudReady()){
+    cloudStatus('connecting');
+    cloudPull();cloudPush();
+    cloudPollTimer=setInterval(cloudPull,6000);
+  }else{cloudReps={};}
+}
+function cloudHelpSheet(){
+  var sql='create table kr_leaderboard (\n  rep_id text primary key,\n  name text, color text,\n  stats jsonb,\n  updated_at timestamptz default now()\n);\nalter table kr_leaderboard enable row level security;\ncreate policy "team access" on kr_leaderboard\n  for all using (true) with check (true);';
+  openSheet(
+    '<div class="sheet-title">📡 Live Team Sync</div>'+
+    '<div class="sheet-desc">Your team Supabase project is already built into this app. It just needs its leaderboard table created once:</div>'+
+    '<div class="help-step"><b>1.</b> Open your Supabase project → <b>SQL Editor</b>, paste the snippet below, and click <b>Run</b>.</div>'+
+    '<pre class="help-sql">'+esc(sql)+'</pre>'+
+    '<div class="help-step"><b>2.</b> That\u2019s it — every rep just keeps <b>Enable live sync</b> switched on. The leaderboard refreshes across all phones every few seconds.</div>'+
+    '<div class="help-note">Only leaderboard stats (door counts &amp; commission) sync to the cloud — customer names, addresses and phone numbers never leave the device. The publishable key is safe to embed; row-level security limits it to this one table.</div>'+
+    '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Got it</button>'
+  );
+}
+
+
+
 function settingsSheet(){
+  var repRows=state.reps.map(function(r){
+    return '<div class="team-row">'+
+      '<span class="rep-dot" style="background:'+r.color+'"></span>'+
+      '<span class="team-name">'+esc(r.name)+(r.id===state.currentRepId?'<span class="team-active">active</span>':'')+'</span>'+
+      '<button class="team-mini" data-edit="'+r.id+'">✎</button>'+
+      (state.reps.length>1?'<button class="team-mini del" data-del="'+r.id+'">✕</button>':'')+'</div>';
+  }).join('');
+  var c=state.cloud||{url:'',on:false};
   openSheet(
     '<div class="sheet-title">⚙ Settings</div>'+
-    '<div class="field"><label>Your name</label>'+
-      '<input id="setRep" placeholder="e.g. Sam T." value="'+esc(state.rep)+'"></div>'+
-    '<button class="btn" id="setSave" style="margin-bottom:16px">Save Name</button>'+
-    '<div class="section-lbl" style="margin-top:4px">Data</div>'+
+    '<div class="section-lbl" style="margin-top:2px">👥 Team</div>'+
+    repRows+
+    '<button class="btn-line" id="addRepBtn" style="margin-top:8px">＋ Add Rep</button>'+
+    '<div class="section-lbl" style="margin-top:18px">📡 Team Sync — Live Leaderboard</div>'+
+    '<div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.5">'+
+      'Your team Supabase project is already wired in — keep sync on and the leaderboard updates live across every rep\u2019s phone. '+
+      '<a href="#" id="syncHelp" style="color:var(--sky)">Setup &amp; details ›</a></div>'+
+    '<div class="field"><label>Supabase Project URL</label>'+
+      '<input id="cloudUrl" placeholder="https://your-project.supabase.co" value="'+esc(c.url||SUPA_URL)+'"></div>'+
+    '<div class="field"><label>Publishable key</label>'+
+      '<input id="cloudKey" placeholder="built-in publishable key — leave blank" value="'+esc(c.key||'')+'"></div>'+
+    '<label class="toggle-row"><span>Enable live sync</span>'+
+      '<input type="checkbox" id="cloudOn"'+(c.on?' checked':'')+'></label>'+
+    '<div id="cloudStat" style="font-size:11.5px;color:var(--faint);margin:7px 2px 16px">'+
+      (c.on?'Sync on — '+cloudState:'Sync off — leaderboard is local to this device')+'</div>'+
+    '<div class="section-lbl">💾 Data</div>'+
     '<button class="btn-line" id="expJson" style="margin-bottom:8px">⬇ Export Backup (JSON)</button>'+
     '<button class="btn-line" id="expCsv" style="margin-bottom:8px">⬇ Export Knocks (CSV)</button>'+
-    '<button class="btn-line" id="impBtn" style="margin-bottom:8px">⬆ Import Backup</button>'+
+    '<button class="btn-line" id="impBtn" style="margin-bottom:8px">⬆ Import / Merge Backup</button>'+
     '<input type="file" id="impFile" accept="application/json" style="display:none">'+
     '<button class="btn-line btn-danger" id="clrBtn">⌫ Clear All Data</button>'+
     '<div style="font-size:11.5px;color:var(--faint);margin-top:14px;text-align:center">'+
-      'Complete Home Field System · data saved on this device'+(storageOK?'':' · ⚠ storage unavailable, export to keep your data')+'</div>'+
+      'Complete Home Field System · saved on this device'+(storageOK?'':' · ⚠ storage unavailable')+'</div>'+
     '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Close</button>'
   );
-  $('#setSave').onclick=function(){state.rep=$('#setRep').value.trim();persist();renderTally();toast('Name saved');};
+  $$('[data-edit]',sheetEl).forEach(function(b){b.onclick=function(){addRepSheet(b.dataset.edit);};});
+  $$('[data-del]',sheetEl).forEach(function(b){b.onclick=function(){
+    var r=repById(b.dataset.del),other=state.reps.filter(function(x){return x.id!==r.id;})[0];
+    if(confirm('Remove '+r.name+'? Their knocks move to '+other.name+'.')){deleteRep(r.id);settingsSheet();}
+  };});
+  $('#addRepBtn').onclick=function(){addRepSheet(null);};
+  $('#syncHelp').onclick=function(e){e.preventDefault();cloudHelpSheet();};
+  $('#cloudUrl').onchange=function(){state.cloud.url=$('#cloudUrl').value.trim();persist();};
+  $('#cloudKey').onchange=function(){state.cloud.key=$('#cloudKey').value.trim();persist();};
+  $('#cloudOn').onchange=function(){
+    state.cloud.url=$('#cloudUrl').value.trim();
+    state.cloud.key=$('#cloudKey').value.trim();
+    state.cloud.on=$('#cloudOn').checked;
+    persist();cloudStart();renderLeaderboard();
+    $('#cloudStat').textContent=state.cloud.on?'Sync on — connecting…':'Sync off — leaderboard is local to this device';
+    if(state.cloud.on&&!cloudBase())toast('Enter your Supabase project URL to sync');
+  };
   $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');};
   $('#expCsv').onclick=function(){
-    var rows=[['Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Latitude','Longitude','Notes']];
+    var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Latitude','Longitude','Notes']];
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
-      var d=DMAP[k.disp];
-      rows.push([d?d.label:k.disp,fmtDate(k.ts),fmtTime(k.ts),k.firstName||'',k.address||'',k.phone||'',
+      var d=DMAP[k.disp],rp=repById(k.repId);
+      rows.push([rp?rp.name:'',d?d.label:k.disp,fmtDate(k.ts),fmtTime(k.ts),k.firstName||'',k.address||'',k.phone||'',
         k.schedule?new Date(k.schedule).toLocaleString():'',(k.products||[]).join('; '),(k.vas||[]).join('; '),
         k.commission||'',k.lat!=null?k.lat:'',k.lng!=null?k.lng:'',k.notes||'']);
     });
@@ -1590,17 +1933,25 @@ function settingsSheet(){
       try{
         var data=JSON.parse(rd.result);
         if(!data.knocks)throw 0;
-        if(confirm('Import backup? This replaces your current data ('+state.knocks.length+' knocks).')){
-          state=data;state.knocks=state.knocks||[];state.outages=state.outages||[];state.connDrops=state.connDrops||[];
-          persist();renderAll();refreshMarkers();closeSheet();toast('Backup imported');
+        if(confirm('Merge '+data.knocks.length+' knocks from this backup into your data?')){
+          var seen={};state.knocks.forEach(function(k){seen[k.id]=k;});
+          data.knocks.forEach(function(k){
+            if(!seen[k.id]){state.knocks.push(k);seen[k.id]=k;}
+            else if((k.updatedTs||0)>(seen[k.id].updatedTs||0))state.knocks[state.knocks.indexOf(seen[k.id])]=k;
+          });
+          var rs={};state.reps.forEach(function(r){rs[r.id]=1;});
+          (data.reps||[]).forEach(function(r){if(!rs[r.id]){state.reps.push(r);rs[r.id]=1;}});
+          (data.outages||[]).forEach(function(o){
+            if(!state.outages.some(function(x){return x.id===o.id;}))state.outages.push(o);});
+          persist();renderAll();refreshMarkers();closeSheet();toast('Merged — '+state.knocks.length+' knocks total');
         }
       }catch(err){toast('⚠ Invalid backup file');}
     };
     rd.readAsText(f);
   };
   $('#clrBtn').onclick=function(){
-    if(confirm('Delete ALL knocks, outages and history? This cannot be undone.')){
-      state={rep:state.rep,knocks:[],outages:[],connDrops:[]};
+    if(confirm('Delete ALL knocks, outages and history on this device? This cannot be undone.')){
+      state.knocks=[];state.outages=[];state.connDrops=[];
       persist();renderAll();refreshMarkers();closeSheet();toast('All data cleared');
     }
   };
@@ -1648,6 +1999,7 @@ function switchTab(name){
   $$('.screen').forEach(function(s){s.classList.toggle('active',s.id==='screen-'+name);});
   if(name==='playbook')loadPlaybook();
   if(name==='radar')openIntel();
+  if(name==='board'){renderLeaderboard();if(state.cloud&&state.cloud.on)cloudPull();}
   if(name==='map'){
     mapWanted=true;
     if(gmapsLoaded)buildMap();
@@ -1656,7 +2008,7 @@ function switchTab(name){
 }
 
 /* ════════ RENDER-ALL ════════ */
-function renderAll(){renderTally();renderRadar();renderRadarConn();renderPipeline();renderStats();}
+function renderAll(){renderTally();renderRadar();renderRadarConn();renderPipeline();renderStats();renderLeaderboard();updateRepChip();}
 
 /* ════════ INIT ════════ */
 function init(){
@@ -1691,6 +2043,30 @@ function init(){
   $('#mapSearchBtn').onclick=mapSearch;
   $('#mapSearch').addEventListener('keydown',function(e){if(e.key==='Enter')mapSearch();});
   $('#wxRefresh').onclick=function(){loadWeather(CITIES[cityIdx]);};
+  $('#repChip').onclick=repSwitcherSheet;
+  $$('#lbMetric button').forEach(function(b){
+    b.onclick=function(){lbMetric=b.dataset.m;
+      $$('#lbMetric button').forEach(function(x){x.classList.toggle('active',x===b);});
+      renderLeaderboard();};
+  });
+  $$('#lbRange button').forEach(function(b){
+    b.onclick=function(){lbRange=b.dataset.r;
+      $$('#lbRange button').forEach(function(x){x.classList.toggle('active',x===b);});
+      renderLeaderboard();};
+  });
+  if(bc)bc.onmessage=function(ev){
+    if(ev.data&&ev.data.t==='state'){
+      var fresh=loadState();
+      if(fresh){
+        state=fresh;
+        state.reps=state.reps||[]; state.knocks=state.knocks||[];
+        state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
+        state.cloud=state.cloud||{url:'',on:false};
+        renderAll();refreshMarkers();
+      }
+    }
+  };
+  cloudStart();
 
   renderLegend();
   renderAll();
