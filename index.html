@@ -823,7 +823,7 @@ function migrate(){
 var state=loadState()||migrate()||{};
 state.knocks=state.knocks||[]; state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
 state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true};
-state.radar=state.radar||{token:'',on:true};
+state.radar=state.radar||{token:'',on:true,proxy:''};
 (function(){
   if(!state.reps.length){
     var nm=(state.rep&&String(state.rep).trim())||'Rep 1';
@@ -1432,7 +1432,9 @@ function renderRadar(){
 /* ════════ OUTAGE TREND GRAPH + LIVE FEED ════════ */
 var radarOutages=[];
 var RADAR_TOKEN='cfat_RfQZUCvyOCxILEawyu9Lsk8YyQAUFhqvTKMnGU3jf97dfb1a';
+var RADAR_PROXY='https://knockradar-outages.8vrjk6zt5z.workers.dev/';
 function radarToken(){return (((state.radar&&state.radar.token)||'').trim())||RADAR_TOKEN;}
+function radarProxy(){return (((state.radar&&state.radar.proxy)||'').trim())||RADAR_PROXY;}
 function outageDayBuckets(days){
   var today=new Date();today.setHours(0,0,0,0);
   var arr=[],byKey={};
@@ -1467,16 +1469,21 @@ function renderOutageGraph(){
   if($('#ogTotal'))$('#ogTotal').textContent=
     state.outages.length+' logged · '+auto+' auto'+(rad?' · '+rad+' live':'');
 }
-function radarReady(){return !!(state.radar&&state.radar.on&&radarToken());}
+function radarReady(){return !!(state.radar&&state.radar.on&&(radarProxy()||radarToken()));}
 function radarFetch(){
   var fb=$('#outageFeed');
   if(!radarReady()){
-    if(fb)fb.innerHTML='<span class="og-dot off"></span>Live feed off — outages below come from your team\u2019s logs and the app\u2019s own connection detector. Add a Cloudflare Radar token in ⚙ Settings to pull live data.';
+    if(fb)fb.innerHTML='<span class="og-dot off"></span>Live feed off — outages below come from your team\u2019s logs and the app\u2019s own connection detector. Turn it on in ⚙ Settings.';
     return;
   }
   if(fb)fb.innerHTML='<span class="og-dot wait"></span>Checking the live outage feed…';
-  fetch('https://api.cloudflare.com/client/v4/radar/annotations/outages?format=json&limit=50&dateRange=28d&location=US',
-    {headers:{'Authorization':'Bearer '+radarToken()}})
+  var prox=radarProxy(), opts={}, url;
+  if(prox){ url=prox; }
+  else{
+    url='https://api.cloudflare.com/client/v4/radar/annotations/outages?format=json&limit=50&dateRange=28d&location=US';
+    opts={headers:{'Authorization':'Bearer '+radarToken()}};
+  }
+  fetch(url,opts)
     .then(function(r){if(!r.ok)throw 0;return r.json();})
     .then(function(j){
       if(!j||!j.success)throw 0;
@@ -1487,25 +1494,27 @@ function radarFetch(){
         return {ts:Date.parse(a.startDate||a.endDate),where:loc,
           cause:(a.outage&&a.outage.outageCause)||'anomaly'};
       }).filter(function(o){return !isNaN(o.ts);});
-      if(fb)fb.innerHTML='<span class="og-dot live"></span>Live feed connected — Cloudflare Radar · '+
-        radarOutages.length+' verified US internet events in the last 28 days (purple bars).';
+      if(fb)fb.innerHTML='<span class="og-dot live"></span>Live feed connected'+(prox?' via proxy':'')+
+        ' — Cloudflare Radar · '+radarOutages.length+' verified US internet events in the last 28 days (purple bars).';
       renderOutageGraph();
     })
     .catch(function(){
       radarOutages=[];
-      if(fb)fb.innerHTML='<span class="og-dot off"></span>Live feed couldn\u2019t connect — Cloudflare\u2019s API may block in-browser access. The graph still works from your logged outages and auto-detected connection drops.';
+      if(fb)fb.innerHTML='<span class="og-dot off"></span>Live feed couldn\u2019t connect'+
+        (prox?' — check the Worker proxy URL in ⚙ Settings.':' — Cloudflare\u2019s API blocks in-browser access. Add a Worker proxy URL in ⚙ Settings to fix it.')+
+        ' The graph still works from your logged outages and auto-detected connection drops.';
       renderOutageGraph();
     });
 }
 function radarHelpSheet(){
   openSheet(
-    '<div class="sheet-title">📉 Live Outage Feed</div>'+
-    '<div class="sheet-desc">The Outage Trend graph always works from outages your team logs and connection drops the app detects automatically. A free Cloudflare Radar token adds verified live US internet-outage data on top:</div>'+
-    '<div class="help-step"><b>1.</b> Sign in at dash.cloudflare.com (a free account is fine).</div>'+
-    '<div class="help-step"><b>2.</b> Open <b>My Profile → API Tokens → Create Token</b>.</div>'+
-    '<div class="help-step"><b>3.</b> Use the <b>Read all Radar data</b> template (or any token with Radar read access) and create it.</div>'+
-    '<div class="help-step"><b>4.</b> Copy the token, paste it into the box in Settings, and switch the feed on.</div>'+
-    '<div class="help-note">Cloudflare Radar reports country- and network-level outages — major regional disruptions, not single-street issues. Browsers may block the request entirely; if so the app quietly falls back to your manual logs, which is the dependable source for neighborhood-level outages anyway.</div>'+
+    '<div class="sheet-title">📉 Live Outage Feed — Worker Setup</div>'+
+    '<div class="sheet-desc">Cloudflare\u2019s API blocks direct browser requests. A free Cloudflare Worker fixes this — it sits between the app and Cloudflare and adds the missing permissions. One-time, about 3 minutes:</div>'+
+    '<div class="help-step"><b>1.</b> At dash.cloudflare.com open <b>Workers &amp; Pages → Create → Create Worker</b>. Name it (e.g. <code>knockradar-outages</code>) and click <b>Deploy</b>.</div>'+
+    '<div class="help-step"><b>2.</b> Click <b>Edit code</b>, delete what\u2019s there, and paste in the <b>knockradar-radar-worker.js</b> file provided with this build. Click <b>Deploy</b>.</div>'+
+    '<div class="help-step"><b>3.</b> Copy the Worker URL shown at the top — it looks like <code>https://knockradar-outages.yourname.workers.dev</code></div>'+
+    '<div class="help-step"><b>4.</b> Paste it into the <b>Worker proxy URL</b> box here. The live feed connects instantly — and the same URL can be built into the app for every rep.</div>'+
+    '<div class="help-note">The Worker holds the Radar token server-side, so it never ships in the app. The Outage Trend graph always works from logged outages and auto-detected connection drops even without the Worker.</div>'+
     '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Got it</button>'
   );
 }
@@ -2048,11 +2057,13 @@ function settingsSheet(){
       (c.on?'Sync on — '+cloudState:'Sync off — leaderboard is local to this device')+'</div>'+
     '<div class="section-lbl" style="margin-top:4px">📉 Live Outage Feed</div>'+
     '<div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.5">'+
-      'A Cloudflare Radar token is already built in — the Intel graph plots verified live US internet outages automatically. '+
-      'Replace it below to use your own. '+
-      '<a href="#" id="radarHelp" style="color:var(--sky)">About the live feed ›</a></div>'+
+      'A Cloudflare Radar token and Worker proxy are built in — the Intel graph plots verified live US internet outages automatically. '+
+      'Replace the proxy URL below to use your own Worker. '+
+      '<a href="#" id="radarHelp" style="color:var(--sky)">Worker setup ›</a></div>'+
+    '<div class="field"><label>Worker proxy URL</label>'+
+      '<input id="radarProxy" placeholder="https://your-worker.workers.dev" value="'+esc(r.proxy||RADAR_PROXY)+'"></div>'+
     '<div class="field"><label>Cloudflare Radar API token</label>'+
-      '<input id="radarToken" placeholder="built-in token active" value="'+esc(r.token||RADAR_TOKEN)+'"></div>'+
+      '<input id="radarToken" placeholder="built-in token active" value="'+esc(r.token||'')+'"></div>'+
     '<label class="toggle-row"><span>Use live outage feed</span>'+
       '<input type="checkbox" id="radarOn"'+(r.on?' checked':'')+'></label>'+
     '<div style="font-size:11.5px;color:var(--faint);margin:7px 2px 16px">'+
@@ -2075,8 +2086,10 @@ function settingsSheet(){
   $('#addRepBtn').onclick=function(){addRepSheet(null);};
   $('#syncHelp').onclick=function(e){e.preventDefault();cloudHelpSheet();};
   $('#radarHelp').onclick=function(e){e.preventDefault();radarHelpSheet();};
+  $('#radarProxy').onchange=function(){state.radar.proxy=$('#radarProxy').value.trim();persist();};
   $('#radarToken').onchange=function(){state.radar.token=$('#radarToken').value.trim();persist();};
   $('#radarOn').onchange=function(){
+    state.radar.proxy=$('#radarProxy').value.trim();
     state.radar.token=$('#radarToken').value.trim();
     state.radar.on=$('#radarOn').checked;
     persist();radarFetch();
