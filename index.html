@@ -355,6 +355,14 @@ input,select,textarea{outline:none}
 .isp-cancel{font-size:12.5px;color:var(--muted);line-height:1.55}
 .isp-pitch{font-size:12.5px;color:var(--gold);background:rgba(255,215,0,.07);border-left:3px solid var(--gold);
   border-radius:0 8px 8px 0;padding:9px 11px;line-height:1.5}
+.wx-embed-img{width:100%;border-radius:9px;display:block;background:#1a1a1a}
+.crime-wrap{position:relative;height:300px;border-radius:10px;overflow:hidden;background:var(--card2);
+  border:1px solid var(--border2)}
+#crimeFrame{width:100%;height:100%;border:0;display:block}
+.crime-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--faint);font-size:12px;text-align:center;padding:20px}
+.crime-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.45}
+a.btn-line{text-decoration:none}
 ::-webkit-scrollbar{width:0;height:0}
 @media(max-width:560px){.tab .tl{font-size:9px}}
 </style>
@@ -426,6 +434,16 @@ input,select,textarea{outline:none}
       <div class="card-h">Weather <span class="ch-r" id="wxCity">—</span>
         <button class="wx-refresh" id="wxRefresh">↻</button></div>
       <div id="wxBody"><div class="wx-loading">Select a city above.</div></div>
+    </div>
+
+    <div class="card" id="crimeCard">
+      <div class="card-h">🛡️ Crime Map <span class="ch-r" id="crimeCity">—</span></div>
+      <div class="crime-wrap">
+        <div class="crime-loading" id="crimeLoading">Loading SpotCrime map…</div>
+        <iframe id="crimeFrame" loading="lazy" referrerpolicy="no-referrer"></iframe>
+      </div>
+      <a class="btn-line" id="crimeOpen" target="_blank" rel="noopener noreferrer" style="margin-top:9px">🛡️ Open Full Crime Map ↗</a>
+      <div class="crime-note">Live neighborhood crime from SpotCrime+ — robberies, theft, assault, burglary and more. If the map area stays blank, your browser blocked the inline embed; tap the button above to open the full map.</div>
     </div>
 
     <div class="card conn-card">
@@ -556,15 +574,16 @@ var PROVIDERS=['Xfinity / Comcast','Spectrum','Cox','AT&T','Optimum / Altice','T
 
 /* ── TERRITORY CITIES (drives weather + ISP guide) ── */
 var CITIES=[
-  {name:'San Jose, CA',     lat:37.3382, lng:-121.8863, region:'south',    cable:'xfinity'},
-  {name:'Morgan Hill, CA',  lat:37.1305, lng:-121.6544, region:'south',    cable:'xfinity'},
-  {name:'Gilroy, CA',       lat:37.0058, lng:-121.5683, region:'south',    cable:'xfinity'},
-  {name:'Murrieta, CA',     lat:33.5539, lng:-117.2139, region:'inland',   cable:'spectrum'},
-  {name:'Temecula, CA',     lat:33.4936, lng:-117.1484, region:'inland',   cable:'spectrum'},
-  {name:'Lake Elsinore, CA',lat:33.6681, lng:-117.3273, region:'inland',   cable:'spectrum'},
-  {name:'Wildomar, CA',     lat:33.5989, lng:-117.2800, region:'inland',   cable:'spectrum'},
-  {name:'Redlands, CA',     lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum'},
-  {name:'Big Bear, CA',     lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum'}
+  {name:'San Jose, CA',      lat:37.3382, lng:-121.8863, region:'south',    cable:'xfinity'},
+  {name:'Morgan Hill, CA',   lat:37.1305, lng:-121.6544, region:'south',    cable:'xfinity'},
+  {name:'Gilroy, CA',        lat:37.0058, lng:-121.5683, region:'south',    cable:'xfinity'},
+  {name:'Murrieta, CA',      lat:33.5539, lng:-117.2139, region:'inland',   cable:'spectrum'},
+  {name:'Temecula, CA',      lat:33.4936, lng:-117.1484, region:'inland',   cable:'spectrum'},
+  {name:'Lake Elsinore, CA', lat:33.6681, lng:-117.3273, region:'inland',   cable:'spectrum'},
+  {name:'Wildomar, CA',      lat:33.5989, lng:-117.2800, region:'inland',   cable:'spectrum'},
+  {name:'Moreno Valley, CA', lat:33.9425, lng:-117.2297, region:'inland',   cable:'spectrum'},
+  {name:'Redlands, CA',      lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum'},
+  {name:'Big Bear, CA',      lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum', crime:'big+bear+lake'}
 ];
 var CITY_NOTE={
   south:'South Bay market — Xfinity is the cable incumbent. Frontier Fiber is strong here (former Verizon territory) and AT&T Fiber is widespread.',
@@ -606,9 +625,10 @@ var ISPS=[
   pitch:'Spectrum markets "no contract," but the promo rate still expires and the bill climbs. Their $500 buyout only applies on a TV bundle. Counter with Frontier\u2019s flat price-for-life.'},
 
  {id:'att',name:'AT&T Fiber',type:'Fiber',color:'#00a8e0',
-  headline:'$55–$155/mo · no contract · price locked',
-  plans:['Fiber 300 Mbps — ~$55/mo','Fiber 500 Mbps — ~$65/mo','Fiber 1 Gig — mid-tier',
-    'Fiber 2–5 Gig — up to ~$155/mo','Free gateway · no data caps · $150 install (self-install free)',
+  headline:'$55–$245/mo · no contract · no 12-month price hike',
+  plans:['Fiber 300 Mbps — $55/mo','Fiber 500 Mbps — $65/mo','Fiber 1 Gig — ~$80/mo',
+    'Fiber 2 Gig — ~$145/mo','Fiber 5 Gig — ~$245/mo',
+    'Prices after $10/mo AutoPay + Paperless · Wi-Fi gateway included',
     'AT&T Internet Air — 5G fixed wireless where fiber is not built'],
   cancel:'AT&T Fiber is month-to-month — no annual contract, no early-termination fee, and a price lock so the rate does not jump after 12 months. AT&T will also cover a competitor\u2019s cancellation fee when a customer switches to AT&T Fiber.',
   pitch:'The toughest competitor — genuinely no-contract and price-locked. Win on availability and the one-visit bundle (Frontier + ADT, one rep), and on speed-for-price where AT&T fiber is not built.'},
@@ -1265,9 +1285,19 @@ function loadWeather(city){
         '<div class="wd-pop">💧'+(d.precipitation_probability_max[i]||0)+'%</div></div>';
     }
     wb.innerHTML=h+'</div>';
-  }).catch(function(){
-    wb.innerHTML='<div class="wx-loading">⚠ Weather unavailable — check your connection and tap ↻.</div>';
-  });
+  }).catch(function(){weatherFallback(wb,city);});
+}
+function weatherFallback(wb,city){
+  wb.innerHTML='<div class="wx-loading"><span class="spin"></span> Loading weather…</div>';
+  var name=city.name.replace(', CA','').replace(/ /g,'+');
+  var img=new Image();
+  img.className='wx-embed-img';
+  img.alt='Weather for '+city.name;
+  img.onload=function(){wb.innerHTML='';wb.appendChild(img);};
+  img.onerror=function(){
+    wb.innerHTML='<div class="wx-loading">⚠ Weather couldn\u2019t load. It needs the app opened over the web (your hosted link) — tap ↻ to retry.</div>';
+  };
+  img.src='https://wttr.in/'+name+'.png?uF';
 }
 function renderISPGuide(city){
   $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
@@ -1309,6 +1339,19 @@ function selectCity(i){
   $$('#cityBar .city-chip').forEach(function(ch){ch.classList.toggle('active',+ch.dataset.ci===i);});
   loadWeather(CITIES[i]);
   renderISPGuide(CITIES[i]);
+  loadCrimeMap(CITIES[i]);
+}
+function loadCrimeMap(city){
+  var slug=city.crime||city.name.replace(', CA','').toLowerCase().replace(/ /g,'+');
+  var url='https://spotcrime.com/ca/'+slug;
+  $('#crimeCity').textContent=city.name.replace(', CA','');
+  var open=$('#crimeOpen'); if(open)open.href=url;
+  var cf=$('#crimeFrame'), cl=$('#crimeLoading');
+  if(cl)cl.style.display='flex';
+  if(cf){
+    cf.onload=function(){if(cl)cl.style.display='none';};
+    cf.src=url;
+  }
 }
 function openIntel(){
   if(intelReady)return;
