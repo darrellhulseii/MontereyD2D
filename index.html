@@ -305,6 +305,56 @@ input,select,textarea{outline:none}
 .pac-item-query{color:var(--ink);font-size:13px}
 .pac-matched{color:var(--sky)}
 .pac-icon,.pac-logo,.hdpi{display:none!important}
+/* CITY SELECTOR */
+.city-bar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.city-chip{flex-shrink:0;background:var(--card2);border:1px solid var(--border2);border-radius:20px;
+  padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.3px;
+  color:var(--muted);white-space:nowrap}
+.city-chip.active{background:var(--sky);color:#04121e;border-color:var(--sky)}
+/* WEATHER */
+.wx-refresh{margin-left:8px;background:rgba(0,174,239,.12);border:1px solid var(--border);color:var(--sky);
+  width:26px;height:24px;border-radius:7px;font-size:13px}
+.wx-loading{color:var(--muted);font-size:13px;text-align:center;padding:16px}
+.wx-now{display:flex;align-items:center;gap:15px;margin-bottom:13px}
+.wx-icon{font-size:50px;line-height:1}
+.wx-temp{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:.82;color:var(--white)}
+.wx-cond{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--ink);
+  text-transform:uppercase;letter-spacing:.5px}
+.wx-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.wx-days{display:flex;gap:6px}
+.wx-day{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 3px;text-align:center}
+.wd-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--muted)}
+.wd-ic{font-size:21px;margin:3px 0}
+.wd-hi{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--white);line-height:1}
+.wd-lo{font-size:11px;color:var(--muted)}
+.wd-pop{font-size:10px;color:var(--sky);margin-top:1px}
+/* ISP GUIDE */
+.isp-note{font-size:12.5px;color:var(--ink);background:rgba(0,174,239,.07);border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;margin-bottom:11px;line-height:1.45}
+.isp-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;margin-bottom:9px;overflow:hidden}
+.isp-card.ours{border-color:rgba(0,200,83,.4)}
+.isp-head{display:flex;align-items:center;gap:10px;padding:12px 13px}
+.isp-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.isp-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--white)}
+.isp-type{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.5px;
+  text-transform:uppercase;padding:1px 6px;border-radius:5px;background:var(--card2);color:var(--muted)}
+.isp-tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;letter-spacing:.5px;
+  text-transform:uppercase;padding:1px 6px;border-radius:5px;background:rgba(0,200,83,.16);color:var(--green)}
+.isp-tag.cable{background:rgba(255,138,60,.16);color:var(--orange)}
+.isp-headline{font-size:11.5px;color:var(--muted);margin-top:2px}
+.isp-chev{margin-left:auto;color:var(--muted);font-size:13px;transition:transform .2s;flex-shrink:0}
+.isp-card.open .isp-chev{transform:rotate(180deg)}
+.isp-body{display:none;padding:2px 13px 13px;border-top:1px solid var(--border2)}
+.isp-card.open .isp-body{display:block}
+.isp-sec{margin-top:11px}
+.isp-sec-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--sky);margin-bottom:5px}
+.isp-plan{font-size:12.5px;color:var(--ink);padding:2px 0 2px 14px;position:relative}
+.isp-plan::before{content:'•';position:absolute;left:2px;color:var(--sky)}
+.isp-cancel{font-size:12.5px;color:var(--muted);line-height:1.55}
+.isp-pitch{font-size:12.5px;color:var(--gold);background:rgba(255,215,0,.07);border-left:3px solid var(--gold);
+  border-radius:0 8px 8px 0;padding:9px 11px;line-height:1.5}
 ::-webkit-scrollbar{width:0;height:0}
 @media(max-width:560px){.tab .tl{font-size:9px}}
 </style>
@@ -365,10 +415,19 @@ input,select,textarea{outline:none}
     <div class="map-fab" id="mapFab">Tap map to log a door</div>
   </section>
 
-  <!-- RADAR -->
+  <!-- INTEL -->
   <section class="screen" id="screen-radar">
-    <div class="scr-title">⚡ Outage Radar</div>
-    <div class="scr-sub">Track competitor internet outages and your own connectivity — turn downtime into your pitch.</div>
+    <div class="scr-title">📡 Field Intel</div>
+    <div class="scr-sub">Weather, your connection, competitor outages and ISP pricing for your territory.</div>
+
+    <div class="city-bar" id="cityBar"></div>
+
+    <div class="card">
+      <div class="card-h">Weather <span class="ch-r" id="wxCity">—</span>
+        <button class="wx-refresh" id="wxRefresh">↻</button></div>
+      <div id="wxBody"><div class="wx-loading">Select a city above.</div></div>
+    </div>
+
     <div class="card conn-card">
       <div class="card-h" style="justify-content:center">Your Connection</div>
       <div class="cc-status" id="ccStatus">Checking…</div>
@@ -376,7 +435,12 @@ input,select,textarea{outline:none}
       <button class="btn-line" id="connTestBtn">↻ Run Connection Test</button>
       <div class="cc-drops" id="ccDrops">No drops detected today</div>
     </div>
-    <button class="btn orange" id="reportOutageBtn" style="margin-bottom:14px">⚡ Report a Competitor Outage</button>
+
+    <div class="section-lbl">📶 ISP Pricing &amp; Cancellation</div>
+    <div class="isp-note" id="ispNote"></div>
+    <div id="ispGuide"></div>
+
+    <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Report a Competitor Outage</button>
     <div class="card">
       <div class="card-h">Outage Activity <span class="ch-r">last 24h</span></div>
       <div class="prov-grid" id="provGrid"></div>
@@ -431,7 +495,7 @@ input,select,textarea{outline:none}
   <button class="tab active" data-tab="playbook"><span class="ti">📖</span><span class="tl">Playbook</span></button>
   <button class="tab" data-tab="tally"><span class="ti">✅</span><span class="tl">Tally</span></button>
   <button class="tab" data-tab="map"><span class="ti">🗺️</span><span class="tl">Map</span></button>
-  <button class="tab" data-tab="radar"><span class="ti">⚡</span><span class="tl">Radar</span></button>
+  <button class="tab" data-tab="radar"><span class="ti">📡</span><span class="tl">Intel</span></button>
   <button class="tab" data-tab="pipeline"><span class="ti">📋</span><span class="tl">Pipeline</span></button>
   <button class="tab" data-tab="stats"><span class="ti">📊</span><span class="tl">Stats</span></button>
 </nav>
@@ -489,6 +553,89 @@ var VAS=[
 ];
 var RATE={}; PRODUCTS.concat(VAS).forEach(function(p){RATE[p.name]=p.amt;});
 var PROVIDERS=['Xfinity / Comcast','Spectrum','Cox','AT&T','Optimum / Altice','T-Mobile Home','Other'];
+
+/* ── TERRITORY CITIES (drives weather + ISP guide) ── */
+var CITIES=[
+  {name:'San Jose, CA',     lat:37.3382, lng:-121.8863, region:'south',    cable:'xfinity'},
+  {name:'Morgan Hill, CA',  lat:37.1305, lng:-121.6544, region:'south',    cable:'xfinity'},
+  {name:'Gilroy, CA',       lat:37.0058, lng:-121.5683, region:'south',    cable:'xfinity'},
+  {name:'Murrieta, CA',     lat:33.5539, lng:-117.2139, region:'inland',   cable:'spectrum'},
+  {name:'Temecula, CA',     lat:33.4936, lng:-117.1484, region:'inland',   cable:'spectrum'},
+  {name:'Lake Elsinore, CA',lat:33.6681, lng:-117.3273, region:'inland',   cable:'spectrum'},
+  {name:'Wildomar, CA',     lat:33.5989, lng:-117.2800, region:'inland',   cable:'spectrum'},
+  {name:'Redlands, CA',     lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum'},
+  {name:'Big Bear, CA',     lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum'}
+];
+var CITY_NOTE={
+  south:'South Bay market — Xfinity is the cable incumbent. Frontier Fiber is strong here (former Verizon territory) and AT&T Fiber is widespread.',
+  inland:'Inland Empire market — Spectrum is the cable incumbent. AT&T Fiber and Frontier are expanding; 5G home internet is widely available.',
+  mountain:'Big Bear is a mountain market — wired fiber is limited, Spectrum is the cable incumbent, and Starlink + 5G home internet are the strongest alternatives.'
+};
+
+/* ── ISP COMPETITIVE INTEL (pricing & cancellation, current 2026) ── */
+var ISPS=[
+ {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
+  headline:'Fiber $44.99–$129.99/mo (AutoPay) · price-for-life',
+  plans:['Fiber 500 Mbps — $44.99/mo','Fiber 1 Gig — $64.99/mo','Fiber 2 Gig — $74.99/mo',
+    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $129.99/mo',
+    'All prices require AutoPay + Paperless Bill ($10/mo more without)',
+    'Free eero Wi-Fi router · symmetrical speeds · no data caps · install $0–$85'],
+  cancel:'Standard fiber plans are month-to-month with a price-for-life guarantee — the AutoPay rate never rises. Promotions tied to a Visa Reward Card carry a 12-month term with a $100 prorated early-termination fee. On disconnect there is a $50 equipment restocking fee, plus a non-return fee up to ~$150 (around $500 for 5 Gig / 7 Gig gear) if equipment is not returned.',
+  pitch:'This is your product. Lead with price-for-life and symmetrical speeds — no 12-month bait-and-switch like cable. Set honest expectations on the restocking / non-return fees.'},
+
+ {id:'earthlink',name:'EarthLink',type:'Fiber / Wireless',ours:true,color:'#00C853',
+  headline:'Fiber + 4G/5G wireless · resold over partner networks',
+  plans:['Fiber 100 Mbps up to 5 Gig (over partner fiber)','Wireless 4G/5G — Unlimited & Essentials plans',
+    'Pricing varies by network and address — confirm at point of sale'],
+  cancel:'EarthLink generally uses a term agreement (commonly 12 months) with an early-termination fee. Value-added services must stay active to qualify and are subject to chargebacks. Confirm the current term and ETF with the customer before close.',
+  pitch:'Your secondary product — best where Frontier fiber is not built. Position EarthLink wireless as the fast, no-trencher option, and be upfront that it carries a term agreement.'},
+
+ {id:'xfinity',name:'Xfinity (Comcast)',type:'Cable',color:'#ff8a3c',
+  headline:'$20–$70/mo intro — roughly doubles after 12 months',
+  plans:['Connect 75 Mbps — ~$20/mo intro','Connect More 200 Mbps — ~$30/mo intro',
+    'Fast / Superfast 400–600 Mbps','Gigabit 1 Gig — ~$50–$70/mo intro',
+    '+ ~$15/mo Wi-Fi equipment fee · ~$100 install (self-install to avoid)'],
+  cancel:'Standard plans are no-contract with no early-termination fee, and a 5-year price guarantee is offered on some new plans. Term-agreement promos can carry an ETF. Comcast leans hard on retention / win-back offers when a customer calls to cancel.',
+  pitch:'The kill shot: the intro price roughly doubles after 12 months — Connect More jumps from ~$30 to ~$69 — plus a $15 router fee. Frontier price-for-life wins on year-two cost every time.'},
+
+ {id:'spectrum',name:'Spectrum (Charter)',type:'Cable',color:'#0a6ea8',
+  headline:'$30–$70/mo · no contracts · $500 contract buyout',
+  plans:['Internet 500 Mbps — ~$30/mo (online / bundle price)','Internet 1 Gig — ~$50–$70/mo (online discount yr 1)',
+    '3-year price-lock guarantee on newer plans','No fee on base modem · Wi-Fi router is an add-on'],
+  cancel:'No contracts and no early-termination fee. Spectrum will pay up to $500 of a competitor\u2019s ETF when a customer switches AND bundles Internet with TV/Voice. Standard rates apply after the 12-month promo — bills climb roughly $20–$30. Strong retention desk.',
+  pitch:'Spectrum markets "no contract," but the promo rate still expires and the bill climbs. Their $500 buyout only applies on a TV bundle. Counter with Frontier\u2019s flat price-for-life.'},
+
+ {id:'att',name:'AT&T Fiber',type:'Fiber',color:'#00a8e0',
+  headline:'$55–$155/mo · no contract · price locked',
+  plans:['Fiber 300 Mbps — ~$55/mo','Fiber 500 Mbps — ~$65/mo','Fiber 1 Gig — mid-tier',
+    'Fiber 2–5 Gig — up to ~$155/mo','Free gateway · no data caps · $150 install (self-install free)',
+    'AT&T Internet Air — 5G fixed wireless where fiber is not built'],
+  cancel:'AT&T Fiber is month-to-month — no annual contract, no early-termination fee, and a price lock so the rate does not jump after 12 months. AT&T will also cover a competitor\u2019s cancellation fee when a customer switches to AT&T Fiber.',
+  pitch:'The toughest competitor — genuinely no-contract and price-locked. Win on availability and the one-visit bundle (Frontier + ADT, one rep), and on speed-for-price where AT&T fiber is not built.'},
+
+ {id:'tmobile',name:'T-Mobile Home Internet',type:'5G',color:'#e6007e',
+  headline:'$50–$70/mo · $20 off w/ voice line · no contract',
+  plans:['Rely — $50/mo (base 5G plan)','Amplified — $60/mo (higher priority + perks)',
+    'All-In — $70/mo (includes Hulu + Paramount+)',
+    '$20/mo off every plan with a qualifying T-Mobile voice line — $30 / $40 / $50',
+    'Equipment, taxes & fees included · 5-year price lock'],
+  cancel:'No contract, no early-termination fee, no equipment fees. 5-year price guarantee, 15-day trial with full refund, and up to a $750 contract buyout to leave cable. Cancel by returning the gateway.',
+  pitch:'Cheap and easy — but it is 5G: speeds swing 70–250 Mbps with tower load and weather. Sell fiber\u2019s consistency: no 7pm slowdown, no dead zone in the back bedroom.'},
+
+ {id:'verizon',name:'Verizon 5G Home',type:'5G',color:'#cd040b',
+  headline:'$50–$70/mo ($35–$55 w/ Verizon mobile)',
+  plans:['5G Home — $50/mo (up to 300 Mbps)','5G Home Plus — $70/mo (up to 1 Gbps)',
+    '$35 / $55 with a qualifying Verizon mobile plan','Free equipment · taxes & fees included · unlimited data'],
+  cancel:'No annual contract and no early-termination fee. Includes a multi-year price guarantee and up to $500 to cover a previous provider\u2019s termination fee. Cancel by returning the gateway.',
+  pitch:'Same 5G caveat as T-Mobile — shared-network speeds dip under load. Fiber wins on upload speed and reliability for work-from-home and gaming households.'},
+
+ {id:'starlink',name:'Starlink',type:'Satellite',color:'#7c4dff',
+  headline:'$50–$120/mo + hardware · no contract',
+  plans:['Residential Lite — ~$50–$80/mo (deprioritized data)','Residential / MAX — ~$80–$120/mo (up to ~300 Mbps)',
+    'Hardware: ~$349 standard kit (one-time) · ~$249 Mini','No data caps · self-install · pause / resume anytime'],
+  cancel:'No contract — cancel, pause, or change plans anytime in the app with no penalty. The customer owns the hardware after purchase; 30-day refund window if unhappy.',
+  pitch:'Mainly a rural / mountain play — a real competitor in Big Bear. Costs more than fiber, has higher latency and a big upfront hardware bill. Wherever fiber reaches, fiber wins on price and latency.'}
+];
 
 /* ════════ STORAGE ════════ */
 var KEY='knockradar_v2';
@@ -1078,6 +1225,108 @@ function renderRadar(){
   }
 }
 
+/* ════════ FIELD INTEL — weather + ISP guide ════════ */
+var cityIdx=0, intelReady=false;
+
+function wxInfo(code){
+  var m={0:['☀️','Clear'],1:['🌤️','Mainly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],
+    45:['🌫️','Fog'],48:['🌫️','Rime fog'],51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Heavy drizzle'],
+    56:['🌧️','Freezing drizzle'],57:['🌧️','Freezing drizzle'],61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
+    66:['🌧️','Freezing rain'],67:['🌧️','Freezing rain'],71:['🌨️','Light snow'],73:['🌨️','Snow'],75:['❄️','Heavy snow'],
+    77:['❄️','Snow grains'],80:['🌦️','Light showers'],81:['🌦️','Showers'],82:['⛈️','Violent showers'],
+    85:['🌨️','Snow showers'],86:['🌨️','Snow showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Storm + hail'],99:['⛈️','Severe storm']};
+  return m[code]||['🌡️','—'];
+}
+function loadWeather(city){
+  var wb=$('#wxBody');
+  $('#wxCity').textContent=city.name.replace(', CA','');
+  wb.innerHTML='<div class="wx-loading"><span class="spin"></span> Loading weather…</div>';
+  var url='https://api.open-meteo.com/v1/forecast?latitude='+city.lat+'&longitude='+city.lng+
+    '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m'+
+    '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'+
+    '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=5';
+  fetch(url).then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.current||!j.daily)throw 0;
+    var c=j.current, ci=wxInfo(c.weather_code);
+    var h='<div class="wx-now"><div class="wx-icon">'+ci[0]+'</div><div>'+
+      '<div class="wx-temp">'+Math.round(c.temperature_2m)+'°</div>'+
+      '<div class="wx-cond">'+ci[1]+'</div>'+
+      '<div class="wx-meta">Feels '+Math.round(c.apparent_temperature)+'° · '+
+        Math.round(c.wind_speed_10m)+' mph wind · '+c.relative_humidity_2m+'% humidity</div></div></div>';
+    var d=j.daily;
+    h+='<div class="wx-days">';
+    for(var i=0;i<d.time.length;i++){
+      var di=wxInfo(d.weather_code[i]);
+      var dt=new Date(d.time[i]+'T12:00:00');
+      var nm=i===0?'Today':dt.toLocaleDateString(undefined,{weekday:'short'});
+      h+='<div class="wx-day"><div class="wd-name">'+nm+'</div><div class="wd-ic">'+di[0]+'</div>'+
+        '<div class="wd-hi">'+Math.round(d.temperature_2m_max[i])+'°</div>'+
+        '<div class="wd-lo">'+Math.round(d.temperature_2m_min[i])+'°</div>'+
+        '<div class="wd-pop">💧'+(d.precipitation_probability_max[i]||0)+'%</div></div>';
+    }
+    wb.innerHTML=h+'</div>';
+  }).catch(function(){
+    wb.innerHTML='<div class="wx-loading">⚠ Weather unavailable — check your connection and tap ↻.</div>';
+  });
+}
+function renderISPGuide(city){
+  $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
+    '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Prices are promotional rates with AutoPay and vary by address &amp; current offer — confirm the live quote in the carrier portal before quoting a customer.</div>';
+  var rank=function(p){return p.ours?0:(p.id===city.cable?1:2);};
+  var list=ISPS.slice().sort(function(a,b){return rank(a)-rank(b);});
+  $('#ispGuide').innerHTML=list.map(function(p){
+    var tags='';
+    if(p.ours)tags+=' <span class="isp-tag">Our Product</span>';
+    if(p.id===city.cable)tags+=' <span class="isp-tag cable">Local Cable</span>';
+    return '<div class="isp-card'+(p.ours?' ours':'')+'">'+
+      '<div class="isp-head"><span class="isp-dot" style="background:'+p.color+'"></span>'+
+        '<div><div class="isp-name">'+esc(p.name)+' <span class="isp-type">'+esc(p.type)+'</span>'+tags+'</div>'+
+        '<div class="isp-headline">'+esc(p.headline)+'</div></div>'+
+        '<span class="isp-chev">▾</span></div>'+
+      '<div class="isp-body">'+
+        '<div class="isp-sec"><div class="isp-sec-lbl">Plans & Pricing</div>'+
+          p.plans.map(function(pl){return '<div class="isp-plan">'+esc(pl)+'</div>';}).join('')+'</div>'+
+        '<div class="isp-sec"><div class="isp-sec-lbl">Cancellation Policy</div>'+
+          '<div class="isp-cancel">'+esc(p.cancel)+'</div></div>'+
+        '<div class="isp-sec"><div class="isp-sec-lbl">Rep Pitch Angle</div>'+
+          '<div class="isp-pitch">'+esc(p.pitch)+'</div></div></div></div>';
+  }).join('');
+  $$('#ispGuide .isp-card').forEach(function(card){
+    $('.isp-head',card).onclick=function(){card.classList.toggle('open');};
+  });
+}
+function buildCityBar(){
+  $('#cityBar').innerHTML=CITIES.map(function(c,i){
+    return '<button class="city-chip'+(i===cityIdx?' active':'')+'" data-ci="'+i+'">'+
+      esc(c.name.replace(', CA',''))+'</button>';
+  }).join('');
+  $$('#cityBar .city-chip').forEach(function(ch){
+    ch.onclick=function(){selectCity(+ch.dataset.ci);};
+  });
+}
+function selectCity(i){
+  cityIdx=i;
+  $$('#cityBar .city-chip').forEach(function(ch){ch.classList.toggle('active',+ch.dataset.ci===i);});
+  loadWeather(CITIES[i]);
+  renderISPGuide(CITIES[i]);
+}
+function openIntel(){
+  if(intelReady)return;
+  intelReady=true;
+  buildCityBar();
+  selectCity(cityIdx);
+}
+function nearestCity(){
+  if(!curPos)return;
+  var best=cityIdx, bd=1e9;
+  CITIES.forEach(function(c,i){
+    var dx=c.lat-curPos.lat, dy=c.lng-curPos.lng, d=dx*dx+dy*dy;
+    if(d<bd){bd=d;best=i;}
+  });
+  cityIdx=best;
+  if(intelReady)selectCity(best);
+}
+
 /* ════════ CONNECTIVITY ════════ */
 function setConnUI(){
   var on=navigator.onLine,dot=$('#connDot');
@@ -1355,6 +1604,7 @@ function switchTab(name){
   $$('.tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
   $$('.screen').forEach(function(s){s.classList.toggle('active',s.id==='screen-'+name);});
   if(name==='playbook')loadPlaybook();
+  if(name==='radar')openIntel();
   if(name==='map'){
     mapWanted=true;
     if(gmapsLoaded)buildMap();
@@ -1397,12 +1647,13 @@ function init(){
   $('#outageBtn').classList.add('on');
   $('#mapSearchBtn').onclick=mapSearch;
   $('#mapSearch').addEventListener('keydown',function(e){if(e.key==='Enter')mapSearch();});
+  $('#wxRefresh').onclick=function(){loadWeather(CITIES[cityIdx]);};
 
   renderLegend();
   renderAll();
   loadPlaybook();
   initConn();
-  startGeo(function(){});
+  startGeo(function(){nearestCity();});
   setInterval(function(){setConnUI();renderRadarConn();},20000);
 }
 document.addEventListener('DOMContentLoaded',init);
