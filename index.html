@@ -425,6 +425,10 @@ a.btn-line{text-decoration:none}
   text-transform:uppercase;color:var(--sky);background:rgba(0,174,239,.16);padding:1px 5px;border-radius:4px}
 .lb-bar{height:8px;background:var(--card2);border-radius:5px;overflow:hidden;margin-top:5px}
 .lb-fill{height:100%;border-radius:5px;transition:width .45s ease}
+.lb-stats{display:flex;flex-wrap:wrap;gap:2px 11px;margin-top:6px}
+.lb-stats span{font-size:11px;color:var(--faint);white-space:nowrap}
+.lb-stats b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:13.5px;
+  color:var(--white);letter-spacing:.4px;margin-right:3px}
 .lb-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--white);flex-shrink:0;
   min-width:48px;text-align:right;letter-spacing:.5px}
 .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);
@@ -727,8 +731,8 @@ var PRODUCTS=[
   {g:'EarthLink', name:'EarthLink Fiber — 1 Gig',          amt:200},
   {g:'EarthLink', name:'EarthLink Fiber — 500 Mbps',       amt:175},
   {g:'EarthLink', name:'EarthLink Fiber — 100 Mbps',       amt:125},
-  {g:'EarthLink', name:'EarthLink Wireless — Unlimited 4G/5G', amt:100},
-  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45}
+  {g:'EarthLink', name:'EarthLink Wireless — Unlimited 4G/5G', amt:100, cell:1},
+  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45, cell:1}
 ];
 var VAS=[
   {name:'Whole-Home Wi-Fi (WHW)',     amt:40},
@@ -738,6 +742,7 @@ var VAS=[
   {name:'Protect Plus',               amt:10}
 ];
 var RATE={}; PRODUCTS.concat(VAS).forEach(function(p){RATE[p.name]=p.amt;});
+var CELLSET={}; PRODUCTS.forEach(function(p){if(p.cell)CELLSET[p.name]=1;});
 var PROVIDERS=['Xfinity / Comcast','Spectrum','Cox','AT&T','Optimum / Altice','T-Mobile Home','Other'];
 
 /* ── TERRITORY CITIES (drives weather + ISP guide) ── */
@@ -1931,7 +1936,8 @@ function deleteRep(id){
 var lbMetric='doors', lbRange='today';
 var METRICS={doors:'Doors',contacts:'Contacts',sold:'Sales',commission:'Commission'};
 function statsFor(repId,range){
-  var o={doors:0,contacts:0,appts:0,sold:0,commission:0},sw=startOfWeek(),tk=todayKey();
+  var o={doors:0,contacts:0,appts:0,sold:0,commission:0,vas:0,voip:0,cell:0,cellRate:0},
+      sw=startOfWeek(),tk=todayKey();
   state.knocks.forEach(function(k){
     if(k.repId!==repId)return;
     if(range==='today'&&dayKey(k.ts)!==tk)return;
@@ -1939,8 +1945,15 @@ function statsFor(repId,range){
     o.doors++;
     if(CONTACT.indexOf(k.disp)>-1)o.contacts++;
     if(k.disp==='appt')o.appts++;
-    if(k.disp==='sold'){o.sold++;o.commission+=k.commission||0;}
+    if(k.disp==='sold'){
+      o.sold++;o.commission+=k.commission||0;
+      (k.vas||[]).forEach(function(nm){
+        if(nm==='VoIP Line')o.voip++; else o.vas++;
+      });
+      if((k.products||[]).some(function(nm){return CELLSET[nm];}))o.cell++;
+    }
   });
+  o.cellRate=o.sold?Math.round(o.cell/o.sold*100):0;
   return o;
 }
 function leaderboardData(range){
@@ -1959,7 +1972,8 @@ function leaderboardData(range){
     if(map[id]&&state.knocks.some(function(k){return k.repId===id;}))return;
     var s=c.stats[range];
     map[id]={id:id,name:c.name||'Rep',color:c.color||'#8b97a8',mine:false,
-      doors:s.doors||0,contacts:s.contacts||0,appts:s.appts||0,sold:s.sold||0,commission:s.commission||0};
+      doors:s.doors||0,contacts:s.contacts||0,appts:s.appts||0,sold:s.sold||0,commission:s.commission||0,
+      vas:s.vas||0,voip:s.voip||0,cell:s.cell||0,cellRate:s.cellRate||0};
   });
   return Object.keys(map).map(function(k){return map[k];});
 }
@@ -1979,7 +1993,14 @@ function renderLeaderboard(){
         '<span class="lb-rank">'+(i<3?medal[i]:'#'+(i+1))+'</span>'+
         '<span class="rep-dot" style="background:'+r.color+'"></span>'+
         '<div class="lb-mid"><div class="lb-name">'+esc(r.name)+(r.mine?' <span class="lb-you">you</span>':'')+'</div>'+
-          '<div class="lb-bar"><div class="lb-fill" style="width:'+Math.round(v/top*100)+'%;background:'+r.color+'"></div></div></div>'+
+          '<div class="lb-bar"><div class="lb-fill" style="width:'+Math.round(v/top*100)+'%;background:'+r.color+'"></div></div>'+
+          '<div class="lb-stats">'+
+            '<span><b>'+(r.sold||0)+'</b>sales</span>'+
+            '<span><b>'+(r.vas||0)+'</b>VAS</span>'+
+            '<span><b>'+(r.voip||0)+'</b>VoIP</span>'+
+            '<span><b>'+(r.cell||0)+'</b>cellular</span>'+
+            '<span><b>'+(r.cellRate||0)+'%</b>attach</span>'+
+          '</div></div>'+
         '<span class="lb-val">'+fmt(v)+'</span></div>';
     }).join('');
   }
