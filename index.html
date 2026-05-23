@@ -199,6 +199,24 @@ input,select,textarea{outline:none}
 .stat-tile{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:12px;text-align:center}
 .st-num{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--white)}
 .st-lbl{font-size:10.5px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.plan-inputs{display:flex;gap:10px;margin-bottom:2px}
+.plan-fld{flex:1;display:flex;flex-direction:column;gap:5px}
+.plan-fld label{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+.plan-fld input{background:var(--card2);border:1px solid var(--border2);border-radius:9px;
+  padding:9px;color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:23px;
+  letter-spacing:1px;text-align:center;width:100%}
+.plan-fld input:focus{outline:none;border-color:var(--sky)}
+.plan-head{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;
+  letter-spacing:.4px;color:var(--ink);margin:14px 0 6px}
+.plan-head b{color:var(--sky);font-weight:700}
+.plan-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border2)}
+.plan-row:last-child{border-bottom:none}
+.plan-ic{width:26px;text-align:center;font-size:15px}
+.plan-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14.5px;
+  letter-spacing:.4px;color:var(--ink);flex:1}
+.plan-big{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;letter-spacing:.5px}
+.plan-day{font-size:10.5px;color:var(--muted);width:58px;text-align:right;letter-spacing:.3px}
+.plan-foot{font-size:11px;color:var(--muted);margin-top:11px;line-height:1.55}
 .comm-banner{background:linear-gradient(135deg,#0a2014,#081a10);border:1px solid var(--green);border-radius:14px;
   padding:16px;text-align:center;margin-bottom:12px}
 .comm-banner .cb-num{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:.95;color:var(--green)}
@@ -641,6 +659,14 @@ a.btn-line{text-decoration:none}
       <div class="stat-tile"><div class="st-num" id="stCloseRate">0%</div><div class="st-lbl">Close Rate</div></div>
       <div class="stat-tile"><div class="st-num" id="stApptRate">0%</div><div class="st-lbl">Appt Rate</div></div>
       <div class="stat-tile"><div class="st-num" id="stDoorsSale">0</div><div class="st-lbl">Doors / Sale</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h">🎯 Goal Planner <span class="ch-r" id="planBasis">benchmark</span></div>
+      <div class="plan-inputs">
+        <div class="plan-fld"><label>Sales goal</label><input type="number" id="planGoal" min="1" inputmode="numeric"></div>
+        <div class="plan-fld"><label>In how many days</label><input type="number" id="planDays" min="1" inputmode="numeric"></div>
+      </div>
+      <div id="planResult"></div>
     </div>
     <div class="card">
       <div class="card-h">Last 7 Days <span class="ch-r" id="weekTotal">0 doors</span></div>
@@ -1860,6 +1886,67 @@ function renderStats(){
     }).join('');
     $$('#installs .pl-item').forEach(function(it){it.onclick=function(){openKnockSheet(it.dataset.k);};});
   }
+  renderPlan();
+}
+
+/* ════════ GOAL PLANNER — work backward from a sales goal ════════
+   The D2D "numbers game": doors → conversations → appointments → sale.
+   Uses the rep's own logged ratios once there's a real sample;
+   falls back to industry starter benchmarks before then. */
+var PLAN_DEFAULT={doorsPer:30,convPer:10,apptPer:3};
+
+function renderPlan(){
+  var plan=state.plan||(state.plan={goal:5,days:7});
+  var g=$('#planGoal'),d=$('#planDays');
+  if(g&&document.activeElement!==g)g.value=plan.goal;
+  if(d&&document.activeElement!==d)d.value=plan.days;
+  planOutput();
+}
+
+function planOutput(){
+  var box=$('#planResult'); if(!box)return;
+  var plan=state.plan||{goal:5,days:7};
+  var goal=Math.max(1,parseInt(plan.goal,10)||1);
+  var days=Math.max(1,parseInt(plan.days,10)||1);
+  var ks=myKnocks();
+  var doors=ks.length;
+  var contacts=ks.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
+  var appts=ks.filter(function(k){return k.disp==='appt';}).length;
+  var sales=ks.filter(function(k){return k.disp==='sold';}).length;
+
+  var own=sales>=3;
+  var doorsPer=own?doors/sales:PLAN_DEFAULT.doorsPer;
+  var convPer =own?contacts/sales:PLAN_DEFAULT.convPer;
+  var apptPer =own?appts/sales:PLAN_DEFAULT.apptPer;
+  if(isNaN(doorsPer)||doorsPer<=0)doorsPer=PLAN_DEFAULT.doorsPer;
+  if(isNaN(convPer)||convPer<=0) convPer =PLAN_DEFAULT.convPer;
+  if(isNaN(apptPer)||apptPer<0)  apptPer =PLAN_DEFAULT.apptPer;
+
+  var pd=function(n){return Math.ceil(n/days);};
+  var rows=[
+    {ic:'🚪',l:'Doors to knock',n:Math.ceil(goal*doorsPer),c:'#00AEEF'},
+    {ic:'💬',l:'Conversations',  n:Math.ceil(goal*convPer), c:'#b46bff'},
+    {ic:'📅',l:'Appointments',   n:Math.ceil(goal*apptPer), c:'#FFD700'},
+    {ic:'✅',l:'Sales',          n:goal, c:'#00C853', goal:true}
+  ];
+  var basis=$('#planBasis');
+  if(basis)basis.textContent=own?'your numbers':'starter benchmark';
+
+  var html='<div class="plan-head">To hit <b>'+goal+' sale'+(goal===1?'':'s')+
+    '</b> in <b>'+days+' day'+(days===1?'':'s')+'</b>:</div>';
+  html+=rows.map(function(r){
+    return '<div class="plan-row"><span class="plan-ic">'+r.ic+'</span>'+
+      '<span class="plan-lbl">'+r.l+'</span>'+
+      '<span class="plan-big" style="color:'+r.c+'">'+r.n+'</span>'+
+      '<span class="plan-day">'+(r.goal?'goal':'~'+pd(r.n)+'/day')+'</span></div>';
+  }).join('');
+  html+='<div class="plan-foot">'+(own
+    ?'Based on your real numbers — about '+Math.round(doorsPer)+' doors, '+
+      Math.round(convPer)+' conversations and '+Math.round(apptPer)+
+      ' appointments per sale, from '+sales+' sales logged.'
+    :'Starter benchmark — about 30 doors, 10 conversations and 3 appointments per sale. '+
+      'Log 3+ sales and the plan recalculates from your own ratios.')+'</div>';
+  box.innerHTML=html;
 }
 
 /* ════════ MULTI-USER ════════ */
@@ -2304,6 +2391,15 @@ function init(){
   $('#settingsBtn').onclick=settingsSheet;
   $('#reportOutageBtn').onclick=function(){reportOutageSheet();};
   $('#connTestBtn').onclick=connTest;
+  ['planGoal','planDays'].forEach(function(id){
+    var el=$('#'+id);
+    if(el)el.addEventListener('input',function(){
+      if(!state.plan)state.plan={goal:5,days:7};
+      state.plan[id==='planGoal'?'goal':'days']=el.value;
+      persist();
+      planOutput();
+    });
+  });
   $('#locateBtn').onclick=function(){
     if(curPos&&map){map.setCenter(curPos);map.setZoom(17);updatePosMarker(40);}
     else{
