@@ -217,6 +217,30 @@ input,select,textarea{outline:none}
 .plan-big{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;letter-spacing:.5px}
 .plan-day{font-size:10.5px;color:var(--muted);width:58px;text-align:right;letter-spacing:.3px}
 .plan-foot{font-size:11px;color:var(--muted);margin-top:11px;line-height:1.55}
+.pace-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 15px;margin-bottom:13px}
+.pace-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
+.pace-hint{font-weight:500;font-size:10.5px;letter-spacing:.2px;text-transform:none;color:var(--muted)}
+.pace-row{display:flex;align-items:center;gap:9px;padding:5px 0}
+.pace-ic{width:18px;text-align:center;font-size:13px}
+.pace-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:.3px;color:var(--ink);width:104px}
+.pace-track{flex:1;height:8px;background:var(--card2);border-radius:99px;overflow:hidden}
+.pace-fill{height:100%;border-radius:99px;transition:width .35s ease}
+.pace-val{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.5px;color:var(--white);width:56px;text-align:right}
+.pace-val i{font-style:normal;font-size:12px;color:var(--muted)}
+.pace-val.done{color:var(--green)}
+.earn-tiles{display:flex;gap:10px;margin-bottom:11px}
+.earn-tile{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:11px 8px;text-align:center}
+.et-num{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px;color:var(--green);line-height:1}
+.et-lbl{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.earn-split{border-top:1px solid var(--border2);padding-top:3px}
+.es-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dotted var(--border2)}
+.es-row:last-child{border-bottom:none}
+.es-ic{width:18px;text-align:center;font-size:13px}
+.es-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;letter-spacing:.3px;color:var(--ink);flex:1}
+.es-amt{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.5px;color:var(--green)}
+.es-amt.pend{color:var(--gold)}
+.es-n{font-size:11px;color:var(--muted);width:52px;text-align:right}
+.earn-foot{font-size:10.5px;color:var(--muted);margin-top:9px;line-height:1.5}
 .comm-banner{background:linear-gradient(135deg,#0a2014,#081a10);border:1px solid var(--green);border-radius:14px;
   padding:16px;text-align:center;margin-bottom:12px}
 .comm-banner .cb-num{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:.95;color:var(--green)}
@@ -555,6 +579,10 @@ a.btn-line{text-decoration:none}
       <div class="tt-lbl">Doors Logged</div>
       <div class="tt-sub" id="ttSub">0 contacts · 0 appointments · 0 sold</div>
     </div>
+    <div class="pace-card">
+      <div class="pace-head">🎯 Today's Pace <span class="pace-hint">vs your daily goal</span></div>
+      <div id="tallyPace"></div>
+    </div>
     <div class="tally-grid" id="tallyGrid"></div>
     <div class="tally-hint">Tap a card to log a knock. Conversation, Appointment, Sold &amp; Follow-Up open a quick form; GPS is captured automatically.</div>
   </section>
@@ -649,6 +677,10 @@ a.btn-line{text-decoration:none}
       <div class="cb-num" id="commTotal">$0</div>
       <div class="cb-lbl">Commission Booked</div>
       <div class="cb-sub" id="commSub">Per the 1099 rate card · earned on confirmed install</div>
+    </div>
+    <div class="card">
+      <div class="card-h">💵 Earnings <span class="ch-r">installed vs pending</span></div>
+      <div id="earnGrid"></div>
     </div>
     <div class="card">
       <div class="card-h">Conversion Funnel <span class="ch-r">all time</span></div>
@@ -758,7 +790,11 @@ var PRODUCTS=[
   {g:'EarthLink', name:'EarthLink Fiber — 500 Mbps',       amt:175},
   {g:'EarthLink', name:'EarthLink Fiber — 100 Mbps',       amt:125},
   {g:'EarthLink', name:'EarthLink Wireless — Unlimited 4G/5G', amt:100, cell:1},
-  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45, cell:1}
+  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45, cell:1},
+  {g:'ADT — Home Security', name:'ADT — Bronze Package',          amt:500, sec:1},
+  {g:'ADT — Home Security', name:'ADT — Silver Package',          amt:600, sec:1},
+  {g:'ADT — Home Security', name:'ADT — Gold Package',            amt:650, sec:1},
+  {g:'ADT — Home Security', name:'ADT — Service Only (Takeover)', amt:750, sec:1}
 ];
 var VAS=[
   {name:'Whole-Home Wi-Fi (WHW)',     amt:40},
@@ -769,6 +805,7 @@ var VAS=[
 ];
 var RATE={}; PRODUCTS.concat(VAS).forEach(function(p){RATE[p.name]=p.amt;});
 var CELLSET={}; PRODUCTS.forEach(function(p){if(p.cell)CELLSET[p.name]=1;});
+var SECSET={}; PRODUCTS.forEach(function(p){if(p.sec)SECSET[p.name]=1;});
 var PROVIDERS=['Xfinity / Comcast','Spectrum','Cox','AT&T','Optimum / Altice','T-Mobile Home','Other'];
 
 /* ── TERRITORY CITIES (drives weather + ISP guide) ── */
@@ -907,6 +944,7 @@ function persist(opts){
 function dayKey(ts){var d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function todayKey(){return dayKey(Date.now());}
 function startOfWeek(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-6);return d.getTime();}
+function startOfMonth(){var d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime();}
 function fmtDate(ts){return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
 function fmtDateLong(ts){return new Date(ts).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});}
 function fmtTime(ts){return new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
@@ -1383,6 +1421,7 @@ function renderTally(){
       deleteKnock(today[0].id);toast('Removed last '+DMAP[disp].label);
     });
   });
+  renderPace();
 }
 
 /* ════════ MAP LEGEND ════════ */
@@ -1887,6 +1926,34 @@ function renderStats(){
     $$('#installs .pl-item').forEach(function(it){it.onclick=function(){openKnockSheet(it.dataset.k);};});
   }
   renderPlan();
+  renderEarnings();
+}
+
+/* Earnings tracker — installed (commission earned) vs pending install */
+function renderEarnings(){
+  var box=$('#earnGrid'); if(!box)return;
+  var sold=myKnocks().filter(function(k){return k.disp==='sold';});
+  var now=Date.now(),sw=startOfWeek(),sm=startOfMonth();
+  var week=0,month=0,inst=0,instN=0,pend=0,pendN=0;
+  sold.forEach(function(k){
+    var c=k.commission||0;
+    if(k.ts>=sw)week+=c;
+    if(k.ts>=sm)month+=c;
+    if(k.schedule&&k.schedule<=now){inst+=c;instN++;}
+    else{pend+=c;pendN++;}
+  });
+  box.innerHTML=
+    '<div class="earn-tiles">'+
+      '<div class="earn-tile"><div class="et-num">'+money(week)+'</div><div class="et-lbl">Booked This Week</div></div>'+
+      '<div class="earn-tile"><div class="et-num">'+money(month)+'</div><div class="et-lbl">Booked This Month</div></div>'+
+    '</div>'+
+    '<div class="earn-split">'+
+      '<div class="es-row"><span class="es-ic">✅</span><span class="es-lbl">Installed</span>'+
+        '<span class="es-amt">'+money(inst)+'</span><span class="es-n">'+instN+' sale'+(instN===1?'':'s')+'</span></div>'+
+      '<div class="es-row"><span class="es-ic">⏳</span><span class="es-lbl">Pending install</span>'+
+        '<span class="es-amt pend">'+money(pend)+'</span><span class="es-n">'+pendN+' sale'+(pendN===1?'':'s')+'</span></div>'+
+    '</div>'+
+    '<div class="earn-foot">Installed = the scheduled install date has passed. Pending = upcoming or unscheduled. Commission is earned on confirmed install per the 1099 rate card.</div>';
 }
 
 /* ════════ GOAL PLANNER — work backward from a sales goal ════════
@@ -1903,17 +1970,12 @@ function renderPlan(){
   planOutput();
 }
 
-function planOutput(){
-  var box=$('#planResult'); if(!box)return;
-  var plan=state.plan||{goal:5,days:7};
-  var goal=Math.max(1,parseInt(plan.goal,10)||1);
-  var days=Math.max(1,parseInt(plan.days,10)||1);
+function planRatios(){
   var ks=myKnocks();
   var doors=ks.length;
   var contacts=ks.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   var appts=ks.filter(function(k){return k.disp==='appt';}).length;
   var sales=ks.filter(function(k){return k.disp==='sold';}).length;
-
   var own=sales>=3;
   var doorsPer=own?doors/sales:PLAN_DEFAULT.doorsPer;
   var convPer =own?contacts/sales:PLAN_DEFAULT.convPer;
@@ -1921,6 +1983,42 @@ function planOutput(){
   if(isNaN(doorsPer)||doorsPer<=0)doorsPer=PLAN_DEFAULT.doorsPer;
   if(isNaN(convPer)||convPer<=0) convPer =PLAN_DEFAULT.convPer;
   if(isNaN(apptPer)||apptPer<0)  apptPer =PLAN_DEFAULT.apptPer;
+  return {doorsPer:doorsPer,convPer:convPer,apptPer:apptPer,own:own,sales:sales};
+}
+
+/* Daily-pace bar on the Tally screen — today's actuals vs the Goal Planner's per-day targets */
+function renderPace(){
+  var box=$('#tallyPace'); if(!box)return;
+  var plan=state.plan||{goal:5,days:7};
+  var goal=Math.max(1,parseInt(plan.goal,10)||1);
+  var days=Math.max(1,parseInt(plan.days,10)||1);
+  var R=planRatios();
+  var today=knocksInRange('today');
+  var dDoors=today.length;
+  var dConv=today.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
+  var dSold=today.filter(function(k){return k.disp==='sold';}).length;
+  var rows=[
+    {l:'Doors',ic:'🚪',v:dDoors,t:Math.max(1,Math.ceil(goal*R.doorsPer/days)),c:'#00AEEF'},
+    {l:'Conversations',ic:'💬',v:dConv,t:Math.max(1,Math.ceil(goal*R.convPer/days)),c:'#b46bff'},
+    {l:'Sales',ic:'✅',v:dSold,t:Math.max(1,Math.ceil(goal/days)),c:'#00C853'}
+  ];
+  box.innerHTML=rows.map(function(r){
+    var pct=Math.min(100,Math.round(r.v/r.t*100));
+    var done=r.v>=r.t;
+    return '<div class="pace-row"><span class="pace-ic">'+r.ic+'</span>'+
+      '<span class="pace-lbl">'+r.l+'</span>'+
+      '<div class="pace-track"><div class="pace-fill" style="width:'+pct+'%;background:'+(done?'#00C853':r.c)+'"></div></div>'+
+      '<span class="pace-val'+(done?' done':'')+'">'+r.v+'<i>/'+r.t+'</i></span></div>';
+  }).join('');
+}
+
+function planOutput(){
+  var box=$('#planResult'); if(!box)return;
+  var plan=state.plan||{goal:5,days:7};
+  var goal=Math.max(1,parseInt(plan.goal,10)||1);
+  var days=Math.max(1,parseInt(plan.days,10)||1);
+  var R=planRatios();
+  var doorsPer=R.doorsPer,convPer=R.convPer,apptPer=R.apptPer,own=R.own,sales=R.sales;
 
   var pd=function(n){return Math.ceil(n/days);};
   var rows=[
@@ -2023,7 +2121,7 @@ function deleteRep(id){
 var lbMetric='doors', lbRange='today';
 var METRICS={doors:'Doors',contacts:'Contacts',sold:'Sales',commission:'Commission'};
 function statsFor(repId,range){
-  var o={doors:0,contacts:0,appts:0,sold:0,commission:0,vas:0,voip:0,cell:0,cellRate:0},
+  var o={doors:0,contacts:0,appts:0,sold:0,commission:0,vas:0,voip:0,cell:0,cellRate:0,sec:0,secRate:0},
       sw=startOfWeek(),tk=todayKey();
   state.knocks.forEach(function(k){
     if(k.repId!==repId)return;
@@ -2038,9 +2136,11 @@ function statsFor(repId,range){
         if(nm==='VoIP Line')o.voip++; else o.vas++;
       });
       if((k.products||[]).some(function(nm){return CELLSET[nm];}))o.cell++;
+      if((k.products||[]).some(function(nm){return SECSET[nm];}))o.sec++;
     }
   });
   o.cellRate=o.sold?Math.round(o.cell/o.sold*100):0;
+  o.secRate=o.sold?Math.round(o.sec/o.sold*100):0;
   return o;
 }
 function leaderboardData(range){
@@ -2060,7 +2160,7 @@ function leaderboardData(range){
     var s=c.stats[range];
     map[id]={id:id,name:c.name||'Rep',color:c.color||'#8b97a8',mine:false,
       doors:s.doors||0,contacts:s.contacts||0,appts:s.appts||0,sold:s.sold||0,commission:s.commission||0,
-      vas:s.vas||0,voip:s.voip||0,cell:s.cell||0,cellRate:s.cellRate||0};
+      vas:s.vas||0,voip:s.voip||0,cell:s.cell||0,cellRate:s.cellRate||0,sec:s.sec||0,secRate:s.secRate||0};
   });
   return Object.keys(map).map(function(k){return map[k];});
 }
@@ -2083,6 +2183,7 @@ function renderLeaderboard(){
           '<div class="lb-bar"><div class="lb-fill" style="width:'+Math.round(v/top*100)+'%;background:'+r.color+'"></div></div>'+
           '<div class="lb-stats">'+
             '<span><b>'+(r.sold||0)+'</b>sales</span>'+
+            '<span><b>'+(r.sec||0)+'</b>security</span>'+
             '<span><b>'+(r.vas||0)+'</b>VAS</span>'+
             '<span><b>'+(r.voip||0)+'</b>VoIP</span>'+
             '<span><b>'+(r.cell||0)+'</b>cellular</span>'+
