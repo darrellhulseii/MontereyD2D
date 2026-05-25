@@ -404,12 +404,6 @@ input,select,textarea{outline:none}
 .isp-pitch{font-size:12.5px;color:var(--gold);background:rgba(255,215,0,.07);border-left:3px solid var(--gold);
   border-radius:0 8px 8px 0;padding:9px 11px;line-height:1.5}
 .wx-embed-img{width:100%;border-radius:9px;display:block;background:#1a1a1a}
-.crime-wrap{position:relative;height:300px;border-radius:10px;overflow:hidden;background:var(--card2);
-  border:1px solid var(--border2)}
-#crimeFrame{width:100%;height:100%;border:0;display:block}
-.crime-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:var(--faint);font-size:12px;text-align:center;padding:20px}
-.crime-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.45}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -616,16 +610,6 @@ a.btn-line{text-decoration:none}
       <div id="wxBody"><div class="wx-loading">Select a city above.</div></div>
     </div>
 
-    <div class="card" id="crimeCard">
-      <div class="card-h">🛡️ Crime Map <span class="ch-r" id="crimeCity">—</span></div>
-      <div class="crime-wrap">
-        <div class="crime-loading" id="crimeLoading">Loading SpotCrime map…</div>
-        <iframe id="crimeFrame" loading="lazy" referrerpolicy="no-referrer"></iframe>
-      </div>
-      <a class="btn-line" id="crimeOpen" target="_blank" rel="noopener noreferrer" style="margin-top:9px">🛡️ Open Full Crime Map ↗</a>
-      <div class="crime-note">Live neighborhood crime from SpotCrime+ — robberies, theft, assault, burglary and more. If the map area stays blank, your browser blocked the inline embed; tap the button above to open the full map.</div>
-    </div>
-
     <div class="card conn-card">
       <div class="card-h" style="justify-content:center">Your Connection</div>
       <div class="cc-status" id="ccStatus">Checking…</div>
@@ -828,23 +812,38 @@ var CITY_NOTE={
   mountain:'Big Bear is a mountain market — wired fiber is limited, Spectrum is the cable incumbent, and Starlink + 5G home internet are the strongest alternatives.'
 };
 
-/* ── ISP COMPETITIVE INTEL (pricing & cancellation, current 2026) ── */
+/* ── ISP COMPETITIVE INTEL — Frontier & EarthLink from the 5/21/26 & 5/1/26 offer sheets ── */
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
-  headline:'Fiber $44.99–$129.99/mo (AutoPay) · price-for-life',
-  plans:['Fiber 500 Mbps — $44.99/mo','Fiber 1 Gig — $64.99/mo','Fiber 2 Gig — $74.99/mo',
-    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $129.99/mo',
-    'All prices require AutoPay + Paperless Bill ($10/mo more without)',
-    'Free eero Wi-Fi router · symmetrical speeds · no data caps · install $0–$85'],
-  cancel:'Standard fiber plans are month-to-month with a price-for-life guarantee — the AutoPay rate never rises. Promotions tied to a Visa Reward Card carry a 12-month term with a $100 prorated early-termination fee. On disconnect there is a $50 equipment restocking fee, plus a non-return fee up to ~$150 (around $500 for 5 Gig / 7 Gig gear) if equipment is not returned.',
-  pitch:'This is your product. Lead with price-for-life and symmetrical speeds — no 12-month bait-and-switch like cable. Set honest expectations on the restocking / non-return fees.'},
+  headline:'Fiber $29.99–$109.99/mo (AutoPay) · 1 Gig $49.99 lead offer',
+  plans:['Fiber 200 Mbps — $29.99/mo','Fiber 500 Mbps — $29.99/mo',
+    'Fiber 1 Gig — $49.99/mo — lead offer','Fiber 2 Gig — $64.99/mo',
+    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $109.99/mo',
+    'All prices include the $10/mo AutoPay discount',
+    'Mobile + Home Discount: $15/mo off with a qualifying Verizon postpaid mobile plan',
+    'Verizon Perks: up to $10/mo in credits on 2 Gig and higher — Netflix/HBO Max, Disney+/Hulu/ESPN+, YouTube Premium',
+    '2 Months "On Us" (F2F, thru 6/30): 1 Gig & 500M free for months 1-2 — then 1 Gig $49.99/mo, 500M $34.99/mo',
+    'Samsung Promotion: $400 Best Buy credit toward Samsung products on a 1 Gig or higher install',
+    'Fox One — 3 Months "On Us" (5/21-9/2): net-new Fiber paired with Verizon postpaid mobile',
+    'Video: Netflix & Pro Wi-Fi bundle $32/mo · YouTube TV $82.99/mo ($10 off/mo for 12 months)',
+    'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
+    'Offers current as of the 5/21/26 Frontier offer sheet'],
+  cancel:'Standard Fiber plans are month-to-month. The 2 Months "On Us" (F2F) promo carries an early-termination fee if the internet service is cancelled within the first 12 months. The $400 Samsung promotion requires keeping eligible Fiber service for 180 days — early cancellation can trigger a $400 chargeback. On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
+  pitch:'This is your product. Lead with Fiber 1 Gig at $49.99/mo and the $15/mo Mobile + Home discount for Verizon postpaid customers, then stack the 2-month "On Us" promo and the $400 Samsung credit on 1 Gig and up. Present every offer on every door — and set honest expectations on the 12-month ETF and non-return fees.'},
 
- {id:'earthlink',name:'EarthLink',type:'Fiber / Wireless',ours:true,color:'#00C853',
-  headline:'Fiber + 4G/5G wireless · resold over partner networks',
-  plans:['Fiber 100 Mbps up to 5 Gig (over partner fiber)','Wireless 4G/5G — Unlimited & Essentials plans',
-    'Pricing varies by network and address — confirm at point of sale'],
-  cancel:'EarthLink generally uses a term agreement (commonly 12 months) with an early-termination fee. Value-added services must stay active to qualify and are subject to chargebacks. Confirm the current term and ETF with the customer before close.',
-  pitch:'Your secondary product — best where Frontier fiber is not built. Position EarthLink wireless as the fast, no-trencher option, and be upfront that it carries a term agreement.'},
+ {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
+  headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer',
+  plans:['Fiber 100 Mbps — $39.95/mo','Fiber 300 Mbps — $49.95/mo',
+    'Fiber 500 Mbps — $54.95/mo','Fiber 1 Gig — $74.95/mo — lead offer',
+    'Fiber 2 Gig — $109.95/mo','Fiber 5 Gig — $149.95/mo',
+    'Add $14.95/mo router fee plus a $24.95 one-time install fee',
+    '1G + 500M Promo (new customers): 1 Gig $44.95/mo for months 1-3 then $74.95 · 500M $34.95/mo for months 1-3 then $54.95',
+    '5G Home Internet (Unlimited) — PerfectVision-exclusive: $59.95/mo + $14.95 modem rental · true unlimited data · up to 300 Mbps · no contract',
+    'Always disclose the $79.95 processing & handling fee, due at point of sale',
+    'VAS: EarthLink Protect+ $9.95/mo · LifeLock $7.95/mo · EasyTech $9.95/mo',
+    'Offers current as of the 5/1/26 EarthLink offer sheet'],
+  cancel:'EarthLink Fiber is typically sold on a term agreement (commonly 12 months) with an early-termination fee — confirm the current term and ETF with the customer before close. The 5G Home Internet (Unlimited) plan requires no contract. Value-added services must stay active to qualify and are subject to chargebacks.',
+  pitch:'Your secondary product — strong where Frontier Fiber is not built. Lead with Fiber 1 Gig at $74.95/mo (or the $44.95 intro rate for months 1-3), and pitch the PerfectVision-exclusive 5G Home Unlimited as the fast, no-trencher, no-contract option. Always disclose the $14.95 router fee and the $79.95 processing & handling fee up front.'},
 
  {id:'xfinity',name:'Xfinity (Comcast)',type:'Cable',color:'#ff8a3c',
   headline:'$20–$70/mo intro — roughly doubles after 12 months',
@@ -852,14 +851,14 @@ var ISPS=[
     'Fast / Superfast 400–600 Mbps','Gigabit 1 Gig — ~$50–$70/mo intro',
     '+ ~$15/mo Wi-Fi equipment fee · ~$100 install (self-install to avoid)'],
   cancel:'Standard plans are no-contract with no early-termination fee, and a 5-year price guarantee is offered on some new plans. Term-agreement promos can carry an ETF. Comcast leans hard on retention / win-back offers when a customer calls to cancel.',
-  pitch:'The kill shot: the intro price roughly doubles after 12 months — Connect More jumps from ~$30 to ~$69 — plus a $15 router fee. Frontier price-for-life wins on year-two cost every time.'},
+  pitch:'The kill shot: the intro price roughly doubles after 12 months — Connect More jumps from ~$30 to ~$69 — plus a $15 router fee. Frontier Fiber holds a flat AutoPay rate and wins on year-two cost every time.'},
 
  {id:'spectrum',name:'Spectrum (Charter)',type:'Cable',color:'#0a6ea8',
   headline:'$30–$70/mo · no contracts · $500 contract buyout',
   plans:['Internet 500 Mbps — ~$30/mo (online / bundle price)','Internet 1 Gig — ~$50–$70/mo (online discount yr 1)',
     '3-year price-lock guarantee on newer plans','No fee on base modem · Wi-Fi router is an add-on'],
   cancel:'No contracts and no early-termination fee. Spectrum will pay up to $500 of a competitor\u2019s ETF when a customer switches AND bundles Internet with TV/Voice. Standard rates apply after the 12-month promo — bills climb roughly $20–$30. Strong retention desk.',
-  pitch:'Spectrum markets "no contract," but the promo rate still expires and the bill climbs. Their $500 buyout only applies on a TV bundle. Counter with Frontier\u2019s flat price-for-life.'},
+  pitch:'Spectrum markets "no contract," but the promo rate still expires and the bill climbs. Their $500 buyout only applies on a TV bundle. Counter with Frontier\u2019s flat AutoPay Fiber pricing — no 12-month jump.'},
 
  {id:'att',name:'AT&T Fiber',type:'Fiber',color:'#00a8e0',
   headline:'$55–$245/mo · no contract · no 12-month price hike',
@@ -1713,20 +1712,8 @@ function selectCity(i){
   $$('#cityBar .city-chip').forEach(function(ch){ch.classList.toggle('active',+ch.dataset.ci===i);});
   loadWeather(CITIES[i]);
   renderISPGuide(CITIES[i]);
-  loadCrimeMap(CITIES[i]);
 }
-function loadCrimeMap(city){
-  var slug=city.crime||city.name.replace(', CA','').toLowerCase().replace(/ /g,'+');
-  var url='https://spotcrime.com/ca/'+slug;
-  $('#crimeCity').textContent=city.name.replace(', CA','');
-  var open=$('#crimeOpen'); if(open)open.href=url;
-  var cf=$('#crimeFrame'), cl=$('#crimeLoading');
-  if(cl)cl.style.display='flex';
-  if(cf){
-    cf.onload=function(){if(cl)cl.style.display='none';};
-    cf.src=url;
-  }
-}
+
 function openIntel(){
   if(intelReady)return;
   intelReady=true;
