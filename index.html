@@ -308,6 +308,14 @@ input,select,textarea{outline:none}
 .pc-check{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent}
 .pchip.sel .pc-check{background:var(--green);border-color:var(--green);color:#04140a}
+.qty-row{display:none;align-items:center;gap:8px;background:var(--card2);
+  border:1px solid var(--green);border-radius:9px;padding:8px 11px}
+.pchip.sel+.qty-row{display:flex}
+.qty-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.4px;color:var(--muted)}
+.qty-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--card);
+  color:var(--ink);font-size:18px;line-height:1;flex-shrink:0}
+.qty-n{min-width:22px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--ink)}
+.qty-sub{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--green);letter-spacing:.5px}
 .comm-readout{display:flex;align-items:center;justify-content:space-between;background:rgba(0,200,83,.1);
   border:1px solid var(--green);border-radius:11px;padding:11px 14px;margin:8px 0 4px}
 .comm-readout span{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:1px;
@@ -773,8 +781,12 @@ var PRODUCTS=[
   {g:'EarthLink', name:'EarthLink Fiber — 1 Gig',          amt:200},
   {g:'EarthLink', name:'EarthLink Fiber — 500 Mbps',       amt:175},
   {g:'EarthLink', name:'EarthLink Fiber — 100 Mbps',       amt:125},
-  {g:'EarthLink', name:'EarthLink Wireless — Unlimited 4G/5G', amt:100, cell:1},
-  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45, cell:1},
+  {g:'EarthLink', name:'EarthLink Wireless — Unlimited 4G/5G', amt:100, cell:1, qty:1},
+  {g:'EarthLink', name:'EarthLink Wireless — Essentials',  amt:45, cell:1, qty:1},
+  /* derived bundle quick-picks — sum of rate-card components (EL 1 Gig $200 + Wireless Unlimited $100 + ADT Silver $600).
+     qty = number of wireless lines; each line beyond the first adds the $100 Unlimited line rate (addAmt). */
+  {g:'EarthLink Bundles', name:'EarthLink 1 Gig + Wireless Unlimited',     amt:300, cell:1, qty:1, addAmt:100},
+  {g:'EarthLink Bundles', name:'EarthLink 1 Gig + Wireless + ADT Silver',  amt:900, cell:1, sec:1, qty:1, addAmt:100},
   {g:'ADT — Home Security', name:'ADT — Bronze Package',          amt:500, sec:1},
   {g:'ADT — Home Security', name:'ADT — Silver Package',          amt:600, sec:1},
   {g:'ADT — Home Security', name:'ADT — Gold Package',            amt:650, sec:1},
@@ -1139,7 +1151,7 @@ function addKnock(obj){
   var k={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:obj.disp,
     firstName:obj.firstName||'',address:obj.address||'',phone:obj.phone||'',
     notes:obj.notes||'',schedule:obj.schedule||null,
-    products:obj.products||[],vas:obj.vas||[],commission:obj.commission||0,
+    products:obj.products||[],vas:obj.vas||[],commission:obj.commission||0,qty:obj.qty||{},
     lat:obj.lat!=null?obj.lat:(curPos?curPos.lat:null),
     lng:obj.lng!=null?obj.lng:(curPos?curPos.lng:null)};
   state.knocks.push(k);
@@ -1196,8 +1208,14 @@ function fieldHTML(token,d){
     order.forEach(function(g){
       h+='<div class="pgroup-label">'+esc(g)+'</div><div class="pchip-grid">';
       groups[g].forEach(function(p){
-        h+='<button type="button" class="pchip" data-amt="'+p.amt+'" data-name="'+esc(p.name)+'">'+
+        h+='<button type="button" class="pchip" data-amt="'+p.amt+'" data-add="'+(p.addAmt||p.amt)+'" data-name="'+esc(p.name)+'"'+(p.qty?' data-qty="1"':'')+'>'+
           '<span class="pc-check">✓</span><span>'+esc(p.name)+'</span><b>$'+p.amt+'</b></button>';
+        if(p.qty)
+          h+='<div class="qty-row"><span class="qty-lbl">Wireless lines</span>'+
+             '<button type="button" class="qty-btn" data-step="-1">−</button>'+
+             '<span class="qty-n">1</span>'+
+             '<button type="button" class="qty-btn" data-step="1">+</button>'+
+             '<span class="qty-sub">$'+p.amt+'</span></div>';
       });
       h+='</div>';
     });
@@ -1250,6 +1268,9 @@ function openDispositionForm(disp,ctx,editId){
     (editing.products||[]).concat(editing.vas||[]).forEach(function(nm){
       $$('.pchip',sheetEl).forEach(function(c){if(c.dataset.name===nm)c.classList.add('sel');});
     });
+    if(editing.qty)$$('.pchip',sheetEl).forEach(function(c){
+      if(c.dataset.qty&&editing.qty[c.dataset.name])c.dataset.qty=editing.qty[c.dataset.name];
+    });
   }
   /* address prefill from map reverse geocode */
   if($('#f_address')){
@@ -1275,14 +1296,44 @@ function openDispositionForm(disp,ctx,editId){
     toast('📍 Pinned to your location');
   };
   /* product / vas chips + commission */
+  function chipAmt(c){
+    var amt=parseInt(c.dataset.amt,10)||0;
+    if(c.dataset.qty){
+      var q=parseInt(c.dataset.qty,10)||1, add=parseInt(c.dataset.add,10)||amt;
+      return amt+(q-1)*add;
+    }
+    return amt;
+  }
   function recalc(){
     var t=0;
-    $$('.pchip.sel',sheetEl).forEach(function(c){t+=parseInt(c.dataset.amt,10)||0;});
+    $$('.pchip.sel',sheetEl).forEach(function(c){t+=chipAmt(c);});
     if($('#f_comm'))$('#f_comm').textContent=money(t);
   }
+  function syncQty(c){
+    var row=c.nextElementSibling;
+    if(!row||!row.classList.contains('qty-row'))return;
+    var q=parseInt(c.dataset.qty,10)||1;
+    var n=row.querySelector('.qty-n'); if(n)n.textContent=q;
+    var sub=row.querySelector('.qty-sub'); if(sub)sub.textContent=money(chipAmt(c));
+  }
   $$('.pchip',sheetEl).forEach(function(c){
-    c.onclick=function(){c.classList.toggle('sel');recalc();};
+    c.onclick=function(){
+      c.classList.toggle('sel');
+      if(!c.classList.contains('sel')&&c.dataset.qty){c.dataset.qty='1';syncQty(c);}
+      recalc();
+    };
   });
+  $$('.qty-row',sheetEl).forEach(function(row){
+    var chip=row.previousElementSibling;
+    $$('.qty-btn',row).forEach(function(b){
+      b.onclick=function(){
+        var q=(parseInt(chip.dataset.qty,10)||1)+parseInt(b.dataset.step,10);
+        if(q<1)q=1; if(q>10)q=10;
+        chip.dataset.qty=q;syncQty(chip);recalc();
+      };
+    });
+  });
+  $$('.pchip',sheetEl).forEach(syncQty);
   recalc();
 
   /* save */
@@ -1298,13 +1349,14 @@ function openDispositionForm(disp,ctx,editId){
       o.schedule=v?new Date(v).getTime():null;
     }
     if(d.fields.indexOf('products')>-1){
-      var prods=[],vas=[],comm=0;
+      var prods=[],vas=[],comm=0,qtyMap={};
       $$('.pchip.sel',sheetEl).forEach(function(c){
-        var nm=c.dataset.name,amt=parseInt(c.dataset.amt,10)||0;comm+=amt;
+        var nm=c.dataset.name;comm+=chipAmt(c);
+        if(c.dataset.qty){var q=parseInt(c.dataset.qty,10)||1;if(q>1)qtyMap[nm]=q;}
         (RATE[nm]!=null&&VAS.some(function(v){return v.name===nm;})?vas:prods).push(nm);
       });
       if(d.needProduct&&!prods.length){toast('<b>Select at least one product sold</b>');return;}
-      o.products=prods;o.vas=vas;o.commission=comm;
+      o.products=prods;o.vas=vas;o.commission=comm;o.qty=qtyMap;
     }
     if(editing){
       updateKnock(editing.id,o);
@@ -1372,7 +1424,7 @@ function openKnockSheet(id){
   if(k.address)rows+='<div class="kv"><span class="k">Address</span><span class="v">'+esc(k.address)+'</span></div>';
   if(k.phone)rows+='<div class="kv"><span class="k">Phone</span><span class="v"><a href="tel:'+esc(k.phone)+'" style="color:var(--sky)">'+esc(k.phone)+'</a></span></div>';
   if(k.schedule)rows+='<div class="kv"><span class="k">'+esc(d.dateLabel||'Scheduled')+'</span><span class="v">'+fmtDateLong(k.schedule)+' · '+fmtTime(k.schedule)+'</span></div>';
-  if(k.products&&k.products.length)rows+='<div class="kv"><span class="k">Products</span><span class="v">'+k.products.map(esc).join('<br>')+'</span></div>';
+  if(k.products&&k.products.length)rows+='<div class="kv"><span class="k">Products</span><span class="v">'+k.products.map(function(nm){return esc(nm)+(k.qty&&k.qty[nm]>1?' ×'+k.qty[nm]:'');}).join('<br>')+'</span></div>';
   if(k.vas&&k.vas.length)rows+='<div class="kv"><span class="k">Value-Added</span><span class="v">'+k.vas.map(esc).join('<br>')+'</span></div>';
   if(k.commission)rows+='<div class="kv"><span class="k">Commission</span><span class="v" style="color:var(--green)">'+money(k.commission)+'</span></div>';
   if(k.notes)rows+='<div class="kv"><span class="k">Notes</span><span class="v">'+esc(k.notes)+'</span></div>';
@@ -2350,7 +2402,7 @@ function settingsSheet(){
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
       var d=DMAP[k.disp],rp=repById(k.repId);
       rows.push([rp?rp.name:'',d?d.label:k.disp,fmtDate(k.ts),fmtTime(k.ts),k.firstName||'',k.address||'',k.phone||'',
-        k.schedule?new Date(k.schedule).toLocaleString():'',(k.products||[]).join('; '),(k.vas||[]).join('; '),
+        k.schedule?new Date(k.schedule).toLocaleString():'',(k.products||[]).map(function(nm){return nm+(k.qty&&k.qty[nm]>1?' x'+k.qty[nm]:'');}).join('; '),(k.vas||[]).join('; '),
         k.commission||'',k.lat!=null?k.lat:'',k.lng!=null?k.lng:'',k.notes||'']);
     });
     var csv=rows.map(function(r){return r.map(function(c){
