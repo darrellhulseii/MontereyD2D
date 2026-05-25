@@ -412,6 +412,10 @@ input,select,textarea{outline:none}
 .isp-pitch{font-size:12.5px;color:var(--gold);background:rgba(255,215,0,.07);border-left:3px solid var(--gold);
   border-radius:0 8px 8px 0;padding:9px 11px;line-height:1.5}
 .wx-embed-img{width:100%;border-radius:9px;display:block;background:#1a1a1a}
+.crime-wrap{position:relative;height:340px;border-radius:10px;overflow:hidden;background:var(--card2);
+  border:1px solid var(--border2)}
+#crimeFrame{width:100%;height:100%;border:0;display:block}
+.crime-note{font-size:11.5px;color:var(--faint);line-height:1.45}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -650,6 +654,17 @@ a.btn-line{text-decoration:none}
     </div>
     <div class="section-lbl">Logged Outages</div>
     <div id="outageList"></div>
+
+    <div class="section-lbl">🛡️ Live Crime Map</div>
+    <div class="card" id="crimeCard">
+      <div class="card-h">🛡️ SpotCrime+ Live Crime Map</div>
+      <div class="crime-note" style="margin:0 0 9px">Live neighborhood crime around you — allow location and SpotCrime+ recenters on where you are right now. Tap any marker for incident details.</div>
+      <div class="crime-wrap">
+        <iframe id="crimeFrame" src="https://spotcrime.com/map" loading="lazy" allow="geolocation" referrerpolicy="no-referrer-when-downgrade" title="SpotCrime+ live crime map"></iframe>
+      </div>
+      <a class="btn-line" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer" style="margin-top:9px">🛡️ Open SpotCrime+ ↗</a>
+      <div class="crime-note" style="margin-top:8px">If the map area stays blank, your browser blocked the inline embed — tap the button above to open SpotCrime+ in a new tab.</div>
+    </div>
   </section>
 
   <!-- PIPELINE -->
