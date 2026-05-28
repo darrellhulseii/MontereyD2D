@@ -2898,6 +2898,21 @@ function renderAll(){renderTally();renderRadar();renderRadarConn();renderPipelin
 
 /* ════════ INIT ════════ */
 function init(){
+  /* Home-screen (standalone) web apps trap external links inside the app shell on iOS,
+     leaving the user stuck with no way back. Pop any external http(s) link out to the
+     real browser so it behaves like a normal website link. mailto:, tel:, in-app and
+     same-origin links are left to their default (they already work in standalone). */
+  document.addEventListener('click',function(e){
+    var a=e.target&&e.target.closest?e.target.closest('a[href]'):null;
+    if(!a)return;
+    var href=a.getAttribute('href')||'';
+    if(!/^https?:\/\//i.test(href))return;
+    if(href.indexOf(location.origin)===0)return;
+    if(isStandalone()){
+      e.preventDefault();
+      window.open(href,'_blank');
+    }
+  },true);
   $$('#rangeToggle button').forEach(function(b){
     b.onclick=function(){
       tallyRange=b.dataset.range;
