@@ -217,6 +217,21 @@ input,select,textarea{outline:none}
 .plan-big{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;letter-spacing:.5px}
 .plan-day{font-size:10.5px;color:var(--muted);width:58px;text-align:right;letter-spacing:.3px}
 .plan-foot{font-size:11px;color:var(--muted);margin-top:11px;line-height:1.55}
+.sched-head{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);
+  margin:14px 0 7px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.sched-row{background:var(--card2);border:1px solid var(--border2);border-radius:11px;
+  padding:9px 11px;margin-bottom:7px}
+.sched-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:5px}
+.sched-day{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.6px;color:var(--ink)}
+.sched-date{font-size:11px;color:var(--muted);letter-spacing:.3px}
+.sched-win{font-size:11.5px;color:var(--sky);font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.3px}
+.sched-mets{display:flex;flex-wrap:wrap;gap:5px 13px;font-size:12.5px;color:var(--ink);
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.2px}
+.sched-mets i{font-style:normal;color:var(--muted);font-weight:500;font-size:11.5px}
+.sched-sale{color:var(--green)}
+.sched-method{background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:9px 12px;margin-bottom:10px}
+.sm-step{font-size:12px;line-height:1.5;color:var(--muted);padding:3px 0}
+.sm-step b{color:var(--ink);font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.2px;font-size:12.5px}
 .pace-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:12px 15px;margin-bottom:13px}
 .pace-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink);margin-bottom:7px;display:flex;align-items:baseline;gap:8px}
 .pace-hint{font-weight:500;font-size:10.5px;letter-spacing:.2px;text-transform:none;color:var(--muted)}
@@ -706,6 +721,7 @@ a.btn-line{text-decoration:none}
         <div class="plan-fld"><label>In how many days</label><input type="number" id="planDays" min="1" inputmode="numeric"></div>
       </div>
       <div id="planResult"></div>
+      <div id="planSchedule"></div>
     </div>
     <div class="card">
       <div class="card-h">Last 7 Days <span class="ch-r" id="weekTotal">0 doors</span></div>
@@ -2135,6 +2151,50 @@ function planOutput(){
     :'Starter benchmark — about 30 doors, 10 conversations and 3 appointments per sale. '+
       'Log 3+ sales and the plan recalculates from your own ratios.')+'</div>';
   box.innerHTML=html;
+  planScheduleRender(goal,days,R);
+}
+
+function planScheduleRender(goal,days,R){
+  var box=$('#planSchedule'); if(!box)return;
+  if(days>60){box.innerHTML='';return;}
+  var WK=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function dist(total){
+    var base=Math.floor(total/days), rem=total-base*days;
+    return function(i){return base+(i<rem?1:0);};
+  }
+  var dD=dist(Math.ceil(goal*R.doorsPer));
+  var dC=dist(Math.ceil(goal*R.convPer));
+  var dA=dist(Math.ceil(goal*R.apptPer));
+  var dS=dist(goal);
+  var today=new Date(); today.setHours(0,0,0,0);
+  var h='<div class="sched-head">📆 Schedule — the D2D Experts method</div>'+
+    '<div class="sched-method">'+
+      '<div class="sm-step"><b>🌅 Morning 10–11a</b> — role-play your pitch, set today\u2019s input goals, plan your route</div>'+
+      '<div class="sm-step"><b>🔒 Afternoon lock-in → dark</b> — knock your numbers, stay out, keep breaks short</div>'+
+      '<div class="sm-step"><b>⚡ Power hours 5p–dusk</b> — most people are home; go your hardest here</div>'+
+      '<div class="sm-step"><b>🌙 Night</b> — log every door, review your inputs, reset for tomorrow</div>'+
+    '</div>';
+  for(var i=0;i<days;i++){
+    var d=new Date(today); d.setDate(today.getDate()+i);
+    var wd=d.getDay();
+    var win=wd===6?'Biggest day · 10a → 5p':(wd===0?'Lighter · 12 → 5p':'Lock in 3p → dark · power hrs 5–7p');
+    var doors=dD(i),conv=dC(i),appt=dA(i),sale=dS(i);
+    h+='<div class="sched-row">'+
+      '<div class="sched-top">'+
+        '<span><b class="sched-day">'+WK[wd]+'</b> <span class="sched-date">· '+MO[d.getMonth()]+' '+d.getDate()+'</span></span>'+
+        '<span class="sched-win">🕓 '+win+'</span>'+
+      '</div>'+
+      '<div class="sched-mets">'+
+        '<span>🚪 '+doors+' <i>doors</i></span>'+
+        '<span>💬 '+conv+' <i>conv'+(conv===1?'':'os')+'</i></span>'+
+        '<span>📅 '+appt+' <i>appt'+(appt===1?'':'s')+'</i></span>'+
+        '<span class="sched-sale">✅ '+sale+' <i>sale'+(sale===1?'':'s')+'</i></span>'+
+      '</div>'+
+    '</div>';
+  }
+  h+='<div class="plan-foot" style="margin-top:6px"><b>Method:</b> built the way Sam Taggart / The D2D Experts, D2DU and KnockStar coach the day — a morning pitch-practice and planning block, an afternoon lock-in that runs through dark, the evening power hours when people are home, and Saturday as your biggest day. Non-negotiables: start on time, stay out to dark, keep breaks short, and judge yourself on your inputs — doors and conversations — not just closes.</div>';
+  box.innerHTML=h;
 }
 
 /* ════════ MULTI-USER ════════ */
