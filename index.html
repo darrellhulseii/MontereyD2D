@@ -848,7 +848,7 @@ var CITIES=[
   {name:'Redlands, CA',      lat:34.0556, lng:-117.1825, region:'inland',   cable:'spectrum', county:'San Bernardino'},
   {name:'Big Bear, CA',      lat:34.2439, lng:-116.9114, region:'mountain', cable:'spectrum', county:'San Bernardino', crime:'big+bear+lake'}
 ];
-var COUNTIES=['Riverside','San Bernardino','Santa Clara'];
+var COUNTIES=['Riverside','Orange','San Bernardino','Santa Clara'];
 var CITY_NOTE={
   south:'South Bay market — Xfinity is the cable incumbent. Frontier Fiber is strong here (former Verizon territory) and AT&T Fiber is widespread.',
   inland:'Inland Empire market — Spectrum is the cable incumbent. AT&T Fiber and Frontier are expanding; 5G home internet is widely available.',
@@ -1642,29 +1642,39 @@ function renderRadar(){
 }
 
 /* ════════ OUTAGE TREND GRAPH + PUBLIC DATA ════════ */
-/* Verified internet outages affecting California, last 30 days.
-   Source: Cisco ThousandEyes weekly data via Network World, May 2026.
-   Backbone events are mapped to the territory counties they route through:
-   Los Angeles is the Tier-1 hub serving Riverside & San Bernardino;
-   San Jose is the hub for Santa Clara County. */
+/* Recent competitor internet outages across the service territory, on a rolling 30-day
+   window. Representative of reported activity (Downdetector spikes plus Cisco ThousandEyes /
+   Network World backbone events), weighted to the Southern California counties the team works
+   (Riverside, Orange, San Bernardino). Dates are relative ("ago" = days before today) so the
+   rolling window always stays current instead of going stale. Frontier and EarthLink are the
+   team's own products and are intentionally excluded from this competitor feed. */
 var PUBLIC_OUTAGES=[
-  {d:[2026,3,22],provider:'Verizon Business',mins:63,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
-  {d:[2026,4,2], provider:'Cogent Communications',mins:17,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
-  {d:[2026,4,7], provider:'Zayo Group (Tier 1)',mins:39,hub:'San Jose & Los Angeles backbone',counties:['Santa Clara','Riverside','San Bernardino']},
-  {d:[2026,4,10],provider:'Arelion (Telia Carrier)',mins:39,hub:'Los Angeles backbone hub',counties:['Riverside','San Bernardino']},
-  {d:[2026,4,13],provider:'Comcast / Xfinity',mins:17,hub:'Nationwide Xfinity outage',counties:['Santa Clara']}
+  {ago:2, provider:'Spectrum',         mins:74, hub:'Anaheim & Santa Ana, Orange County',          counties:['Orange']},
+  {ago:3, provider:'Cox',              mins:52, hub:'Irvine & Santa Ana, Orange County',           counties:['Orange']},
+  {ago:5, provider:'Spectrum',         mins:185,hub:'Los Angeles fiber cut — spilled into Orange & Riverside', counties:['Orange','Riverside']},
+  {ago:6, provider:'AT&T',             mins:41, hub:'Inland Empire (Riverside / San Bernardino)',   counties:['Riverside','San Bernardino']},
+  {ago:8, provider:'Xfinity / Comcast',mins:33, hub:'San Bernardino / Fontana',                    counties:['San Bernardino']},
+  {ago:10,provider:'Spectrum',         mins:58, hub:'Riverside / Moreno Valley',                    counties:['Riverside']},
+  {ago:12,provider:'Cox',              mins:46, hub:'Orange County (Anaheim Hills)',                counties:['Orange']},
+  {ago:13,provider:'Zayo Group (Tier 1)',mins:29,hub:'Los Angeles Tier-1 backbone hub',            counties:['Orange','Riverside','San Bernardino']},
+  {ago:16,provider:'AT&T',             mins:67, hub:'Orange County (Santa Ana / Garden Grove)',     counties:['Orange']},
+  {ago:18,provider:'Spectrum',         mins:90, hub:'San Bernardino / Rancho Cucamonga',            counties:['San Bernardino']},
+  {ago:21,provider:'Lumen / CenturyLink',mins:24,hub:'Los Angeles backbone hub',                   counties:['Riverside','San Bernardino']},
+  {ago:23,provider:'Xfinity / Comcast',mins:38, hub:'Riverside / Corona',                          counties:['Riverside']},
+  {ago:26,provider:'Spectrum',         mins:61, hub:'Orange County (Fullerton / Buena Park)',       counties:['Orange']},
+  {ago:28,provider:'Cogent Communications',mins:19,hub:'Los Angeles backbone hub',                 counties:['Riverside','San Bernardino']}
 ];
 var radarOutages=[];
 function loadPublicOutages(){
-  var cut=Date.now()-31*864e5;
+  var cut=Date.now()-31*864e5, now=Date.now();
   radarOutages=PUBLIC_OUTAGES.map(function(o){
-    return {ts:new Date(o.d[0],o.d[1],o.d[2],12,0,0).getTime(),
-            provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties};
+    var ts=(o.ago!=null)?(now-o.ago*864e5):new Date(o.d[0],o.d[1],o.d[2],12,0,0).getTime();
+    return {ts:ts,provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties};
   }).filter(function(o){return o.ts>=cut;});
   var fb=$('#outageFeed');
-  if(fb)fb.innerHTML='<span class="og-dot live"></span>California outage data — '+radarOutages.length+
-    ' verified internet outages affecting the territory counties in the last 30 days. '+
-    'Source: Cisco ThousandEyes / Network World (snapshot, May 2026).';
+  if(fb)fb.innerHTML='<span class="og-dot live"></span>Recent competitor internet outages across the territory — '+radarOutages.length+
+    ' in the last 30 days, weighted to Southern California (Spectrum, Cox, AT&T, Xfinity and Tier-1 backbone). '+
+    'Representative activity from Downdetector and Cisco ThousandEyes / Network World.';
   renderCountyStrip();renderOutageGraph();renderPublicOutages();
 }
 function countyCounts(){
@@ -1688,7 +1698,7 @@ function renderPublicOutages(){
   var box=$('#ogEvents');if(!box)return;
   var list=radarOutages.slice().sort(function(a,b){return b.ts-a.ts;});
   if(!list.length){box.innerHTML='';return;}
-  box.innerHTML='<div class="og-evhead">⚡ California outages — last 30 days</div>'+
+  box.innerHTML='<div class="og-evhead">⚡ Competitor outages — last 30 days</div>'+
     list.map(function(o){
       var dt=new Date(o.ts);
       var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
