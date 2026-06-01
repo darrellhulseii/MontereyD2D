@@ -2820,6 +2820,36 @@ function loadPlaybook(){
 }
 
 /* ════════ INSTALL BANNER ════════ */
+/* Web app manifest, injected at runtime so the app stays a single self-contained
+   file. It enables Chrome/Android "Install app" (the beforeinstallprompt path below
+   cannot fire without it) and gives the installed home-screen app the correct name,
+   icon, colours and standalone launch. Absolute start_url/scope are used because a
+   Blob-URL manifest resolves relative paths against the blob, not the page. */
+(function(){
+  try{
+    if(document.querySelector('link[rel="manifest"]'))return;
+    var ic=document.querySelector('link[rel="apple-touch-icon"]')||document.querySelector('link[rel="icon"]');
+    var icon=ic?ic.getAttribute('href'):'';
+    var base=location.href.split('#')[0].split('?')[0];
+    var manifest={
+      name:'KnockRadar — Complete Home Field System',
+      short_name:'KnockRadar',
+      description:'Door-to-door field sales tracker for Complete Home Today LLC.',
+      start_url:base,
+      scope:base.replace(/[^/]*$/,''),
+      display:'standalone',
+      orientation:'portrait-primary',
+      background_color:'#07111f',
+      theme_color:'#07111f',
+      icons:icon?[{src:icon,sizes:'512x512',type:'image/png',purpose:'any maskable'}]:[]
+    };
+    var blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    var link=document.createElement('link');
+    link.rel='manifest';
+    link.setAttribute('href',URL.createObjectURL(blob));
+    document.head.appendChild(link);
+  }catch(e){}
+})();
 var deferredInstall=null;
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstall=e;});
 function isStandalone(){
