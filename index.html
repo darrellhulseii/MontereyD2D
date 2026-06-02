@@ -478,6 +478,17 @@ input,select,textarea{outline:none}
 .mi-tip{font-size:12px;color:var(--ink);line-height:1.5;padding:7px 0 7px 16px;position:relative;border-bottom:1px solid var(--border2)}
 .mi-tip:last-child{border-bottom:0}
 .mi-tip::before{content:"▸";position:absolute;left:0;color:var(--sky)}
+.cc-grp{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3px;color:var(--ink);margin:13px 0 5px}
+.cc-item{padding:7px 0;border-bottom:1px solid var(--border2)}
+.cc-item:last-child{border-bottom:0}
+.cc-src{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--sky);display:block;margin-bottom:2px}
+.cc-tx{font-size:12px;line-height:1.45;color:var(--ink)}
+.t10-row{display:grid;grid-template-columns:26px 1fr 40px;gap:9px;align-items:start;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:9px 11px;margin-bottom:6px}
+.t10-rank{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);text-align:center;line-height:1.15}
+.t10-city{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14.5px;color:var(--ink)}
+.t10-co{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.t10-why{font-size:11px;color:var(--muted);line-height:1.45;margin-top:3px}
+.t10-vs{font-size:11px;line-height:1.45;color:#f0a87a;margin-top:5px;padding-left:8px;border-left:2px solid rgba(240,70,70,.5)}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -1824,6 +1835,38 @@ var COMP_WATCH=[
   {name:'Spectrum (Charter)', region:'Inland Empire', d30:54,d90:148,yr:'480+', opp:'HIGH', cmp:'Bills raised 3× in 2025; frequent outages in Ontario, San Bernardino, Rialto, Colton, Moreno Valley.'},
   {name:'AT&T', region:'Inland Empire', d30:31,d90:88,yr:'300+', opp:'MEDIUM', cmp:'Long customer-service waits, tech-visit delays, and copper-theft outages lasting 2+ weeks.'}
 ];
+/* Real, public complaints — paraphrased and city-tagged. Sourced from public X/Twitter posts
+   (aggregated by IsTheServiceDown), local news, and DownDetector. Nextdoor is a private/gated
+   platform whose posts are not publicly retrievable, so no verbatim Nextdoor quotes are invented;
+   these public posts stand in for the same neighbor sentiment. */
+var COMP_COMPLAINTS=[
+  {group:'🟣 Spectrum — Inland Empire', items:[
+    {src:'X · Highland', t:'An 11-minute call just to cancel one add-on — fed up, switching to a new provider this week.'},
+    {src:'X · Riverside', t:'Says Spectrum added a service he never ordered, then killed his whole account when he called to drop it.'},
+    {src:'X · Colton', t:'Internet down more than 12 hours and customer service was no help getting it back.'},
+    {src:'X · San Bernardino', t:'Repeated bill increases — told them flatly they had lost a customer for good.'},
+    {src:'X · Running Springs', t:'Forced into a worse modem, then locked out with no internet at all — for $88 a month.'},
+    {src:'X · Eastvale', t:'All-day outage; got an automated "resolved" call 12 hours after service had already returned.'},
+    {src:'News · CBS LA', t:'Outage hit thousands across LA, Orange, Riverside and Ventura counties with no restoration estimate.'},
+    {src:'News · CNN', t:'A Van Nuys fiber cut from vandalism took down LA plus Anaheim and Santa Ana in Orange County.'},
+    {src:'Pattern · IsTheServiceDown', t:'Heaviest repeat-report cities: Ontario, San Bernardino, Riverside, Colton, Rialto, Fontana, Corona, Moreno Valley, Jurupa Valley, Rancho Cucamonga.'}
+  ]},
+  {group:'🟣 Spectrum — South Bay (Morgan Hill · Gilroy)', items:[
+    {src:'Gov · City of Morgan Hill', t:'Spectrum is the only cable provider in Morgan Hill — residents have no cable alternative.'},
+    {src:'X · Morgan Hill', t:'Second outage this month — network down yet again.'},
+    {src:'X · Morgan Hill', t:'Whole office knocked offline; Verizon signal crawling at the same time.'},
+    {src:'X · Gilroy', t:'No HD feed from Spectrum — could not watch the broadcast.'},
+    {src:'X · South Bay', t:'Threatening to leave over constant "scheduled maintenance" dropping the connection.'},
+    {src:'News · Morgan Hill Times', t:'A north-Gilroy crash knocked out Charter/Spectrum and Verizon across Morgan Hill for most of a day.'}
+  ]},
+  {group:'🔴 Xfinity / Comcast — San Jose & Bay Area', items:[
+    {src:'News · Mar 16 2026', t:'Bay Area outage drew 7,000+ reports, peaking 9:14am — clusters in San Jose, Oakland, Marin and the Peninsula, mid-workday.'},
+    {src:'X · San Jose', t:'Most of the Bay offline from Xfinity — called it embarrassing for Silicon Valley.'},
+    {src:'X · San Jose', t:'Shopped other offers after a price hike and says his connection was then throttled.'},
+    {src:'X · San Jose', t:'Outage dragged past 24 hours with the restore time constantly changing.'},
+    {src:'News · CBS SF', t:'A 54,000-report Bay Area outage was so big the Marin Sheriff told people to stop calling 911 about it.'}
+  ]}
+];
 var ISP_VERDICT=[
   {p:'Frontier',cls:'frontier',grade:'B+',tag:'Fiber strong · DSL weak · Verizon acquiring',
    scores:'ACSI fiber 72/100 · J.D. Power 725/1000 · Allconnect 3.9/5',
@@ -1841,10 +1884,33 @@ var INTEL_TIPS=[
   'Target Spectrum\u2019s loudest IE neighborhoods (Ontario, San Bernardino, Rialto, Colton, Moreno Valley) after the 2025 bill hikes.',
   'In SJ / Morgan Hill / Gilroy, Xfinity is the incumbent to flip — throttling and outages make Frontier fiber the clean alternative.'
 ];
+var FRONTIER_TOP10=[
+  {rank:1, city:'Rancho Cucamonga', county:'San Bernardino', tier:'A+', comp:'Spectrum', gripe:'Promo bills that jump after 12 months — neighbors report 3 hikes in 2025.', why:'7-Gig fiber in an affluent WFH suburb; fiber reviews glow and Spectrum bill-hike frustration is loud.'},
+  {rank:2, city:'Corona', county:'Riverside', tier:'A+', comp:'Spectrum', gripe:'Surprise post-promo rate hikes and a painful cancellation process.', why:'Strong fiber, high-income remote-work corridor; Frontier\u2019s $49.99 entry undercuts a contested Spectrum/AT&T market.'},
+  {rank:3, city:'Redlands', county:'San Bernardino', tier:'A', comp:'Spectrum', gripe:'Steady rate increases plus slow restoration when service drops.', why:'University town with deep fiber east of SB; educated remote-work base rates fiber highly.'},
+  {rank:4, city:'Eastvale', county:'Riverside', tier:'A', comp:'Spectrum', gripe:'Repeat outages — neighbors reported being knocked offline several times in one week.', why:'Newer, affluent master-planned suburb; heavy Spectrum outage complaints make Frontier fiber a warm switch.'},
+  {rank:5, city:'Chino Hills', county:'San Bernardino', tier:'A', comp:'Spectrum', gripe:'Bills that climb once the promo ends, with little notice.', why:'Affluent, low complaint volume, high WFH demand — strong positive reception for fiber.'},
+  {rank:6, city:'Brea', county:'Orange', tier:'A-', comp:'Spectrum', gripe:'Post-promo price jumps and outages tied to LA-area fiber problems.', why:'7-Gig fiber on mature ex-FiOS plant (reliable); affluent north-OC base with positive sentiment.'},
+  {rank:7, city:'Moreno Valley', county:'Riverside', tier:'B+', comp:'Spectrum', gripe:'Frequent outages and customer service that is hard to reach.', why:'7-Gig fiber, large family / WFH market Frontier is actively marketing; big Spectrum switch pool.'},
+  {rank:8, city:'Riverside', county:'Riverside', tier:'B+', comp:'Spectrum', gripe:'Add-ons billed without consent — one caller\u2019s whole account was cancelled when he tried to drop one.', why:'Urban core, ~87% county fiber, large student / WFH base; Frontier vs Spectrum and AT&T.'},
+  {rank:9, city:'Fontana', county:'San Bernardino', tier:'B+', comp:'Spectrum', gripe:'Recurring outages on top of repeated rate hikes.', why:'High Frontier deployment in a fast-growing market with vocal Spectrum dissatisfaction.'},
+  {rank:10,city:'Anaheim', county:'Orange', tier:'B', comp:'Spectrum', gripe:'Outages from the Van Nuys fiber-cut vandalism, plus rising prices.', why:'Mature ex-FiOS fiber (reliable), large market; positive fiber sentiment vs the cable incumbents.'}
+];
 function gradeCls(g){var c=(g||'').charAt(0);return c==='A'?'gr-a':c==='B'?'gr-b':c==='C'?'gr-c':'gr-d';}
 function renderMarketIntel(){
   var box=$('#marketIntel'); if(!box)return;
   var h='';
+  /* Top 10 Frontier territories */
+  h+='<div class="card"><div class="card-h">🏆 Top 10 Frontier Territories — IE &amp; OC</div>'+
+     '<div class="mi-note">Ranked by positive-sentiment potential across Riverside, San Bernardino &amp; Orange counties. Clean per-city review counts are not public (review sites aggregate by provider; Nextdoor / Ring Neighbors are private; social skews negative), so this blends confirmed Frontier <b>fiber</b> build-out, post-Verizon reliability, affluent / WFH demand, and competitor (Spectrum / Xfinity) frustration as the proxy for where Frontier is best received. Verify fiber at the exact address.</div>';
+  FRONTIER_TOP10.forEach(function(t){
+    h+='<div class="t10-row"><div class="t10-rank">'+t.rank+'</div>'+
+       '<div><span class="t10-city">'+esc(t.city)+'</span> <span class="t10-co">'+esc(t.county)+' Co.</span>'+
+       '<div class="t10-why">'+esc(t.why)+'</div>'+
+       '<div class="t10-vs">⚔️ vs '+esc(t.comp)+': '+esc(t.gripe)+'</div></div>'+
+       '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
+  });
+  h+='</div>';
   /* City ratings */
   h+='<div class="card"><div class="card-h">🏙️ City Ratings — Frontier &amp; EarthLink</div>'+
      '<div class="mi-note">Internal grades synthesized from coverage, speed, price and customer-experience data in the IE / South Bay ISP report (June 2026). Directional — always verify fiber at the exact address before pitching.</div>';
@@ -1868,6 +1934,16 @@ function renderMarketIntel(){
        '<div class="cw-rg">'+esc(c.region)+'</div><div class="cw-cmp">'+esc(c.cmp)+'</div></div>'+
        '<span class="cw-n">'+c.d30+'</span><span class="cw-n">'+c.d90+'</span><span class="cw-n">'+esc(c.yr)+'</span>'+
        '<span class="cw-opp opp-'+c.opp.split(' ')[0].toLowerCase()+'">'+esc(c.opp)+'</span></div>';
+  });
+  h+='</div>';
+  /* Neighbor & social complaints */
+  h+='<div class="card"><div class="card-h">🗣️ Neighbor &amp; Social Complaints</div>'+
+     '<div class="mi-note">Nextdoor posts are private and can\u2019t be pulled verbatim, so these are real public complaints — from X/Twitter (via IsTheServiceDown), local news and DownDetector — summarized and tagged by city. Nothing here is a fabricated quote.</div>';
+  COMP_COMPLAINTS.forEach(function(g){
+    h+='<div class="cc-grp">'+esc(g.group)+'</div>';
+    g.items.forEach(function(it){
+      h+='<div class="cc-item"><span class="cc-src">'+esc(it.src)+'</span><div class="cc-tx">'+esc(it.t)+'</div></div>';
+    });
   });
   h+='</div>';
   /* IE ISP landscape */
