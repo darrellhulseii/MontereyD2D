@@ -431,6 +431,53 @@ input,select,textarea{outline:none}
   border:1px solid var(--border2)}
 #crimeFrame{width:100%;height:100%;border:0;display:block}
 .crime-note{font-size:11.5px;color:var(--faint);line-height:1.45}
+.mi-note{font-size:11px;color:var(--faint);line-height:1.5;margin-bottom:10px;border-left:2px solid var(--gold);padding-left:8px}
+.mi-rg{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--sky);margin:13px 0 6px}
+.cr-head,.cr-row2{display:grid;grid-template-columns:1fr 44px 44px;gap:6px;align-items:center}
+.cr-head{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:0 2px 4px;font-family:'Barlow Condensed',sans-serif}
+.cr-head span:not(:first-child){text-align:center}
+.cr-row2{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.cr-city{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--ink)}
+.cr-note{font-weight:400;font-size:11px;color:var(--muted);line-height:1.4;margin-top:2px;letter-spacing:0}
+.gr{font-family:'Bebas Neue',sans-serif;font-size:16px;text-align:center;border-radius:7px;padding:5px 0;letter-spacing:.5px}
+.gr-a{background:rgba(40,190,110,.16);color:#34d27f;border:1px solid rgba(40,190,110,.4)}
+.gr-b{background:rgba(0,174,239,.14);color:#3cc0f0;border:1px solid rgba(0,174,239,.4)}
+.gr-c{background:rgba(240,180,40,.15);color:#f0b800;border:1px solid rgba(240,180,40,.4)}
+.gr-d{background:rgba(240,70,70,.15);color:#ff6b6b;border:1px solid rgba(240,70,70,.4)}
+.cw-head,.cw-row{display:grid;grid-template-columns:1fr 30px 30px 38px 56px;gap:5px;align-items:center}
+.cw-head{font-size:9.5px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);padding:0 2px 4px;align-items:end;font-family:'Barlow Condensed',sans-serif}
+.cw-head span:not(:first-child){text-align:center}
+.cw-row{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.cw-p{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13.5px;color:var(--ink)}
+.cw-rg{font-weight:400;font-size:10.5px;color:var(--muted);margin-top:1px}
+.cw-cmp{font-weight:400;font-size:11px;color:var(--muted);line-height:1.4;margin-top:3px}
+.cw-n{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--ink);text-align:center}
+.cw-opp{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;text-align:center;border-radius:6px;padding:4px 1px;letter-spacing:.2px}
+.opp-very{background:rgba(240,70,70,.16);color:#ff6b6b}
+.opp-high{background:rgba(240,180,40,.16);color:#f0b800}
+.opp-medium{background:rgba(0,174,239,.14);color:#3cc0f0}
+.isp-land{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--border2);font-size:12.5px}
+.isp-land:last-child{border-bottom:0}
+.il-n{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--ink)}
+.il-t{font-size:10.5px;color:var(--muted)}
+.il-s{font-family:'Bebas Neue',sans-serif;font-size:12.5px;color:var(--sky);text-align:right;white-space:nowrap;letter-spacing:.3px}
+.vd{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.vd-frontier{border-left:3px solid #ff8a3c}
+.vd-earthlink{border-left:3px solid #34d27f}
+.vd-top{display:flex;align-items:center;justify-content:space-between}
+.vd-p{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;color:var(--ink)}
+.vd-g{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold)}
+.vd-tag{font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;margin:2px 0 6px}
+.vd-scores{font-size:11px;color:var(--sky);margin-bottom:7px;font-family:monospace}
+.vd-lists{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vd-pro,.vd-con{list-style:none;font-size:11px;line-height:1.45}
+.vd-pro li{color:#7fdca8;padding:1px 0}
+.vd-pro li::before{content:"+ ";opacity:.7}
+.vd-con li{color:#f0a87a;padding:1px 0}
+.vd-con li::before{content:"! ";opacity:.7}
+.mi-tip{font-size:12px;color:var(--ink);line-height:1.5;padding:7px 0 7px 16px;position:relative;border-bottom:1px solid var(--border2)}
+.mi-tip:last-child{border-bottom:0}
+.mi-tip::before{content:"▸";position:absolute;left:0;color:var(--sky)}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -648,6 +695,9 @@ a.btn-line{text-decoration:none}
     <div class="section-lbl">📶 ISP Pricing &amp; Cancellation</div>
     <div class="isp-note" id="ispNote"></div>
     <div id="ispGuide"></div>
+
+    <div class="section-lbl">📊 ISP Market Intel — IE &amp; South Bay</div>
+    <div id="marketIntel"></div>
 
     <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Log an Internet Outage</button>
     <div class="card og-card">
@@ -1746,6 +1796,101 @@ function renderOutageGraph(){
 
 
 /* ════════ FIELD INTEL — weather + ISP guide ════════ */
+/* ════════ ISP MARKET INTEL — IE & South Bay (June 2026 report) ════════ */
+var IE_ISPS=[
+  {n:'Frontier',t:'Fiber / DSL · our product',s:'7 Gbps · $29.99 · 78–100% SB'},
+  {n:'EarthLink',t:'Fiber / 5G / Sat · our product',s:'5 Gbps · $39.95 · 92% SB fiber'},
+  {n:'Spectrum',t:'Cable (Charter) · competitor',s:'2 Gbps · $30 · 93–96% IE'},
+  {n:'AT&T Fiber',t:'Fiber · competitor',s:'5 Gbps · ~$55 · 88–92% IE'},
+  {n:'Xfinity',t:'Cable (Comcast) · South Bay',s:'2 Gbps · ~$35 · 1.2 TB cap'},
+  {n:'T-Mobile 5G',t:'Fixed wireless',s:'~150–300M · $40–50'},
+  {n:'Viasat',t:'Satellite (GEO)',s:'150M · $49.99 · 600ms'},
+  {n:'Starlink',t:'LEO satellite',s:'50–200M · $120 · rural'},
+  {n:'Cityside Fiber',t:'New 2026 · Corona buildout',s:'5 Gbps · 1G/2G/5G'}
+];
+var IE_CITY_RATINGS=[
+  {region:'South Bay', city:'Morgan Hill', f:'A',  e:'B+', note:'Frontier rated #1 ISP here — 78–98% fiber, up to 7 Gbps. EarthLink fiber + 5G from $39.95.'},
+  {region:'South Bay', city:'San Jose',    f:'B+', e:'B',  note:'Frontier fiber up to 5–7 Gbps, strong metro footprint. EarthLink fiber + 5G available. Xfinity is the incumbent to flip.'},
+  {region:'South Bay', city:'Gilroy',      f:'C+', e:'C',  note:'Frontier is the fastest option but fiber reaches only ~19.5% (DSL 38.9%). EarthLink fixed-wireless fills gaps Spectrum misses.'},
+  {region:'Inland Empire', city:'San Bernardino', f:'A',  e:'A',  note:'Frontier 78% fiber, 7 Gbps, $29.99 entry. EarthLink 92% fiber — highest in IE, cheapest fiber in town.'},
+  {region:'Inland Empire', city:'Riverside',      f:'B+', e:'B',  note:'Strong Frontier fiber footprint vs AT&T / Spectrum. EarthLink fiber resold on AT&T lines, priced under Spectrum.'},
+  {region:'Inland Empire', city:'Redlands',       f:'B+', e:'B-', note:'Strong Frontier fiber east of San Bernardino (university area). EarthLink fiber thinner here.'},
+  {region:'Inland Empire', city:'Fontana',        f:'B',  e:'B-', note:'High Frontier deployment, actively contested with Spectrum. EarthLink fixed-wireless + fiber mix.'},
+  {region:'Inland Empire', city:'Rancho Cucamonga',f:'B', e:'B',  note:'Growing Frontier fiber in a high-income suburb. EarthLink fiber competitive with Spectrum cable.'},
+  {region:'Inland Empire', city:'Ontario',        f:'B-', e:'C+', note:'Frontier fiber expanding in the WFH / logistics corridor. EarthLink 5G home internet as the gap-filler.'}
+];
+var COMP_WATCH=[
+  {name:'Xfinity / Comcast', region:'South Bay (SJ · Morgan Hill · Gilroy)', d30:67,d90:190,yr:'600+', opp:'VERY HIGH', cmp:'Throttling after promos, repeated price spikes, and a single 54,000-customer Bay Area outage.'},
+  {name:'Spectrum (Charter)', region:'Inland Empire', d30:54,d90:148,yr:'480+', opp:'HIGH', cmp:'Bills raised 3× in 2025; frequent outages in Ontario, San Bernardino, Rialto, Colton, Moreno Valley.'},
+  {name:'AT&T', region:'Inland Empire', d30:31,d90:88,yr:'300+', opp:'MEDIUM', cmp:'Long customer-service waits, tech-visit delays, and copper-theft outages lasting 2+ weeks.'}
+];
+var ISP_VERDICT=[
+  {p:'Frontier',cls:'frontier',grade:'B+',tag:'Fiber strong · DSL weak · Verizon acquiring',
+   scores:'ACSI fiber 72/100 · J.D. Power 725/1000 · Allconnect 3.9/5',
+   pros:['Fastest in IE & South Bay — 7 Gbps','Cheapest fiber entry, $29.99/mo','#1 rated ISP in Morgan Hill','78%+ San Bernardino fiber','No data caps, symmetrical'],
+   cons:['DSL legacy plans drag the score','Tech no-shows = top complaint','Verizon merger may raise prices']},
+  {p:'EarthLink',cls:'earthlink',grade:'C+',tag:'Fiber good · wireless/sat avoid · reseller',
+   scores:'Fiber 4.2/5 · Cable 2.67/5 · DSL 3.75/5 · fiber-only ~72% positive',
+   pros:['92% fiber coverage in San Bernardino','Cheapest fiber in most IE cities','Fiber rating a genuine 4.2/5','Available in SJ, Morgan Hill, Gilroy'],
+   cons:['Satellite/wireless plans drag the brand','Install failures = top complaint','Billing disputes after cancellation']}
+];
+var INTEL_TIPS=[
+  'Lead with Frontier fiber in confirmed IE fiber zones (San Bernardino, Riverside, Fontana, Ontario) — verify fiber at the exact address first.',
+  'Morgan Hill is priority Frontier territory — #1 rated, 78–98% fiber. Xfinity dissatisfaction is the switch trigger.',
+  'Pitch EarthLink fiber only — never its satellite or fixed-wireless. If only wireless is available, pivot on the spot.',
+  'Target Spectrum\u2019s loudest IE neighborhoods (Ontario, San Bernardino, Rialto, Colton, Moreno Valley) after the 2025 bill hikes.',
+  'In SJ / Morgan Hill / Gilroy, Xfinity is the incumbent to flip — throttling and outages make Frontier fiber the clean alternative.'
+];
+function gradeCls(g){var c=(g||'').charAt(0);return c==='A'?'gr-a':c==='B'?'gr-b':c==='C'?'gr-c':'gr-d';}
+function renderMarketIntel(){
+  var box=$('#marketIntel'); if(!box)return;
+  var h='';
+  /* City ratings */
+  h+='<div class="card"><div class="card-h">🏙️ City Ratings — Frontier &amp; EarthLink</div>'+
+     '<div class="mi-note">Internal grades synthesized from coverage, speed, price and customer-experience data in the IE / South Bay ISP report (June 2026). Directional — always verify fiber at the exact address before pitching.</div>';
+  ['South Bay','Inland Empire'].forEach(function(rg){
+    h+='<div class="mi-rg">'+esc(rg)+(rg==='Inland Empire'?' — Frontier present':'')+'</div>'+
+       '<div class="cr-head"><span>City</span><span>Front.</span><span>Earth.</span></div>';
+    IE_CITY_RATINGS.filter(function(c){return c.region===rg;}).forEach(function(c){
+      h+='<div class="cr-row2"><div class="cr-city">'+esc(c.city)+
+         '<div class="cr-note">'+esc(c.note)+'</div></div>'+
+         '<span class="gr '+gradeCls(c.f)+'">'+esc(c.f)+'</span>'+
+         '<span class="gr '+gradeCls(c.e)+'">'+esc(c.e)+'</span></div>';
+    });
+  });
+  h+='</div>';
+  /* Competitor watch */
+  h+='<div class="card"><div class="card-h">🎯 Competitor Watch — outages &amp; complaints</div>'+
+     '<div class="mi-note">Directional incident estimates aggregated from DownDetector, Outage.Report, IsTheServiceDown and social trackers. Nextdoor is not public — figures are trend estimates, not exact counts.</div>'+
+     '<div class="cw-head"><span>Provider</span><span>30d</span><span>90d</span><span>1yr</span><span>Switch</span></div>';
+  COMP_WATCH.forEach(function(c){
+    h+='<div class="cw-row"><div class="cw-p">'+esc(c.name)+
+       '<div class="cw-rg">'+esc(c.region)+'</div><div class="cw-cmp">'+esc(c.cmp)+'</div></div>'+
+       '<span class="cw-n">'+c.d30+'</span><span class="cw-n">'+c.d90+'</span><span class="cw-n">'+esc(c.yr)+'</span>'+
+       '<span class="cw-opp opp-'+c.opp.split(' ')[0].toLowerCase()+'">'+esc(c.opp)+'</span></div>';
+  });
+  h+='</div>';
+  /* IE ISP landscape */
+  h+='<div class="card"><div class="card-h">🌐 IE ISP Landscape — 9 providers</div>'+
+     IE_ISPS.map(function(p){
+       return '<div class="isp-land"><div><span class="il-n">'+esc(p.n)+'</span> <span class="il-t">'+esc(p.t)+'</span></div>'+
+         '<span class="il-s">'+esc(p.s)+'</span></div>';
+     }).join('')+'</div>';
+  /* Verdicts */
+  h+='<div class="card"><div class="card-h">🏁 Frontier vs EarthLink — verdict</div>';
+  ISP_VERDICT.forEach(function(v){
+    h+='<div class="vd vd-'+v.cls+'"><div class="vd-top"><span class="vd-p">'+esc(v.p)+'</span><span class="vd-g">'+esc(v.grade)+'</span></div>'+
+       '<div class="vd-tag">'+esc(v.tag)+'</div><div class="vd-scores">'+esc(v.scores)+'</div>'+
+       '<div class="vd-lists"><ul class="vd-pro">'+v.pros.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'+
+       '<ul class="vd-con">'+v.cons.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div></div>';
+  });
+  h+='</div>';
+  /* Sales angles */
+  h+='<div class="card"><div class="card-h">💡 Sales Angles</div>'+
+     INTEL_TIPS.map(function(t){return '<div class="mi-tip">'+esc(t)+'</div>';}).join('')+'</div>';
+  box.innerHTML=h;
+}
+
 var cityIdx=0, intelReady=false;
 
 function wxInfo(code){
@@ -1849,6 +1994,7 @@ function openIntel(){
   buildCityBar();
   selectCity(cityIdx);
   loadPublicOutages();
+  renderMarketIntel();
 }
 function nearestCity(){
   if(!curPos)return;
