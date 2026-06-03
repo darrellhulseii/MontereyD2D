@@ -494,6 +494,12 @@ input,select,textarea{outline:none}
 .fac{display:flex;align-items:center;gap:3px;background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:2px 5px}
 .fac-l{font-size:8.5px;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600}
 .fac-g{font-family:'Bebas Neue',sans-serif;font-size:12px;line-height:1.3;padding:0 4px;border-radius:4px}
+.prv{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.prv-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.prv-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;color:var(--ink)}
+.prv-score{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);margin-top:1px}
+.prv-line{font-size:11.5px;line-height:1.45;color:var(--muted);margin-top:6px}
+.prv-l{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--sky);margin-bottom:1px}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -1908,10 +1914,58 @@ var EARTHLINK_TOP5=[
   {rank:4, city:'Redlands', county:'San Bernardino', tier:'A-', cov:'≈92%', score:{a:'A+',c:'A-',s:'A',f:'A',r:'B'}, why:'Affluent university town; ~92% EarthLink fiber AND ~99% Frontier — a double-barreled fiber territory.'},
   {rank:5, city:'Anaheim', county:'Orange', tier:'A-', cov:'≈90%', score:{a:'A+',c:'A-',s:'A',f:'A',r:'B'}, why:'Frontier is ~0% here, so EarthLink (on AT&T fiber, ~90%) is THE fiber product to lead with in Anaheim.'}
 ];
+/* General provider reviews. Frontier & EarthLink are scored FIBER-ONLY (DSL and any plan
+   under 100 Mbps excluded) since that is the product reps sell; their blended ACSI is lower
+   because it folds in legacy DSL. Nextdoor/Ring are private — the neighborhood read is
+   directional (inferred from public posts + the platforms' known complaint-skew), not a score. */
+var PROVIDER_REVIEWS=[
+  {name:'AT&T Fiber', tier:'A', overall:'≈4.3/5 — strongest in the territory',
+   f:{sp:'A',re:'A',va:'B+',su:'B',rp:'A'},
+   sites:'ACSI 79 — No.1 fiber three years running; J.D. Power West No.1 (732).',
+   social:'Reliability widely praised; gripes are copper-theft outages and long customer-service holds.',
+   hood:'The common \u201cswitch to AT&T fiber\u201d recommendation where available. (Also the network EarthLink resells.)'},
+  {name:'Frontier — fiber only', tier:'B+', overall:'≈4.2–4.5/5 (fiber; DSL & sub-100M excluded)',
+   f:{sp:'A+',re:'B+',va:'A',su:'C+',rp:'B+'},
+   sites:'Fiber ACSI ≈76 and J.D. Power West No.2 (716); user fiber reviews 4.2–4.5/5. The blended ACSI of 63 is dragged by legacy DSL — excluded here.',
+   social:'Fiber owners praise 7-Gig speed, symmetrical upload and no caps; complaints center on install no-shows and Verizon-merger price worries.',
+   hood:'Directional — fiber neighbors recommend it; DSL-area gripes are out of scope.'},
+  {name:'EarthLink — fiber only', tier:'B-', overall:'≈3.7/5 (fiber; DSL & sub-100M excluded)',
+   f:{sp:'A',re:'B+',va:'B',su:'C',rp:'C+'},
+   sites:'Fiber ACSI 69 — last among fiber nationally; user fiber ≈4.2/5. The underlying AT&T line scores 79, so the connection is great — EarthLink\u2019s branded service is the weak point.',
+   social:'Fiber speed is liked; recurring complaints are install failures, billing disputes after cancellation, and reseller runaround.',
+   hood:'Directional — mixed; the fiber works, the service experience frustrates.'},
+  {name:'Spectrum (Charter)', tier:'C+', overall:'≈2.7/5',
+   f:{sp:'B',re:'C+',va:'C+',su:'C',rp:'C'},
+   sites:'ACSI 68 — low-mid for cable.',
+   social:'Heavy: frequent outages, bills raised 3× in 2025, brutal cancellation experiences.',
+   hood:'Directional — IE neighborhood threads dominated by outage gripes and \u201cwho should I switch to.\u201d'},
+  {name:'Xfinity (Comcast)', tier:'C+', overall:'≈2.9/5 cable · fiber higher',
+   f:{sp:'B+',re:'C+',va:'C',su:'C+',rp:'C+'},
+   sites:'ACSI cable 67; Xfinity Fiber 77 where available.',
+   social:'Throttling after price-shopping; Bay Area mass outages (7,000+ in Mar 2026; 54,000 in 2021).',
+   hood:'Directional — South Bay threads = outage frustration and switch interest.'},
+  {name:'Cox', tier:'B-', overall:'≈3.2/5',
+   f:{sp:'B',re:'B-',va:'C+',su:'B-',rp:'B-'},
+   sites:'ACSI 68–72 (climbing).',
+   social:'OC outage spikes and data-cap gripes; lower volume than Spectrum.',
+   hood:'Directional — moderate; concentrated in OC pockets (Santa Ana, Irvine).'},
+  {name:'T-Mobile 5G Home', tier:'B+', overall:'≈3.8/5',
+   f:{sp:'B-',re:'B',va:'A-',su:'B+',rp:'A-'},
+   sites:'ACSI ≈76–79 — top non-fiber; J.D. Power fixed-wireless leader.',
+   social:'Praised for flat price and simple setup; gripes are variable speed and peak-hour congestion.',
+   hood:'Directional — liked as a cheap escape from cable, with speed-variability caveats.'}
+];
 function gradeCls(g){var c=(g||'').charAt(0);return c==='A'?'gr-a':c==='B'?'gr-b':c==='C'?'gr-c':'gr-d';}
 function facStrip(s){
   if(!s)return '';
   var f=[['Avail',s.a],['vs Comp',s.c],['Speed',s.s],['Reach',s.f],['Rec\u2019d',s.r]];
+  return '<div class="t10-fac">'+f.map(function(x){
+    return '<span class="fac"><span class="fac-l">'+x[0]+'</span><span class="fac-g '+gradeCls(x[1])+'">'+esc(x[1])+'</span></span>';
+  }).join('')+'</div>';
+}
+function pFac(s){
+  if(!s)return '';
+  var f=[['Speed',s.sp],['Reliab',s.re],['Value',s.va],['Support',s.su],['Rep',s.rp]];
   return '<div class="t10-fac">'+f.map(function(x){
     return '<span class="fac"><span class="fac-l">'+x[0]+'</span><span class="fac-g '+gradeCls(x[1])+'">'+esc(x[1])+'</span></span>';
   }).join('')+'</div>';
@@ -1942,6 +1996,19 @@ function renderMarketIntel(){
        facStrip(t.score)+
        '<div class="t10-why">'+esc(t.why)+'</div></div>'+
        '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
+  });
+  h+='</div>';
+  /* General provider reviews */
+  h+='<div class="card"><div class="card-h">📣 General Provider Reviews</div>'+
+     '<div class="mi-note">Blended read across review sites (ACSI 2026, J.D. Power, BroadbandNow / Allconnect user ratings), public social (X / Facebook / Instagram) and neighborhood platforms. <b>For Frontier &amp; EarthLink, DSL and any plan under 100 Mbps is excluded</b> — these scores reflect the fiber product reps actually sell, so they run higher than the DSL-dragged blended ACSI. Nextdoor / Ring are private, so that read is directional (inferred from public posts + the platforms\u2019 complaint-skew), not a hard score.</div>';
+  PROVIDER_REVIEWS.forEach(function(p){
+    h+='<div class="prv"><div class="prv-top"><span class="prv-name">'+esc(p.name)+'</span><span class="gr '+gradeCls(p.tier)+'">'+esc(p.tier)+'</span></div>'+
+       '<div class="prv-score">'+esc(p.overall)+'</div>'+
+       pFac(p.f)+
+       '<div class="prv-line"><span class="prv-l">Review sites</span>'+esc(p.sites)+'</div>'+
+       '<div class="prv-line"><span class="prv-l">Social · X / FB / IG</span>'+esc(p.social)+'</div>'+
+       '<div class="prv-line"><span class="prv-l">Neighborhood · Nextdoor / Ring (directional)</span>'+esc(p.hood)+'</div>'+
+       '</div>';
   });
   h+='</div>';
   /* City ratings */
