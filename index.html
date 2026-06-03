@@ -2014,7 +2014,7 @@ var PRESS=[
   {group:'🟠 Frontier — a Verizon Company',
    lead:'Frontier owns California\u2019s single largest fiber footprint (it inherited Verizon\u2019s old FiOS network in 2016 and has been converting DSL to fiber ever since). In January 2026 Verizon bought it back, putting Verizon\u2019s #1-rated 5G and balance sheet behind the build. Lead with this: the company behind your product just got bigger and better funded.',
    items:[
-     {date:'Sep 2024', t:'Verizon agreed to acquire Frontier for $20B — pairing Frontier\u2019s fiber with Verizon\u2019s award-winning 5G. The vote of confidence that kicked everything off.', src:'Verizon', url:'https://www.verizon.com/about/news/verizon-acquire-frontier'},
+     {date:'Sep 2024', t:'Verizon agreed to acquire Frontier for $20B — pairing Frontier\u2019s fiber with Verizon\u2019s award-winning 5G. The vote of confidence that kicked everything off.'},
      {date:'Sep 2024', t:'Frontier won $23M+ in California grants to expand fiber to unserved and underserved homes — specifically in San Bernardino and Riverside counties, your core territory.', src:'Underground Infra.', url:'https://undergroundinfrastructure.com/news/2024/september/frontier-to-expand-fiber-broadband-network-across-california-with-over-23-million-in-grants'},
      {date:'2024–25', t:'Frontier kept building ~1.3 million new fiber locations a year, and California remained its biggest fiber market — the LA metro, Inland Empire, Orange County and the Bay Area.', src:'InternetProviders.ai', url:'https://www.internetproviders.ai/blog/frontier-fiber-internet-areas-coverage-guide/'},
      {date:'Jul 2025', t:'Frontier called Q2 2025 a \u201cbreakout quarter\u201d — record fiber sales and its highest revenue and EBITDA since emerging from bankruptcy in 2021. A healthy, growing company.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20240829972764/en/'},
@@ -2058,7 +2058,7 @@ function renderPress(){
     if(g.lead)h+='<div class="press-lead">'+esc(g.lead)+'</div>';
     g.items.forEach(function(it){
       h+='<div class="press-item">'+(it.date?'<span class="press-date">'+esc(it.date)+'</span> ':'')+esc(it.t)+
-         ' <a class="press-src" href="'+it.url+'" target="_blank" rel="noopener noreferrer">↗ '+esc(it.src)+'</a></div>';
+         (it.url?' <a class="press-src" href="'+it.url+'" target="_blank" rel="noopener noreferrer">↗ '+esc(it.src)+'</a>':'')+'</div>';
     });
     h+='</div>';
   });
