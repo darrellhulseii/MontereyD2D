@@ -487,6 +487,7 @@ input,select,textarea{outline:none}
 .t10-rank{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);text-align:center;line-height:1.15}
 .t10-city{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14.5px;color:var(--ink)}
 .t10-co{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.t10-cov{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.3px;color:var(--sky);background:rgba(0,174,239,.12);border:1px solid rgba(0,174,239,.35);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
 .t10-why{font-size:11px;color:var(--muted);line-height:1.45;margin-top:3px}
 .t10-vs{font-size:11px;line-height:1.45;color:#f0a87a;margin-top:5px;padding-left:8px;border-left:2px solid rgba(240,70,70,.5)}
 a.btn-line{text-decoration:none}
@@ -1885,16 +1886,23 @@ var INTEL_TIPS=[
   'In SJ / Morgan Hill / Gilroy, Xfinity is the incumbent to flip — throttling and outages make Frontier fiber the clean alternative.'
 ];
 var FRONTIER_TOP10=[
-  {rank:1, city:'Rancho Cucamonga', county:'San Bernardino', tier:'A+', comp:'Spectrum', gripe:'Promo bills that jump after 12 months — neighbors report 3 hikes in 2025.', why:'7-Gig fiber in an affluent WFH suburb; fiber reviews glow and Spectrum bill-hike frustration is loud.'},
-  {rank:2, city:'Corona', county:'Riverside', tier:'A+', comp:'Spectrum', gripe:'Surprise post-promo rate hikes and a painful cancellation process.', why:'Strong fiber, high-income remote-work corridor; Frontier\u2019s $49.99 entry undercuts a contested Spectrum/AT&T market.'},
-  {rank:3, city:'Redlands', county:'San Bernardino', tier:'A', comp:'Spectrum', gripe:'Steady rate increases plus slow restoration when service drops.', why:'University town with deep fiber east of SB; educated remote-work base rates fiber highly.'},
-  {rank:4, city:'Eastvale', county:'Riverside', tier:'A', comp:'Spectrum', gripe:'Repeat outages — neighbors reported being knocked offline several times in one week.', why:'Newer, affluent master-planned suburb; heavy Spectrum outage complaints make Frontier fiber a warm switch.'},
-  {rank:5, city:'Chino Hills', county:'San Bernardino', tier:'A', comp:'Spectrum', gripe:'Bills that climb once the promo ends, with little notice.', why:'Affluent, low complaint volume, high WFH demand — strong positive reception for fiber.'},
-  {rank:6, city:'Brea', county:'Orange', tier:'A-', comp:'Spectrum', gripe:'Post-promo price jumps and outages tied to LA-area fiber problems.', why:'7-Gig fiber on mature ex-FiOS plant (reliable); affluent north-OC base with positive sentiment.'},
-  {rank:7, city:'Moreno Valley', county:'Riverside', tier:'B+', comp:'Spectrum', gripe:'Frequent outages and customer service that is hard to reach.', why:'7-Gig fiber, large family / WFH market Frontier is actively marketing; big Spectrum switch pool.'},
-  {rank:8, city:'Riverside', county:'Riverside', tier:'B+', comp:'Spectrum', gripe:'Add-ons billed without consent — one caller\u2019s whole account was cancelled when he tried to drop one.', why:'Urban core, ~87% county fiber, large student / WFH base; Frontier vs Spectrum and AT&T.'},
-  {rank:9, city:'Fontana', county:'San Bernardino', tier:'B+', comp:'Spectrum', gripe:'Recurring outages on top of repeated rate hikes.', why:'High Frontier deployment in a fast-growing market with vocal Spectrum dissatisfaction.'},
-  {rank:10,city:'Anaheim', county:'Orange', tier:'B', comp:'Spectrum', gripe:'Outages from the Van Nuys fiber-cut vandalism, plus rising prices.', why:'Mature ex-FiOS fiber (reliable), large market; positive fiber sentiment vs the cable incumbents.'}
+  {rank:1, city:'Redlands', county:'San Bernardino', tier:'A+', cov:'≈99%', comp:'Spectrum', gripe:'Steady rate increases plus slow restoration when service drops.', why:'Deepest Frontier fiber in the IE; affluent university town with a heavy remote-work base.'},
+  {rank:2, city:'Ontario', county:'San Bernardino', tier:'A+', cov:'≈96%', comp:'Spectrum', gripe:'Frequent outages and bill hikes — a top IE Spectrum-complaint city.', why:'Near-citywide Frontier fiber on the legacy Verizon plant; big WFH / logistics-corridor market.'},
+  {rank:3, city:'San Bernardino', county:'San Bernardino', tier:'A', cov:'≈78%', comp:'Spectrum', gripe:'Repeated bill hikes and 12-hour outages; "you\u2019ve lost a customer" posts.', why:'Broad fiber, cheapest entry ($29.99), large market — Frontier is the rated best provider in-city.'},
+  {rank:4, city:'Moreno Valley', county:'Riverside', tier:'A', cov:'≈74%', comp:'Spectrum', gripe:'Frequent outages and customer service that is hard to reach.', why:'7-Gig fiber across most of a large family / WFH market Frontier is actively marketing.'},
+  {rank:5, city:'Rancho Cucamonga', county:'San Bernardino', tier:'A-', cov:'≈45–85% (varies)', comp:'Spectrum', gripe:'Promo bills that jump after 12 months — neighbors report 3 hikes in 2025.', why:'Affluent WFH suburb; fiber reviews glow, but coverage estimates differ sharply by source — verify.'},
+  {rank:6, city:'Loma Linda', county:'San Bernardino', tier:'B+', cov:'≈52%', comp:'Spectrum', gripe:'Post-promo price increases on the dominant cable plan.', why:'Affluent medical-university town, high WFH demand; Frontier rated best overall in-city.'},
+  {rank:7, city:'Yucaipa', county:'San Bernardino', tier:'B+', cov:'≈51%', comp:'Spectrum', gripe:'Rate hikes and outages on Spectrum cable.', why:'Growing residential market with about half the city on Frontier fiber.'},
+  {rank:8, city:'Fontana', county:'San Bernardino', tier:'B', cov:'≈22%', comp:'Spectrum', gripe:'Recurring outages on top of repeated rate hikes.', why:'Huge fast-growing market with vocal Spectrum dissatisfaction — but Frontier fiber is still patchy; verify.'},
+  {rank:9, city:'Corona', county:'Riverside', tier:'B-', cov:'≈20%', comp:'Spectrum', gripe:'Surprise post-promo rate hikes and a painful cancellation process.', why:'High-income corridor, but Frontier fiber is thin (AT&T dominates fiber here) — work confirmed zones.'},
+  {rank:10,city:'Brea', county:'Orange', tier:'B-', cov:'≈21%', comp:'Spectrum', gripe:'Post-promo price jumps and outages tied to LA-area fiber problems.', why:'Affluent north-OC; Frontier present but thin per FCC — the only OC city with real Frontier footprint.'}
+];
+var EARTHLINK_TOP5=[
+  {rank:1, city:'Santa Ana', county:'Orange', tier:'A+', cov:'≈94%', why:'Widest EarthLink fiber in the territory (resold on AT&T lines). Spectrum (~95%) is the cable incumbent to flip; Cox is barely present.'},
+  {rank:2, city:'Fullerton', county:'Orange', tier:'A+', cov:'≈93%', why:'Affluent north-OC; ~93% EarthLink fiber, with Spectrum the dominant cable to switch off.'},
+  {rank:3, city:'Moreno Valley', county:'Riverside', tier:'A', cov:'≈92%', why:'Large family / WFH market, cheapest fiber entry — strong for BOTH EarthLink and Frontier, lead with whichever the address qualifies for.'},
+  {rank:4, city:'Redlands', county:'San Bernardino', tier:'A', cov:'≈92%', why:'Affluent university town; ~92% EarthLink fiber AND ~99% Frontier — a double-barreled fiber territory.'},
+  {rank:5, city:'Anaheim', county:'Orange', tier:'A', cov:'≈90%', why:'Frontier is ~0% here, so EarthLink (on AT&T fiber, ~90%) is THE fiber product to lead with in Anaheim.'}
 ];
 function gradeCls(g){var c=(g||'').charAt(0);return c==='A'?'gr-a':c==='B'?'gr-b':c==='C'?'gr-c':'gr-d';}
 function renderMarketIntel(){
@@ -1902,12 +1910,24 @@ function renderMarketIntel(){
   var h='';
   /* Top 10 Frontier territories */
   h+='<div class="card"><div class="card-h">🏆 Top 10 Frontier Territories — IE &amp; OC</div>'+
-     '<div class="mi-note">Ranked by positive-sentiment potential across Riverside, San Bernardino &amp; Orange counties. Clean per-city review counts are not public (review sites aggregate by provider; Nextdoor / Ring Neighbors are private; social skews negative), so this blends confirmed Frontier <b>fiber</b> build-out, post-Verizon reliability, affluent / WFH demand, and competitor (Spectrum / Xfinity) frustration as the proxy for where Frontier is best received. Verify fiber at the exact address.</div>';
+     '<div class="mi-note">Ranked primarily by <b>FCC-based Frontier fiber coverage</b> (BroadbandNow / BroadbandSearch, which process FCC Broadband Data Collection + the NTIA National Broadband Map), then by competitor frustration and affluent / WFH demand. Frontier\u2019s IE footprint follows its legacy Verizon territory — concentrated in San Bernardino County + Ontario + Moreno Valley — so Riverside city, Anaheim and Eastvale (thin Frontier) drop off. Coverage % are FCC BDC estimates (ISP-reported, ~6-month vintage) and still vary by source — always verify at the exact address.</div>';
   FRONTIER_TOP10.forEach(function(t){
     h+='<div class="t10-row"><div class="t10-rank">'+t.rank+'</div>'+
        '<div><span class="t10-city">'+esc(t.city)+'</span> <span class="t10-co">'+esc(t.county)+' Co.</span>'+
+       '<span class="t10-cov">📶 Frontier '+esc(t.cov)+'</span>'+
        '<div class="t10-why">'+esc(t.why)+'</div>'+
        '<div class="t10-vs">⚔️ vs '+esc(t.comp)+': '+esc(t.gripe)+'</div></div>'+
+       '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
+  });
+  h+='</div>';
+  /* EarthLink Top 5 — by availability */
+  h+='<div class="card"><div class="card-h">🟢 Top 5 EarthLink Territories — by availability</div>'+
+     '<div class="mi-note">Ranked strictly by <b>EarthLink fiber availability</b> (FCC-based, via BroadbandSearch). EarthLink is a reseller running on <b>AT&T\u2019s fiber</b>, so its coverage mirrors AT&T\u2019s footprint — several cities show identical percentages, and the repeated figures look like templated county estimates, so verify at the address. EarthLink is strongest in Orange County and AT&T-fiber cities where Frontier is thin — it fills Frontier\u2019s gaps. Pitch EarthLink fiber only — never its 5G / satellite.</div>';
+  EARTHLINK_TOP5.forEach(function(t){
+    h+='<div class="t10-row"><div class="t10-rank">'+t.rank+'</div>'+
+       '<div><span class="t10-city">'+esc(t.city)+'</span> <span class="t10-co">'+esc(t.county)+' Co.</span>'+
+       '<span class="t10-cov">📶 EarthLink '+esc(t.cov)+'</span>'+
+       '<div class="t10-why">'+esc(t.why)+'</div></div>'+
        '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
   });
   h+='</div>';
