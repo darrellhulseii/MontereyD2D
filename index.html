@@ -567,7 +567,7 @@ a.btn-line{text-decoration:none}
   font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;line-height:1.55;color:#9fe8c4;
   white-space:pre-wrap;word-break:break-word;margin-bottom:10px;overflow-x:auto}
 .lb-toggle{width:100%;margin-bottom:8px;margin-left:0}
-.lb-toggle button{flex:1;text-align:center}
+.lb-toggle button{flex:1;text-align:center;padding:7px 4px;font-size:11px;letter-spacing:.2px}
 .lb-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border2);
   border-radius:12px;padding:11px 12px;margin-bottom:8px}
 .lb-row.mine{border-color:var(--sky);background:rgba(0,174,239,.08)}
@@ -849,8 +849,10 @@ a.btn-line{text-decoration:none}
     </div>
     <div class="range-toggle lb-toggle" id="lbRange">
       <button data-r="today" class="active">Today</button>
-      <button data-r="week">This Week</button>
-      <button data-r="all">All-Time</button>
+      <button data-r="week">Week</button>
+      <button data-r="30d">30 Days</button>
+      <button data-r="year">This Year</button>
+      <button data-r="all">All</button>
     </div>
     <div id="lbList"></div>
   </section>
@@ -1126,6 +1128,8 @@ function dayKey(ts){var d=new Date(ts);return d.getFullYear()+'-'+(d.getMonth()+
 function todayKey(){return dayKey(Date.now());}
 function startOfWeek(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-6);return d.getTime();}
 function startOfMonth(){var d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime();}
+function startOf30d(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-29);return d.getTime();}
+function startOfYear(){var d=new Date();return new Date(d.getFullYear(),0,1).getTime();}
 function fmtDate(ts){return new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
 function fmtDateLong(ts){return new Date(ts).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});}
 function fmtTime(ts){return new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
@@ -2796,11 +2800,13 @@ var lbMetric='doors', lbRange='today';
 var METRICS={doors:'Doors',contacts:'Contacts',sold:'Sales',commission:'Commission'};
 function statsFor(repId,range){
   var o={doors:0,contacts:0,appts:0,sold:0,commission:0,vas:0,voip:0,cell:0,cellRate:0,sec:0,secRate:0},
-      sw=startOfWeek(),tk=todayKey();
+      sw=startOfWeek(),s30=startOf30d(),sy=startOfYear(),tk=todayKey();
   state.knocks.forEach(function(k){
     if(k.repId!==repId)return;
     if(range==='today'&&dayKey(k.ts)!==tk)return;
     if(range==='week'&&k.ts<sw)return;
+    if(range==='30d'&&k.ts<s30)return;
+    if(range==='year'&&k.ts<sy)return;
     if(k.disp==='lead')return;   /* imported leads are a pipeline queue, not knocked doors */
     o.doors++;
     if(CONTACT.indexOf(k.disp)>-1)o.contacts++;
@@ -2896,7 +2902,7 @@ function cloudPush(){
   if(!cloudReady())return;
   var rows=state.reps.map(function(r){
     return {rep_id:r.id,name:r.name,color:r.color,
-      stats:{today:statsFor(r.id,'today'),week:statsFor(r.id,'week'),all:statsFor(r.id,'all')}};
+      stats:{today:statsFor(r.id,'today'),week:statsFor(r.id,'week'),'30d':statsFor(r.id,'30d'),year:statsFor(r.id,'year'),all:statsFor(r.id,'all')}};
   });
   fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE,{
     method:'POST',
