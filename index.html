@@ -1973,6 +1973,19 @@ function pFac(s){
 function renderMarketIntel(){
   var box=$('#marketIntel'); if(!box)return;
   var h='';
+  /* General provider reviews — first card in Intel */
+  h+='<div class="card"><div class="card-h">📣 General Provider Reviews</div>'+
+     '<div class="mi-note">Blended read across review sites (ACSI 2026, J.D. Power, BroadbandNow / Allconnect user ratings), public social (X / Facebook / Instagram) and neighborhood platforms. <b>For Frontier &amp; EarthLink, DSL and any plan under 100 Mbps is excluded</b> — these scores reflect the fiber product reps actually sell, so they run higher than the DSL-dragged blended ACSI. Nextdoor / Ring are private, so that read is directional (inferred from public posts + the platforms\u2019 complaint-skew), not a hard score.</div>';
+  PROVIDER_REVIEWS.forEach(function(p){
+    h+='<div class="prv"><div class="prv-top"><span class="prv-name">'+esc(p.name)+'</span><span class="gr '+gradeCls(p.tier)+'">'+esc(p.tier)+'</span></div>'+
+       '<div class="prv-score">'+esc(p.overall)+'</div>'+
+       pFac(p.f)+
+       '<div class="prv-line"><span class="prv-l">Review sites</span>'+esc(p.sites)+'</div>'+
+       '<div class="prv-line"><span class="prv-l">Social · X / FB / IG</span>'+esc(p.social)+'</div>'+
+       '<div class="prv-line"><span class="prv-l">Neighborhood · Nextdoor / Ring (directional)</span>'+esc(p.hood)+'</div>'+
+       '</div>';
+  });
+  h+='</div>';
   /* Top 10 Frontier territories */
   h+='<div class="card"><div class="card-h">🏆 Top 10 Frontier Territories — IE &amp; OC</div>'+
      '<div class="mi-note">Each city is graded on five factors — <b>fiber availability</b>, <b>outages vs the local competitor</b>, <b>speed delivered</b>, <b>fiber footprint</b>, and <b>recommendations</b> — shown as chips below. Availability, footprint and outage-edge are city-specific (FCC data + competitor complaint volume); <b>Speed</b> reflects Frontier\u2019s 7-Gig fiber and <b>Rec\u2019d</b> is provider-level (Frontier fiber ≈4.2–4.5/5, J.D. Power West #2) because per-city recommendation counts aren\u2019t public. Verify fiber at the exact address.</div>';
@@ -1996,19 +2009,6 @@ function renderMarketIntel(){
        facStrip(t.score)+
        '<div class="t10-why">'+esc(t.why)+'</div></div>'+
        '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
-  });
-  h+='</div>';
-  /* General provider reviews */
-  h+='<div class="card"><div class="card-h">📣 General Provider Reviews</div>'+
-     '<div class="mi-note">Blended read across review sites (ACSI 2026, J.D. Power, BroadbandNow / Allconnect user ratings), public social (X / Facebook / Instagram) and neighborhood platforms. <b>For Frontier &amp; EarthLink, DSL and any plan under 100 Mbps is excluded</b> — these scores reflect the fiber product reps actually sell, so they run higher than the DSL-dragged blended ACSI. Nextdoor / Ring are private, so that read is directional (inferred from public posts + the platforms\u2019 complaint-skew), not a hard score.</div>';
-  PROVIDER_REVIEWS.forEach(function(p){
-    h+='<div class="prv"><div class="prv-top"><span class="prv-name">'+esc(p.name)+'</span><span class="gr '+gradeCls(p.tier)+'">'+esc(p.tier)+'</span></div>'+
-       '<div class="prv-score">'+esc(p.overall)+'</div>'+
-       pFac(p.f)+
-       '<div class="prv-line"><span class="prv-l">Review sites</span>'+esc(p.sites)+'</div>'+
-       '<div class="prv-line"><span class="prv-l">Social · X / FB / IG</span>'+esc(p.social)+'</div>'+
-       '<div class="prv-line"><span class="prv-l">Neighborhood · Nextdoor / Ring (directional)</span>'+esc(p.hood)+'</div>'+
-       '</div>';
   });
   h+='</div>';
   /* City ratings */
