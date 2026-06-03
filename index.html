@@ -898,7 +898,8 @@ var DISPOS=[
   {k:'followup',label:'Follow Up',    color:'#b46bff', icon:'🔄', tag:'FU', fields:['firstName','address','phone','notes']},
   {k:'sold',    label:'Sold',         color:'#00C853', icon:'✅', tag:'SD', fields:['firstName','address','datetime','mobile','products','vas'],
                 dateLabel:'Installation date & time', needDate:true, needProduct:true},
-  {k:'retained',label:'Retained',     color:'#00d4c0', icon:'🛡️', tag:'RT', fields:['firstName','address']}
+  {k:'retained',label:'Retained',     color:'#00d4c0', icon:'🛡️', tag:'RT', fields:['firstName','address']},
+  {k:'lead',    label:'Lead',         color:'#5b8def', icon:'📇', tag:'LD', fields:['firstName','address','phone','notes'], imported:1}
 ];
 var DMAP={}; DISPOS.forEach(function(d){DMAP[d.k]=d;});
 var CONTACT=['conv','appt','sold','retained','followup'];
@@ -1291,6 +1292,7 @@ function addKnock(obj){
     lng:obj.lng!=null?obj.lng:(curPos?curPos.lng:null)};
   state.knocks.push(k);
   persist();renderAll();refreshMarkers();
+  leadsPushOne(k);
   return k;
 }
 function updateKnock(id,patch){
@@ -1299,10 +1301,12 @@ function updateKnock(id,patch){
   Object.keys(patch).forEach(function(p){k[p]=patch[p];});
   k.updatedTs=Date.now();
   persist();renderAll();refreshMarkers();
+  leadsPushOne(k);
 }
 function deleteKnock(id){
   state.knocks=state.knocks.filter(function(k){return k.id!==id;});
   persist();renderAll();refreshMarkers();
+  leadsPushTomb(id);
 }
 
 /* ════════ DISPOSITION FORMS ════════ */
@@ -2797,6 +2801,7 @@ function statsFor(repId,range){
     if(k.repId!==repId)return;
     if(range==='today'&&dayKey(k.ts)!==tk)return;
     if(range==='week'&&k.ts<sw)return;
+    if(k.disp==='lead')return;   /* imported leads are a pipeline queue, not knocked doors */
     o.doors++;
     if(CONTACT.indexOf(k.disp)>-1)o.contacts++;
     if(k.disp==='appt')o.appts++;
@@ -2920,22 +2925,74 @@ function cloudStart(){
     cloudStatus('connecting');
     cloudPull();cloudPush();
     cloudPollTimer=setInterval(cloudPull,6000);
-  }else{cloudReps={};}
+    leadsStart();
+  }else{cloudReps={};leadsStop();}
 }
 function cloudHelpSheet(){
-  var sql='create table kr_leaderboard (\n  rep_id text primary key,\n  name text, color text,\n  stats jsonb,\n  updated_at timestamptz default now()\n);\nalter table kr_leaderboard enable row level security;\ncreate policy "team access" on kr_leaderboard\n  for all using (true) with check (true);';
+  var sql='create table kr_leaderboard (\n  rep_id text primary key,\n  name text, color text,\n  stats jsonb,\n  updated_at timestamptz default now()\n);\nalter table kr_leaderboard enable row level security;\ncreate policy "team access" on kr_leaderboard\n  for all using (true) with check (true);\n\ncreate table kr_leads (\n  id text primary key,\n  data jsonb,\n  updated_ts bigint,\n  deleted boolean default false,\n  updated_at timestamptz default now()\n);\nalter table kr_leads enable row level security;\ncreate policy "team leads" on kr_leads\n  for all using (true) with check (true);';
   openSheet(
     '<div class="sheet-title">📡 Live Team Sync</div>'+
     '<div class="sheet-desc">Your team Supabase project is already built into this app. It just needs its leaderboard table created once:</div>'+
     '<div class="help-step"><b>1.</b> Open your Supabase project → <b>SQL Editor</b>, paste the snippet below, and click <b>Run</b>.</div>'+
     '<pre class="help-sql">'+esc(sql)+'</pre>'+
     '<div class="help-step"><b>2.</b> That\u2019s it — every rep just keeps <b>Enable live sync</b> switched on. The leaderboard refreshes across all phones every few seconds.</div>'+
-    '<div class="help-note">Only leaderboard stats (door counts &amp; commission) sync to the cloud — customer names, addresses and phone numbers never leave the device. The publishable key is safe to embed; row-level security limits it to this one table.</div>'+
+    '<div class="help-note">Leaderboard stats <b>and your full lead list</b> (names, addresses, phones &amp; dispositions) now sync to your team Supabase project, so every device shows the latest — no matter which phone made the change. Keep this project private to your team: anyone with the key can read these two tables.</div>'+
     '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Got it</button>'
   );
 }
 
 
+
+/* ════════ LEAD CLOUD SYNC (Supabase kr_leads — cross-device shared truth) ════════ */
+var SUPA_LEADS='kr_leads';
+var leadsPollTimer=null, leadsPushTimer=null, leadsQueue={};
+function leadsPushOne(k){ if(!cloudReady()||!k)return; leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; scheduleLeadsPush(); }
+function leadsPushTomb(id){ if(!cloudReady()||!id)return; leadsQueue[id]={id:id,data:{id:id},updated_ts:Date.now(),deleted:true}; scheduleLeadsPush(); }
+function leadsPushRows(rows){ if(!cloudReady()||!rows||!rows.length)return; rows.forEach(function(k){ if(k&&k.id)leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; }); scheduleLeadsPush(); }
+function scheduleLeadsPush(){ clearTimeout(leadsPushTimer); leadsPushTimer=setTimeout(flushLeads,1000); }
+function flushLeads(){
+  if(!cloudReady())return;
+  var rows=Object.keys(leadsQueue).map(function(id){return leadsQueue[id];});
+  if(!rows.length)return;
+  leadsQueue={};
+  fetch(cloudBase()+'/rest/v1/'+SUPA_LEADS,{method:'POST',
+    headers:cloudHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify(rows)})
+    .then(function(r){if(!r.ok)throw r.status;cloudStatus('live');})
+    .catch(function(){ rows.forEach(function(x){if(!leadsQueue[x.id])leadsQueue[x.id]=x;}); cloudStatus('offline'); setTimeout(scheduleLeadsPush,4000); });
+}
+function applyLeads(arr){
+  var byId={}; state.knocks.forEach(function(k){byId[k.id]=k;});
+  var changed=false;
+  (arr||[]).forEach(function(row){
+    if(!row||!row.id)return;
+    var local=byId[row.id], rts=Number(row.updated_ts)||0;
+    if(row.deleted){
+      if(local&&(local.updatedTs||local.ts||0)<=rts){ state.knocks=state.knocks.filter(function(k){return k.id!==row.id;}); changed=true; }
+    }else if(row.data&&typeof row.data==='object'){
+      if(!local){ state.knocks.push(row.data); byId[row.id]=row.data; changed=true; }
+      else if((local.updatedTs||local.ts||0)<rts){ state.knocks[state.knocks.indexOf(local)]=row.data; byId[row.id]=row.data; changed=true; }
+    }
+  });
+  if(changed){ persist({fromSync:true}); renderAll(); refreshMarkers(); }
+}
+function leadsPull(){
+  if(!cloudReady())return;
+  fetch(cloudBase()+'/rest/v1/'+SUPA_LEADS+'?select=id,data,updated_ts,deleted',{headers:cloudHeaders()})
+    .then(function(r){if(!r.ok)throw r.status;return r.json();})
+    .then(function(arr){ applyLeads(arr); cloudStatus('live'); })
+    .catch(function(){ cloudStatus('offline'); });
+}
+function leadsStart(){
+  if(leadsPollTimer){clearInterval(leadsPollTimer);leadsPollTimer=null;}
+  if(!cloudReady())return;
+  fetch(cloudBase()+'/rest/v1/'+SUPA_LEADS+'?select=id,data,updated_ts,deleted',{headers:cloudHeaders()})
+    .then(function(r){if(!r.ok)throw r.status;return r.json();})
+    .then(function(arr){ applyLeads(arr); leadsPushRows(state.knocks); cloudStatus('live'); })
+    .catch(function(){ cloudStatus('offline'); });
+  leadsPollTimer=setInterval(leadsPull,5000);
+}
+function leadsStop(){ if(leadsPollTimer){clearInterval(leadsPollTimer);leadsPollTimer=null;} }
 
 /* ════════ HIRING — 1099 INDEPENDENT CONTRACTOR AGREEMENT ════════ */
 var HIRING_EMAIL='darrell144@duck.com';
@@ -3218,9 +3275,9 @@ function settingsSheet(){
     '<div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.5">'+
       'Onboard a new sales rep. They fill in their details, the completed 1099 Independent Contractor Agreement downloads as a PDF, and a pre-addressed email opens to the hiring manager.</div>'+
     '<button class="btn-line" id="hireBtn">📋 New Contractor — 1099 IC Agreement</button>'+
-    '<div class="section-lbl" style="margin-top:18px">📡 Team Sync — Live Leaderboard</div>'+
+    '<div class="section-lbl" style="margin-top:18px">📡 Team Sync — Leaderboard &amp; Leads</div>'+
     '<div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.5">'+
-      'Your team Supabase project is already wired in — keep sync on and the leaderboard updates live across every rep\u2019s phone. '+
+      'Your team Supabase project is wired in — keep sync on and the leaderboard <b>and every lead</b> update live across all your devices, no matter which phone makes the change. '+
       '<a href="#" id="syncHelp" style="color:var(--sky)">Setup &amp; details ›</a></div>'+
     '<div class="field"><label>Supabase Project URL</label>'+
       '<input id="cloudUrl" placeholder="https://your-project.supabase.co" value="'+esc(c.url||SUPA_URL)+'"></div>'+
@@ -3235,6 +3292,9 @@ function settingsSheet(){
     '<button class="btn-line" id="expCsv" style="margin-bottom:8px">⬇ Export Knocks (CSV)</button>'+
     '<button class="btn-line" id="impBtn" style="margin-bottom:8px">⬆ Import / Merge Backup</button>'+
     '<input type="file" id="impFile" accept="application/json" style="display:none">'+
+    '<button class="btn-line" id="leadBtn" style="margin-bottom:8px">⬆ Import Leads (CSV / JSON)</button>'+
+    '<input type="file" id="leadFile" accept=".csv,.json,text/csv,application/json" style="display:none">'+
+    '<div class="help-note" style="margin:-2px 0 10px">Lead files can be <b>CSV</b> or <b>JSON</b> with columns like name, address, phone, city, zip, notes, lat, lng. Rows land in Pipeline as 📇 Leads (they do not count as doors) for '+esc(currentRep().name)+'.</div>'+
     '<button class="btn-line btn-danger" id="clrBtn">⌫ Clear All Data</button>'+
     '<div style="font-size:11.5px;color:var(--faint);margin-top:14px;text-align:center">'+
       'Complete Home Field System · saved on this device'+(storageOK?'':' · ⚠ storage unavailable')+'</div>'+
@@ -3295,12 +3355,86 @@ function settingsSheet(){
     };
     rd.readAsText(f);
   };
+  $('#leadBtn').onclick=function(){$('#leadFile').click();};
+  $('#leadFile').onchange=function(e){importLeads(e.target.files[0]);e.target.value='';};
   $('#clrBtn').onclick=function(){
     if(confirm('Delete ALL knocks, outages and history on this device? This cannot be undone.')){
       state.knocks=[];state.outages=[];state.connDrops=[];
       persist();renderAll();refreshMarkers();closeSheet();toast('All data cleared');
     }
   };
+}
+
+/* ════════ LEAD IMPORT (CSV / JSON → pipeline leads) ════════ */
+function parseCSV(text){
+  var rows=[],row=[],cur='',inQ=false,i,c;
+  text=String(text).replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(i=0;i<text.length;i++){c=text[i];
+    if(inQ){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inQ=false; } else cur+=c; }
+    else{ if(c==='"')inQ=true; else if(c===','){row.push(cur);cur='';}
+      else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';} else cur+=c; }
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(function(r){return r.some(function(x){return String(x).trim()!=='';});});
+}
+function normKey(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function pickF(o,keys){for(var i=0;i<keys.length;i++){var v=o[keys[i]];if(v!=null&&String(v).trim()!=='')return v;}return '';}
+function leadFromObj(o){
+  var fn=pickF(o,['firstname','first','fname','name','contact','customer','customername','fullname']);
+  var addr=pickF(o,['address','streetaddress','street','addr','serviceaddress','fulladdress','address1','addressline1']);
+  var city=pickF(o,['city','town']);
+  var st=pickF(o,['state','st','province']);
+  var zip=pickF(o,['zip','zipcode','postal','postalcode']);
+  if(addr){var extra=[city,st,zip].filter(function(x){return String(x).trim();}).join(' ').trim();
+    if(extra&&String(addr).toLowerCase().indexOf(String(city).toLowerCase())<0)addr=addr+', '+extra;}
+  var phone=pickF(o,['phone','phonenumber','phone1','mobile','cell','cellphone','tel','telephone','contactnumber']);
+  var notes=pickF(o,['notes','note','comment','comments','description','memo','remarks']);
+  var lat=parseFloat(pickF(o,['lat','latitude']));
+  var lng=parseFloat(pickF(o,['lng','lon','long','longitude']));
+  if(!String(addr).trim()&&!String(fn).trim()&&!String(phone).trim())return null;
+  return {firstName:String(fn||'').trim(),address:String(addr||'').trim(),phone:String(phone||'').trim(),
+    notes:String(notes||'').trim(),lat:isFinite(lat)?lat:null,lng:isFinite(lng)?lng:null};
+}
+function importLeads(f){
+  if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var txt=rd.result,objs=[];
+    try{
+      var nm=(f.name||'').toLowerCase();
+      var isJson=nm.slice(-5)==='.json'||(!/\.csv$/.test(nm)&&/^[\s\[{]/.test(txt));
+      if(isJson){
+        var j=JSON.parse(txt);
+        var arr=Array.isArray(j)?j:(j.leads||j.knocks||j.rows||j.data||j.records||[]);
+        if(!Array.isArray(arr))throw 0;
+        arr.forEach(function(it){ if(it&&typeof it==='object'){var no={};Object.keys(it).forEach(function(k){no[normKey(k)]=it[k];});objs.push(no);} });
+      }else{
+        var rows=parseCSV(txt); if(!rows.length)throw 0;
+        var hdr=rows[0].map(normKey);
+        var known=['firstname','first','fname','name','fullname','address','streetaddress','street','addr','address1','phone','phonenumber','mobile','cell','city','state','zip','zipcode','notes','note','lat','latitude','lng','lon','long','longitude'];
+        var hasHeader=hdr.filter(function(h){return known.indexOf(h)>-1;}).length>=1;
+        var cols=hasHeader?hdr:['name','address','phone','notes','city','zip'];
+        for(var r=(hasHeader?1:0);r<rows.length;r++){var no={};rows[r].forEach(function(v,i){if(cols[i])no[cols[i]]=v;});objs.push(no);}
+      }
+    }catch(err){toast('\u26a0 Could not read that file — use a CSV or JSON lead list');return;}
+    var leads=objs.map(leadFromObj).filter(Boolean);
+    if(!leads.length){toast('\u26a0 No leads found — need at least a name, address or phone');return;}
+    if(!confirm('Import '+leads.length+' lead'+(leads.length===1?'':'s')+' into Pipeline for '+currentRep().name+'?'))return;
+    var seen={};state.knocks.forEach(function(k){var key=String(k.address||'').toLowerCase().trim()+'|'+String(k.phone||'').replace(/\D/g,'');if(key!=='|')seen[key]=1;});
+    var added=0,dup=0,addedRows=[];
+    leads.forEach(function(L){
+      var key=L.address.toLowerCase().trim()+'|'+L.phone.replace(/\D/g,'');
+      if(key!=='|'&&seen[key]){dup++;return;} seen[key]=1;
+      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'lead',
+        firstName:L.firstName,address:L.address,phone:L.phone,notes:L.notes,schedule:null,
+        products:[],vas:[],commission:0,qty:{},lat:L.lat,lng:L.lng,source:'import'};
+      state.knocks.push(rec);addedRows.push(rec);added++;
+    });
+    persist();renderAll();refreshMarkers();closeSheet();
+    leadsPushRows(addedRows);
+    toast('Imported '+added+' lead'+(added===1?'':'s')+(dup?' \u00b7 '+dup+' duplicate'+(dup===1?'':'s')+' skipped':''));
+  };
+  rd.readAsText(f);
 }
 function download(name,content,type){
   var blob=new Blob([content],{type:type});
