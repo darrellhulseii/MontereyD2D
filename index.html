@@ -229,6 +229,12 @@ input,select,textarea{outline:none}
   font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.2px}
 .sched-mets i{font-style:normal;color:var(--muted);font-weight:500;font-size:11.5px}
 .sched-sale{color:var(--green)}
+.sched-blocks{margin-top:7px;display:flex;flex-direction:column;gap:4px}
+.sched-blk{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--muted);background:var(--card);border:1px solid var(--border2);border-radius:7px;padding:4px 8px}
+.sched-blk.pwr{border-color:rgba(0,174,239,.4);background:rgba(0,174,239,.08)}
+.blk-t{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;color:var(--ink);min-width:52px}
+.blk-m{font-variant-numeric:tabular-nums}
+.blk-s{color:var(--green);font-weight:700}
 .sched-method{background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:9px 12px;margin-bottom:10px}
 .sm-step{font-size:12px;line-height:1.5;color:var(--muted);padding:3px 0}
 .sm-step b{color:var(--ink);font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.2px;font-size:12.5px}
@@ -2507,6 +2513,19 @@ function planScheduleRender(goal,days,R){
   var dC=dist(Math.ceil(goal*R.convPer));
   var dA=dist(Math.ceil(goal*R.apptPer));
   var dS=dist(goal);
+  function dayBlocks(wd){
+    if(wd===6)return [{t:'10–12p',w:.25},{t:'12–2p',w:.22},{t:'2–4p',w:.25},{t:'⚡4p+',w:.28,power:1}];
+    if(wd===0)return [{t:'12–2p',w:.34},{t:'2–4p',w:.31},{t:'⚡4p+',w:.35,power:1}];
+    return [{t:'3–5p',w:.30},{t:'⚡5–7p',w:.50,power:1},{t:'7p–dark',w:.20}];
+  }
+  function splitByW(total,ws){
+    var raw=ws.map(function(w){return total*w;});
+    var fl=raw.map(function(x){return Math.floor(x);});
+    var rem=total-fl.reduce(function(a,b){return a+b;},0);
+    var ord=raw.map(function(v,i){return {i:i,f:v-Math.floor(v)};}).sort(function(a,b){return b.f-a.f;});
+    for(var k=0;k<rem;k++)fl[ord[k%ord.length].i]++;
+    return fl;
+  }
   var today=new Date(); today.setHours(0,0,0,0);
   var h='<div class="sched-head">📆 Schedule — the D2D Experts method</div>'+
     '<div class="sched-method">'+
@@ -2520,6 +2539,18 @@ function planScheduleRender(goal,days,R){
     var wd=d.getDay();
     var win=wd===6?'Biggest day · 10a → 5p':(wd===0?'Lighter · 12 → 5p':'Lock in 3p → dark · power hrs 5–7p');
     var doors=dD(i),conv=dC(i),appt=dA(i),sale=dS(i);
+    var bs=dayBlocks(wd),bw=bs.map(function(b){return b.w;});
+    var bD=splitByW(doors,bw),bC=splitByW(conv,bw),bS=splitByW(sale,bw);
+    var blocks='<div class="sched-blocks">';
+    for(var b=0;b<bs.length;b++){
+      blocks+='<div class="sched-blk'+(bs[b].power?' pwr':'')+'">'+
+        '<span class="blk-t">'+bs[b].t+'</span>'+
+        '<span class="blk-m">🚪 '+bD[b]+'</span>'+
+        '<span class="blk-m">💬 '+bC[b]+'</span>'+
+        (bS[b]>0?'<span class="blk-m blk-s">✅ '+bS[b]+'</span>':'')+
+      '</div>';
+    }
+    blocks+='</div>';
     h+='<div class="sched-row">'+
       '<div class="sched-top">'+
         '<span><b class="sched-day">'+WK[wd]+'</b> <span class="sched-date">· '+MO[d.getMonth()]+' '+d.getDate()+'</span></span>'+
@@ -2531,6 +2562,7 @@ function planScheduleRender(goal,days,R){
         '<span>📅 '+appt+' <i>appt'+(appt===1?'':'s')+'</i></span>'+
         '<span class="sched-sale">✅ '+sale+' <i>sale'+(sale===1?'':'s')+'</i></span>'+
       '</div>'+
+      blocks+
     '</div>';
   }
   h+='<div class="plan-foot" style="margin-top:6px"><b>Method:</b> built the way Sam Taggart / The D2D Experts, D2DU and KnockStar coach the day — a morning pitch-practice and planning block, an afternoon lock-in that runs through dark, the evening power hours when people are home, and Saturday as your biggest day. Non-negotiables: start on time, stay out to dark, keep breaks short, and judge yourself on your inputs — doors and conversations — not just closes.</div>';
