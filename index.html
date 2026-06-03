@@ -1921,36 +1921,43 @@ var EARTHLINK_TOP5=[
 var PROVIDER_REVIEWS=[
   {name:'AT&T Fiber', tier:'A', overall:'≈4.3/5 — strongest in the territory',
    f:{sp:'A',re:'A',va:'B+',su:'B',rp:'A'},
+   awards:'Ookla Best Home Internet in the U.S. (first-ever, 2026) and Fastest Home Internet 4 years running; ACSI #1 fiber 4 years straight; J.D. Power #1 wired internet, West region.',
    sites:'ACSI 79 — No.1 fiber three years running; J.D. Power West No.1 (732).',
    social:'Reliability widely praised; gripes are copper-theft outages and long customer-service holds.',
    hood:'The common \u201cswitch to AT&T fiber\u201d recommendation where available. (Also the network EarthLink resells.)'},
   {name:'Frontier — fiber only', tier:'B+', overall:'≈4.2–4.5/5 (fiber; DSL & sub-100M excluded)',
    f:{sp:'A+',re:'B+',va:'A',su:'C+',rp:'B+'},
+   awards:'Ookla Speedtest — Top-Rated Internet in California, plus fastest upload & lowest latency in CA (2022–24); #1 fastest upload in the U.S. (2023); 3rd-fastest U.S. fixed provider (2025); J.D. Power West No.2 (716).',
    sites:'Fiber ACSI ≈76 and J.D. Power West No.2 (716); user fiber reviews 4.2–4.5/5. The blended ACSI of 63 is dragged by legacy DSL — excluded here.',
    social:'Fiber owners praise 7-Gig speed, symmetrical upload and no caps; complaints center on install no-shows and Verizon-merger price worries.',
    hood:'Directional — fiber neighbors recommend it; DSL-area gripes are out of scope.'},
   {name:'EarthLink — fiber only', tier:'B-', overall:'≈3.7/5 (fiber; DSL & sub-100M excluded)',
    f:{sp:'A',re:'B+',va:'B',su:'C',rp:'C+'},
+   awards:'Few third-party awards — an established brand since 1994 with occasional editorial \u201cbest for rural / no-contract\u201d picks. Honest note: ACSI ranks EarthLink Fiber last among fiber providers (69).',
    sites:'Fiber ACSI 69 — last among fiber nationally; user fiber ≈4.2/5. The underlying AT&T line scores 79, so the connection is great — EarthLink\u2019s branded service is the weak point.',
    social:'Fiber speed is liked; recurring complaints are install failures, billing disputes after cancellation, and reseller runaround.',
    hood:'Directional — mixed; the fiber works, the service experience frustrates.'},
   {name:'Spectrum (Charter)', tier:'C+', overall:'≈2.7/5',
    f:{sp:'B',re:'C+',va:'C+',su:'C',rp:'C'},
+   awards:'Mostly business & mobile: J.D. Power #1 Small-Business Internet (2025); Spectrum Mobile ACSI #1 MVNO and J.D. Power #1 MVNO care (2024); some PCMag/regional ISP picks. No residential-internet satisfaction award — residential ACSI sits at 68.',
    sites:'ACSI 68 — low-mid for cable.',
    social:'Heavy: frequent outages, bills raised 3× in 2025, brutal cancellation experiences.',
    hood:'Directional — IE neighborhood threads dominated by outage gripes and \u201cwho should I switch to.\u201d'},
   {name:'Xfinity (Comcast)', tier:'C+', overall:'≈2.9/5 cable · fiber higher',
    f:{sp:'B+',re:'C+',va:'C',su:'C+',rp:'C+'},
+   awards:'HighSpeedInternet.com best customer ratings for speed, 2 years running; Xfinity Fiber ACSI 77. The cable service itself sits low (ACSI 67).',
    sites:'ACSI cable 67; Xfinity Fiber 77 where available.',
    social:'Throttling after price-shopping; Bay Area mass outages (7,000+ in Mar 2026; 54,000 in 2021).',
    hood:'Directional — South Bay threads = outage frustration and switch interest.'},
   {name:'Cox', tier:'B-', overall:'≈3.2/5',
    f:{sp:'B',re:'B-',va:'C+',su:'B-',rp:'B-'},
+   awards:'Mostly community / sustainability recognition (Cox Conserves); residential ACSI climbing to 68–72. No recent residential #1 satisfaction award.',
    sites:'ACSI 68–72 (climbing).',
    social:'OC outage spikes and data-cap gripes; lower volume than Spectrum.',
    hood:'Directional — moderate; concentrated in OC pockets (Santa Ana, Irvine).'},
   {name:'T-Mobile 5G Home', tier:'B+', overall:'≈3.8/5',
    f:{sp:'B-',re:'B',va:'A-',su:'B+',rp:'A-'},
+   awards:'J.D. Power #1 National Wireless Internet 2 years running (663); Ookla Fastest 5G Home Internet in America; ACSI top non-fiber; HighSpeedInternet highest-rated provider overall.',
    sites:'ACSI ≈76–79 — top non-fiber; J.D. Power fixed-wireless leader.',
    social:'Praised for flat price and simple setup; gripes are variable speed and peak-hour congestion.',
    hood:'Directional — liked as a cheap escape from cable, with speed-variability caveats.'}
@@ -1975,11 +1982,12 @@ function renderMarketIntel(){
   var h='';
   /* General provider reviews — first card in Intel */
   h+='<div class="card"><div class="card-h">📣 General Provider Reviews</div>'+
-     '<div class="mi-note">Blended read across review sites (ACSI 2026, J.D. Power, BroadbandNow / Allconnect user ratings), public social (X / Facebook / Instagram) and neighborhood platforms. <b>For Frontier &amp; EarthLink, DSL and any plan under 100 Mbps is excluded</b> — these scores reflect the fiber product reps actually sell, so they run higher than the DSL-dragged blended ACSI. Nextdoor / Ring are private, so that read is directional (inferred from public posts + the platforms\u2019 complaint-skew), not a hard score.</div>';
+     '<div class="mi-note">Blended read across review sites (ACSI 2026, J.D. Power, BroadbandNow / Allconnect user ratings), public social (X / Facebook / Instagram) and neighborhood platforms. <b>For Frontier &amp; EarthLink, DSL and any plan under 100 Mbps is excluded</b> — these scores reflect the fiber product reps actually sell, so they run higher than the DSL-dragged blended ACSI. Awards are notable verified industry honors (not an exhaustive since-founding list). Nextdoor / Ring are private, so that read is directional (inferred from public posts + the platforms\u2019 complaint-skew), not a hard score.</div>';
   PROVIDER_REVIEWS.forEach(function(p){
     h+='<div class="prv"><div class="prv-top"><span class="prv-name">'+esc(p.name)+'</span><span class="gr '+gradeCls(p.tier)+'">'+esc(p.tier)+'</span></div>'+
        '<div class="prv-score">'+esc(p.overall)+'</div>'+
        pFac(p.f)+
+       '<div class="prv-line"><span class="prv-l">🏅 Notable awards</span>'+esc(p.awards)+'</div>'+
        '<div class="prv-line"><span class="prv-l">Review sites</span>'+esc(p.sites)+'</div>'+
        '<div class="prv-line"><span class="prv-l">Social · X / FB / IG</span>'+esc(p.social)+'</div>'+
        '<div class="prv-line"><span class="prv-l">Neighborhood · Nextdoor / Ring (directional)</span>'+esc(p.hood)+'</div>'+
