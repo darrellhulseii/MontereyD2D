@@ -122,6 +122,17 @@ input,select,textarea{outline:none}
 
 /* RADAR */
 .conn-card{text-align:center;background:linear-gradient(135deg,#0c2036,#0a1a2c)}
+.st-live{margin-top:10px;font-size:12.5px;color:var(--sky);font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.3px}
+.st-row{display:flex;gap:8px;margin-top:9px}
+.st-g{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:9px 6px}
+.st-gv{font-family:'Bebas Neue',sans-serif;font-size:25px;line-height:1;color:var(--ink)}
+.st-gv span{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);font-weight:600}
+.st-gl{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;font-family:'Barlow Condensed',sans-serif;font-weight:600}
+.st-g.st-a{border-color:rgba(40,190,110,.45)}.st-g.st-a .st-gv{color:#34d27f}
+.st-g.st-b{border-color:rgba(0,174,239,.45)}.st-g.st-b .st-gv{color:#3cc0f0}
+.st-g.st-c{border-color:rgba(240,180,40,.45)}.st-g.st-c .st-gv{color:#f0b800}
+.st-g.st-d{border-color:rgba(240,70,70,.45)}.st-g.st-d .st-gv{color:#ff6b6b}
+.st-note{font-size:10.5px;color:var(--faint);line-height:1.45;margin-top:9px}
 .cc-status{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;line-height:1;margin-bottom:4px}
 .cc-status.up{color:var(--green)}.cc-status.down{color:var(--red)}
 .cc-meta{font-size:12.5px;color:var(--muted);margin-bottom:12px}
@@ -506,6 +517,12 @@ input,select,textarea{outline:none}
 .prv-score{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);margin-top:1px}
 .prv-line{font-size:11.5px;line-height:1.45;color:var(--muted);margin-top:6px}
 .prv-l{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--sky);margin-bottom:1px}
+.press-item{font-size:12.5px;line-height:1.55;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--border2)}
+.press-item:last-child{border-bottom:0}
+.press-src{display:inline-block;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.2px;color:var(--sky);text-decoration:none;background:rgba(0,174,239,.1);border:1px solid rgba(0,174,239,.3);border-radius:6px;padding:1px 7px;margin-left:4px}
+.press-src:active{background:rgba(0,174,239,.22)}
+.press-lead{font-size:12px;line-height:1.55;color:var(--muted);margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--border2)}
+.press-date{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:var(--gold);background:rgba(240,180,40,.13);border-radius:5px;padding:1px 6px;margin-right:2px;vertical-align:1px}
 a.btn-line{text-decoration:none}
 /* multi-user + leaderboard */
 .rep-chip{margin-left:auto;display:flex;align-items:center;gap:6px;min-width:0;
@@ -715,8 +732,9 @@ a.btn-line{text-decoration:none}
     <div class="card conn-card">
       <div class="card-h" style="justify-content:center">Your Connection</div>
       <div class="cc-status" id="ccStatus">Checking…</div>
-      <div class="cc-meta" id="ccMeta">Running first check…</div>
-      <button class="btn-line" id="connTestBtn">↻ Run Connection Test</button>
+      <div class="cc-meta" id="ccMeta">Tap below to test your real speed…</div>
+      <button class="btn-line" id="connTestBtn">↻ Run Speed Test</button>
+      <div id="stResult"></div>
       <div class="cc-drops" id="ccDrops">No drops detected today</div>
     </div>
 
@@ -758,6 +776,13 @@ a.btn-line{text-decoration:none}
       <a class="btn-line" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer" style="margin-top:9px">🛡️ Open SpotCrime+ ↗</a>
       <div class="crime-note" style="margin-top:8px">If the map area stays blank, your browser blocked the inline embed — tap the button above to open SpotCrime+ in a new tab.</div>
     </div>
+  </section>
+
+  <!-- PRESS -->
+  <section class="screen" id="screen-press">
+    <div class="scr-title">📰 Press</div>
+    <div class="scr-sub">California fiber &amp; 5G — the last two years, and what it means at the door.</div>
+    <div id="pressBox"></div>
   </section>
 
   <!-- PIPELINE -->
@@ -844,6 +869,7 @@ a.btn-line{text-decoration:none}
   <button class="tab" data-tab="tally"><span class="ti">✅</span><span class="tl">Tally</span></button>
   <button class="tab" data-tab="map"><span class="ti">🗺️</span><span class="tl">Map</span></button>
   <button class="tab" data-tab="radar"><span class="ti">📡</span><span class="tl">Intel</span></button>
+  <button class="tab" data-tab="press"><span class="ti">📰</span><span class="tl">Press</span></button>
   <button class="tab" data-tab="pipeline"><span class="ti">📋</span><span class="tl">Pipeline</span></button>
   <button class="tab" data-tab="stats"><span class="ti">📊</span><span class="tl">Stats</span></button>
   <button class="tab" data-tab="board"><span class="ti">🏆</span><span class="tl">Leaders</span></button>
@@ -1983,6 +2009,61 @@ function pFac(s){
     return '<span class="fac"><span class="fac-l">'+x[0]+'</span><span class="fac-g '+gradeCls(x[1])+'">'+esc(x[1])+'</span></span>';
   }).join('')+'</div>';
 }
+var PRESS_INTRO='California is in the middle of the biggest fiber build-out in its history. Two forces drive it: <b>Frontier</b> — bought back by <b>Verizon</b> in Jan 2026 — converting its old copper/DSL to fiber, and <b>AT&T</b> pouring record billions into fiber + 5G. <b>EarthLink</b> resells those same fiber lines. Below is the positive, sourced news from the last two years, with what each item means when you\u2019re at the door. Tap ↗ to open the article.';
+var PRESS=[
+  {group:'🟠 Frontier — a Verizon Company',
+   lead:'Frontier owns California\u2019s single largest fiber footprint (it inherited Verizon\u2019s old FiOS network in 2016 and has been converting DSL to fiber ever since). In January 2026 Verizon bought it back, putting Verizon\u2019s #1-rated 5G and balance sheet behind the build. Lead with this: the company behind your product just got bigger and better funded.',
+   items:[
+     {date:'Sep 2024', t:'Verizon agreed to acquire Frontier for $20B — pairing Frontier\u2019s fiber with Verizon\u2019s award-winning 5G. The vote of confidence that kicked everything off.', src:'Verizon', url:'https://www.verizon.com/about/news/verizon-acquire-frontier'},
+     {date:'Sep 2024', t:'Frontier won $23M+ in California grants to expand fiber to unserved and underserved homes — specifically in San Bernardino and Riverside counties, your core territory.', src:'Underground Infra.', url:'https://undergroundinfrastructure.com/news/2024/september/frontier-to-expand-fiber-broadband-network-across-california-with-over-23-million-in-grants'},
+     {date:'2024–25', t:'Frontier kept building ~1.3 million new fiber locations a year, and California remained its biggest fiber market — the LA metro, Inland Empire, Orange County and the Bay Area.', src:'InternetProviders.ai', url:'https://www.internetproviders.ai/blog/frontier-fiber-internet-areas-coverage-guide/'},
+     {date:'Jul 2025', t:'Frontier called Q2 2025 a \u201cbreakout quarter\u201d — record fiber sales and its highest revenue and EBITDA since emerging from bankruptcy in 2021. A healthy, growing company.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20240829972764/en/'},
+     {date:'Jan 15 2026', t:'California\u2019s CPUC approved the Verizon–Frontier deal 5–0, requiring Verizon to build fiber to 75,000 new California locations in five years and add 250 new 5G / fixed-wireless cell sites (backed by a $150M bond).', src:'Light Reading', url:'https://www.lightreading.com/broadband/california-approves-verizon-frontier-deal-with-conditions'},
+     {date:'Jan 20 2026', t:'Deal closed — \u201cFrontier, a Verizon Company,\u201d ~30 million fiber passings across 31 states + D.C. Crucially for customers: no change to current plans or pricing from the merger.', src:'Verizon', url:'https://www.verizon.com/about/news/introducing-frontier-verizon-company'},
+     {date:'Jan 2026', t:'The cellular tie-in: Frontier fiber customers can now add Verizon 5G mobile lines at a discount (e.g., 4 lines at $20/line). That bundle is a closing tool — fiber + mobile in one trusted brand.', src:'WANE 15', url:'https://www.wane.com/top-stories/verizon-completes-acquisition-of-frontier-communications/'},
+     {date:'Apr 2026', t:'Q1 2026 investor update: on track for 32M+ fiber passings this year (goal 40–50M), $1B+ run-rate synergies by 2028, converged fiber+mobile churning ~30% lower, and Verizon raised 2026 EPS guidance to 5–6%.', src:'Motley Fool', url:'https://www.fool.com/earnings/call-transcripts/2026/04/27/verizon-vz-q1-2026-earnings-transcript/'},
+     {date:'May 2024', t:'Frontier expanded its secured-debt capacity from $2.5B to $5.5B to keep funding the fiber build through securitizations — after pioneering the first-ever U.S. fiber-backed financing in 2023.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20240523748585/en/Frontier-Announces-Amendment-to-its-Revolving-Credit-Facility'},
+     {date:'2024', t:'Frontier closed a $750M green-bond fiber securitization to fund its build and lower its overall cost of capital — investors lining up behind fiber as infrastructure.', src:'Light Reading', url:'https://www.lightreading.com/broadband/frontier-taps-into-more-fiber-assets-to-raise-750m'},
+     {date:'2026', t:'Alongside the Frontier deal, Verizon authorized a share-repurchase program of up to $25B — a confidence signal returning cash to shareholders.', src:'Simply Wall St', url:'https://simplywall.st/stocks/us/telecom/nyse-vz/verizon-communications/news/verizon-reshapes-fiber-reach-and-balance-sheet-with-frontier'},
+     {date:'Apr 2026', t:'Verizon Q1 2026: net income of $5.05B on $34.4B revenue, with a $2.5B share buyback in the quarter — a financially strong parent behind Frontier fiber.', src:'StockTitan', url:'https://www.stocktitan.net/sec-filings/VZ/10-q-verizon-communications-inc-quarterly-earnings-report-ccd6f5d56ac0.html'}
+   ]},
+  {group:'🔵 AT&T Fiber in California',
+   lead:'AT&T is the other fiber giant in California — and the network EarthLink resells. It\u2019s #1 in customer satisfaction (ACSI) and is making its largest-ever investment in the state. Useful to know cold: where Frontier is thin (Orange County, urban cores), AT&T fiber is usually strong.',
+   items:[
+     {date:'2023', t:'AT&T expanded AT&T Fiber to roughly 170,000 new California locations in a single year — Chico, Sacramento, Fresno, San Jose, Los Angeles and San Diego among them.', src:'AT&T', url:'https://about.att.com/story/2024/fiber-expansion-california.html'},
+     {date:'2025', t:'AT&T Fiber reached 3.35M+ California locations on 11M+ fiber miles; in 2025 it added 40,000+ locations across Greater LA (LA, Orange, Riverside, San Bernardino, Santa Barbara, Ventura) plus thousands more in the Bay Area, Central Valley and Central Coast.', src:'AT&T Connects', url:'https://www.attconnects.com/stories/upgrading-californias-network-for-more-connectivity/'},
+     {date:'May 2026', t:'AT&T committed $19 billion to California fiber + wireless through 2030 — its largest-ever state investment ($35B over ten years): fiber to 4M+ more California homes/businesses (9M+ total) and 1,200+ new cell sites statewide.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/att-makes-19-billion-commitment-to-bring-high-speed-connectivity-to-california-302778184.html'},
+     {date:'2026', t:'On the cellular side, AT&T\u2019s 5G reaches 310M+ Americans across 26,100+ cities and towns — covering about 99% of the country, California included.', src:'AT&T Connects', url:'https://www.attconnects.com/how-att-is-investing-in-california/'},
+     {date:'Feb 2026', t:'Ookla named AT&T the best / fastest home internet in America; the company\u2019s own line is \u201cwhere we have fiber, we win.\u201d', src:'RCR Wireless', url:'https://www.rcrwireless.com/20260225/5g/att-fiber-ookla'},
+     {date:'May 2025', t:'AT&T agreed to acquire Lumen\u2019s Mass Markets fiber business for $5.75B (all-cash) — adding ~1M customers and 4M+ passings and raising its 2030 goal to 60M fiber locations.', src:'AT&T', url:'https://about.att.com/story/2025/lumen-mass-markets-fiber-business.html'},
+     {date:'Feb 2026', t:'AT&T completed the $5.75B Lumen acquisition, expanding AT&T Fiber into 32 states with 4M+ new passings and ramping its build toward 5M locations a year.', src:'Fierce Network', url:'https://www.fierce-network.com/broadband/atts-575b-lumen-deal-now-complete'},
+     {date:'2024–26', t:'AT&T\u2019s Gigapower joint venture with BlackRock — plus a new \u201cNetworkCo\u201d JV from the Lumen assets — builds open-access fiber beyond AT&T\u2019s own footprint, pulling in outside capital.', src:'Fierce Network', url:'https://www.fierce-network.com/broadband/atts-575b-lumen-deal-now-complete'},
+     {date:'Jul 2025', t:'AT&T Q2 2025: $30.8B revenue, surpassed 30M fiber locations and 1M AT&T Internet Air customers, and committed to a $10B share buyback through 2026.', src:'AT&T 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/0000732717/000073271725000076/t-2qx2025exhibit991.htm'},
+     {date:'2025–26', t:'AT&T\u2019s California giving: $2.5M in 2025 plus $1.2M more in 2026 to nonprofits closing the digital divide, with new Connected Learning Centers and digital-skills workshops statewide.', src:'Action News Now', url:'https://www.actionnewsnow.com/at-t-announces-19-billion-investment-to-upgrade-high-speed-connectivity-in-california/article_cc070dac-6aa9-4929-9c48-597c1f07cd50.html'}
+   ]},
+  {group:'🟢 EarthLink Fiber',
+   lead:'EarthLink doesn\u2019t build its own lines — it resells fiber from AT&T, Frontier and others. So every mile AT&T and Frontier add in California is a mile EarthLink can sell. Its edge is service and simple terms, not its own network.',
+   items:[
+     {date:'2026', t:'EarthLink rides partner fiber (primarily AT&T), so AT&T\u2019s push toward 9M+ California fiber locations directly widens where EarthLink Fiber is available — up to 5 Gbps, 100% symmetrical, with truly unlimited data.', src:'CableTV.com', url:'https://www.cabletv.com/earthlink/fiber'},
+     {date:'2026', t:'EarthLink fiber customers rate it highly — 77% say speeds meet what they were promised — and the brand leans on customer service and no data caps.', src:'HighSpeedInternet', url:'https://www.highspeedinternet.com/providers/earthlink/internet'},
+     {date:'2026', t:'EarthLink serves about 5 million customers across 48 states, with an average 15-year customer relationship — a stable, established brand.', src:'BroadbandSearch', url:'https://www.broadbandsearch.net/provider/earthlink'},
+     {date:'Growth', t:'EarthLink expanded through a string of network acquisitions (BroadAspect, One Ring Networks, Telegia and QX.net), broadening its fiber + fixed-wireless reach across the country.', src:'Light Reading', url:'https://www.lightreading.com/broadband/earthlink-continues-fiber-fixed-wireless-expansion'}
+   ]}
+];
+function renderPress(){
+  var box=$('#pressBox'); if(!box)return;
+  var h='<div class="mi-note">'+PRESS_INTRO+'</div>';
+  PRESS.forEach(function(g){
+    h+='<div class="card"><div class="card-h">'+esc(g.group)+'</div>';
+    if(g.lead)h+='<div class="press-lead">'+esc(g.lead)+'</div>';
+    g.items.forEach(function(it){
+      h+='<div class="press-item">'+(it.date?'<span class="press-date">'+esc(it.date)+'</span> ':'')+esc(it.t)+
+         ' <a class="press-src" href="'+it.url+'" target="_blank" rel="noopener noreferrer">↗ '+esc(it.src)+'</a></div>';
+    });
+    h+='</div>';
+  });
+  box.innerHTML=h;
+}
 function renderMarketIntel(){
   var box=$('#marketIntel'); if(!box)return;
   var h='';
@@ -2221,21 +2302,84 @@ function renderRadarConn(){
   drops.textContent=n?(n+' connection drop'+(n>1?'s':'')+' detected today'):'No drops detected today';
   if(!meta.dataset.tested)meta.textContent=on?'Tap below to measure latency.':'No internet — working in offline mode.';
 }
-function connTest(){
-  var meta=$('#ccMeta');meta.dataset.tested='1';
-  if(!navigator.onLine){meta.textContent='Offline — no connection to test.';return;}
-  meta.innerHTML='<span class="spin"></span> Testing…';
-  var start=performance.now(),done=false;
-  var finish=function(ms){
-    if(done)return;done=true;
-    if(ms==null){meta.textContent='Online — latency probe blocked, but you are connected.';return;}
-    var q=ms<90?'Excellent':ms<200?'Good':ms<450?'Fair':'Slow';
-    meta.textContent='Online · ~'+ms+' ms round-trip ('+q+')';
-  };
-  setTimeout(function(){finish(null);},7000);
-  fetch('https://www.gstatic.com/generate_204',{mode:'no-cors',cache:'no-store'})
-    .then(function(){finish(Math.round(performance.now()-start));})
-    .catch(function(){finish(null);});
+var stRunning=false;
+function connTest(){ return speedTest(); }
+async function speedTest(){
+  if(stRunning)return;
+  var meta=$('#ccMeta'), res=$('#stResult'), btn=$('#connTestBtn');
+  if(meta)meta.dataset.tested='1';
+  if(!navigator.onLine){ if(meta)meta.textContent='Offline — connect to run a speed test.'; if(res)res.innerHTML=''; return; }
+  stRunning=true;
+  if(btn){btn.disabled=true;btn.textContent='Testing…';}
+  if(meta)meta.innerHTML='<span class="spin"></span> Running full speed test…';
+  if(res)res.innerHTML='';
+  var EP='https://speed.cloudflare.com';
+  function mbps(bytes,ms){return (bytes*8)/(ms/1000)/1e6;}
+  function live(t){ if(res)res.innerHTML='<div class="st-live">'+t+'</div>'; }
+  function fmt(v){return v>=100?String(Math.round(v)):v.toFixed(1);}
+  function gauge(lbl,val,unit,cls){return '<div class="st-g '+cls+'"><div class="st-gv">'+val+'<span> '+unit+'</span></div><div class="st-gl">'+lbl+'</div></div>';}
+  async function timedFetch(url,opts,capMs){
+    var ctrl=new AbortController(); var to=setTimeout(function(){ctrl.abort();},capMs||20000);
+    try{ opts=opts||{}; opts.signal=ctrl.signal; opts.cache='no-store'; var r=await fetch(url,opts); return r; }
+    finally{ clearTimeout(to); }
+  }
+  async function down(bytes){
+    var t0=performance.now();
+    var r=await timedFetch(EP+'/__down?bytes='+bytes,{});
+    var got=0;
+    if(r.body&&r.body.getReader){
+      var rd=r.body.getReader();
+      while(true){ var x=await rd.read(); if(x.done)break; got+=x.value.length; }
+    }else{ var buf=await r.arrayBuffer(); got=buf.byteLength; }
+    return {mbps:mbps(got,performance.now()-t0), ms:performance.now()-t0};
+  }
+  async function up(bytes){
+    var data=new Uint8Array(bytes);
+    var t0=performance.now();
+    await timedFetch(EP+'/__up',{method:'POST',body:data});
+    var ms=performance.now()-t0; return {mbps:mbps(bytes,ms), ms:ms};
+  }
+  async function measure(dir){
+    var sizes = dir==='down'?[1e6,1e7,2.5e7,1e8]:[5e5,5e6,1e7,2e7];
+    var best=0;
+    for(var s=0;s<sizes.length;s++){
+      var r = dir==='down'?await down(sizes[s]):await up(sizes[s]);
+      if(r.mbps>best)best=r.mbps;
+      live((dir==='down'?'⬇️ Download':'⬆️ Upload')+' — '+fmt(best)+' Mbps');
+      if(r.ms>2200)break;   /* enough sample; keep the test snappy */
+    }
+    return best;
+  }
+  try{
+    /* PING + JITTER */
+    live('📡 Measuring latency…');
+    var ping=Infinity, lat=[];
+    for(var i=0;i<6;i++){ var p0=performance.now(); await timedFetch(EP+'/__down?bytes=0',{},8000); var dt=performance.now()-p0; lat.push(dt); if(dt<ping)ping=dt; }
+    ping=Math.round(ping);
+    var jitter=Math.round(Math.max.apply(null,lat)-Math.min.apply(null,lat));
+    /* DOWNLOAD */
+    var dn=await measure('down');
+    /* UPLOAD (best-effort) */
+    var upM=null; try{ upM=await measure('up'); }catch(e){ upM=null; }
+    var dq=dn>=200?'st-a':dn>=50?'st-b':dn>=10?'st-c':'st-d';
+    var uq=upM==null?'st-d':upM>=50?'st-a':upM>=10?'st-b':upM>=3?'st-c':'st-d';
+    var pq=ping<40?'st-a':ping<90?'st-b':ping<200?'st-c':'st-d';
+    var jq=jitter<15?'st-a':jitter<40?'st-b':jitter<90?'st-c':'st-d';
+    if(res)res.innerHTML='<div class="st-row">'+
+      gauge('Download',fmt(dn),'Mbps',dq)+
+      gauge('Upload',upM==null?'—':fmt(upM),'Mbps',uq)+
+      '</div><div class="st-row">'+
+      gauge('Ping',ping,'ms',pq)+
+      gauge('Jitter',jitter,'ms',jq)+
+      '</div>'+
+      '<div class="st-note">Real-world test via Cloudflare\u2019s global network — actual line speed, not the carrier\u2019s advertised number.</div>';
+    if(meta)meta.innerHTML='Tested · '+fmt(dn)+' Mbps down'+(upM!=null?' · '+fmt(upM)+' up':'')+' · '+ping+' ms ping';
+  }catch(e){
+    if(meta)meta.textContent='Online, but the speed test was blocked (network restriction or no signal). You are connected, but throughput could not be measured here.';
+    if(res)res.innerHTML='';
+  }
+  if(btn){btn.disabled=false;btn.textContent='↻ Run Speed Test';}
+  stRunning=false;
 }
 function initConn(){
   setConnUI();renderRadarConn();
@@ -3287,6 +3431,7 @@ function switchTab(name){
   $$('.screen').forEach(function(s){s.classList.toggle('active',s.id==='screen-'+name);});
   if(name==='playbook')loadPlaybook();
   if(name==='radar')openIntel();
+  if(name==='press')renderPress();
   if(name==='board'){renderLeaderboard();if(state.cloud&&state.cloud.on)cloudPull();}
   if(name==='map'){
     mapWanted=true;
