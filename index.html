@@ -3699,7 +3699,7 @@ function init(){
       $$('#lbRange button').forEach(function(x){x.classList.toggle('active',x===b);});
       renderLeaderboard();};
   });
-  if(bc)bc.onmessage=function(ev){
+  if(bc)bc.onmessage=function(ev){ m
     if(ev.data&&ev.data.t==='state'){
       var fresh=loadState();
       if(fresh){
