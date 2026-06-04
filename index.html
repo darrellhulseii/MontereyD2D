@@ -653,6 +653,24 @@ a.btn-line{text-decoration:none}
 .og-ev-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 ::-webkit-scrollbar{width:0;height:0}
 @media(max-width:560px){.tab .tl{font-size:9px}}
+
+/* ── Commission Calculator ── */
+.cc-grp{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border2)}
+.cc-grp:first-child{margin-top:2px}
+.cc-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.cc-nm{flex:1;font-size:13px;line-height:1.25}
+.cc-amt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:var(--muted);min-width:46px;text-align:right}
+.cc-step{display:flex;align-items:center;flex-shrink:0}
+.cc-step .cc-b{width:30px;height:30px;border:1px solid var(--border2);background:var(--card2,rgba(255,255,255,.04));color:var(--sky);font-size:18px;font-weight:700;line-height:1;cursor:pointer;padding:0}
+.cc-step .cc-b:first-child{border-radius:8px 0 0 8px}
+.cc-step .cc-b:last-child{border-radius:0 8px 8px 0}
+.cc-step .cc-b:active{background:var(--sky);color:#04121e}
+.cc-q{width:42px;height:30px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:18px;border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);border-left:none;border-right:none;background:transparent;color:var(--ink,#fff);padding:0}
+.cc-q::-webkit-outer-spin-button,.cc-q::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.cc-total{display:flex;align-items:baseline;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:2px solid var(--sky)}
+.cc-t-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-size:13px}
+.cc-t-val{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--green);line-height:1}
+.cc-sum{font-size:12px;color:var(--muted);margin-top:8px;text-align:right;line-height:1.4}
 </style>
 </head>
 <body>
@@ -836,6 +854,14 @@ a.btn-line{text-decoration:none}
     </div>
     <div class="section-lbl">📅 Upcoming Installations</div>
     <div id="installs"></div>
+    <div class="card" id="commCalcCard">
+      <div class="card-h">🧮 Commission Calculator <span class="ch-r">goal projector</span></div>
+      <div class="req-note" style="margin-bottom:6px">Set how many of each you plan to sell — internet by speed tier, each provider, and ADT alarm systems — to project your earnings. Uses the 1099 rate card; paid on confirmed install &amp; activation.</div>
+      <div id="ccBody"></div>
+      <div class="cc-total"><span class="cc-t-lbl">Projected Earnings</span><span class="cc-t-val" id="ccTotal">$0</span></div>
+      <div class="cc-sum" id="ccSummary">Add quantities above to project your earnings.</div>
+      <button class="btn-line" id="ccReset" style="margin-top:14px">↺ Reset Calculator</button>
+    </div>
   </section>
 
   <section class="screen" id="screen-board">
@@ -2504,6 +2530,66 @@ function renderPipeline(){
 }
 
 /* ════════ STATS ════════ */
+/* ════════ COMMISSION CALCULATOR (goal -> projected earnings) ════════ */
+var calcQty={};
+function ccGroupLabel(g){
+  return g==='Frontier Communications'?'\ud83d\udfe0 Frontier'
+    :g==='EarthLink'?'\ud83d\udd35 EarthLink'
+    :g==='EarthLink Bundles'?'\ud83d\udd35 EarthLink Bundles'
+    :g==='ADT \u2014 Home Security'?'\ud83d\udd12 ADT Alarm Systems':g;
+}
+function ccItemName(p){ return p.name.replace('Frontier ','').replace('EarthLink ','').replace('ADT \u2014 ',''); }
+function renderCommCalc(){
+  var body=$('#ccBody'); if(!body)return;
+  var groups=[],seen={};
+  PRODUCTS.forEach(function(p){ if(!seen[p.g]){seen[p.g]=1;groups.push(p.g);} });
+  var h='';
+  groups.forEach(function(g){
+    h+='<div class="cc-grp">'+esc(ccGroupLabel(g))+'</div>';
+    PRODUCTS.filter(function(p){return p.g===g;}).forEach(function(p){
+      var q=calcQty[p.name]||0;
+      h+='<div class="cc-row"><span class="cc-nm">'+esc(ccItemName(p))+'</span>'+
+         '<span class="cc-amt">'+money(p.amt)+'</span>'+
+         '<span class="cc-step">'+
+           '<button type="button" class="cc-b" data-cc="'+esc(p.name)+'" data-d="-1">\u2212</button>'+
+           '<input class="cc-q" type="number" inputmode="numeric" min="0" data-ccq="'+esc(p.name)+'" value="'+q+'">'+
+           '<button type="button" class="cc-b" data-cc="'+esc(p.name)+'" data-d="1">+</button>'+
+         '</span></div>';
+    });
+  });
+  body.innerHTML=h;
+  ccCompute();
+}
+function ccCompute(){
+  var total=0,byG={},alarms=0,inet=0;
+  PRODUCTS.forEach(function(p){
+    var q=calcQty[p.name]||0; if(q<=0)return;
+    total+=q*p.amt; byG[p.g]=(byG[p.g]||0)+q;
+    if(p.sec)alarms+=q; else inet+=q;
+  });
+  var t=$('#ccTotal'); if(t)t.textContent=money(total);
+  var parts=Object.keys(byG).map(function(g){
+    var nm=g.replace('Frontier Communications','Frontier').replace(' \u2014 Home Security','').replace(' Bundles',' bundles');
+    return nm+' '+byG[g];
+  });
+  var sum=$('#ccSummary');
+  if(sum)sum.textContent=parts.length?(parts.join(' \u00b7 ')+'  \u2014  '+inet+' internet / '+alarms+' alarm'+(alarms===1?'':'s')):'Add quantities above to project your earnings.';
+}
+function ccBind(){
+  var body=$('#ccBody'); if(!body||body._ccb)return; body._ccb=1;
+  body.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-cc]'); if(!b)return;
+    var nm=b.getAttribute('data-cc'),d=parseInt(b.getAttribute('data-d'),10);
+    calcQty[nm]=Math.max(0,(calcQty[nm]||0)+d); renderCommCalc();
+  });
+  body.addEventListener('input',function(e){
+    var inp=e.target.closest('input[data-ccq]'); if(!inp)return;
+    var nm=inp.getAttribute('data-ccq'),v=parseInt(inp.value,10);
+    calcQty[nm]=(isNaN(v)||v<0)?0:v; ccCompute();
+  });
+  var rb=$('#ccReset'); if(rb)rb.onclick=function(){calcQty={};renderCommCalc();};
+}
+
 function renderStats(){
   var ks=myKnocks();
   var doors=ks.length;
@@ -3717,6 +3803,7 @@ function init(){
 
   renderLegend();
   renderAll();
+  renderCommCalc();ccBind();
   loadPublicOutages();
   loadPlaybook();
   initConn();
