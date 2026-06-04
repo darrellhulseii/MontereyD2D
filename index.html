@@ -1215,6 +1215,19 @@ function startGeo(cb){
   }catch(e){}
 }
 
+/* guarantee a map pin for any knock: GPS now, fresh fix if curPos not ready yet */
+function ensurePin(k){
+  if(!k||k.lat!=null)return;
+  if(curPos){k.lat=curPos.lat;k.lng=curPos.lng;k.updatedTs=Date.now();persist();leadsPushOne(k);refreshMarkers();return;}
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(function(p){
+    var kk=state.knocks.filter(function(x){return x.id===k.id;})[0]; if(!kk||kk.lat!=null)return;
+    curPos={lat:p.coords.latitude,lng:p.coords.longitude};
+    kk.lat=curPos.lat; kk.lng=curPos.lng; kk.updatedTs=Date.now();
+    persist(); leadsPushOne(kk); refreshMarkers();
+  },function(){},{enableHighAccuracy:true,timeout:8000,maximumAge:30000});
+}
+
 /* ════════ GOOGLE MAPS ════════ */
 var MAP_DARK=[
  {elementType:'geometry',stylers:[{color:'#0c1a2e'}]},
@@ -1353,6 +1366,8 @@ function addKnock(obj){
   state.knocks.push(k);
   persist();renderAll();refreshMarkers();
   leadsPushOne(k);
+  if(k.lat==null&&k.address)geocodeLeads([k]);   /* drop a map pin for any lead/door with an address */
+  if(k.lat==null&&!k.address)ensurePin(k);      /* no address: pin at GPS so every knock lands on the map */
   return k;
 }
 function updateKnock(id,patch){
@@ -1362,6 +1377,7 @@ function updateKnock(id,patch){
   k.updatedTs=Date.now();
   persist();renderAll();refreshMarkers();
   leadsPushOne(k);
+  if(k.lat==null&&k.address)geocodeLeads([k]);   /* geocode to a pin if an address was added/edited */
 }
 function deleteKnock(id){
   state.knocks=state.knocks.filter(function(k){return k.id!==id;});
