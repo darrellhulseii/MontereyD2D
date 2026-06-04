@@ -671,6 +671,10 @@ a.btn-line{text-decoration:none}
 .cc-t-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-size:13px}
 .cc-t-val{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--green);line-height:1}
 .cc-sum{font-size:12px;color:var(--muted);margin-top:8px;text-align:right;line-height:1.4}
+.cc-subnote{font-size:11px;color:var(--muted);margin:2px 0 8px;line-height:1.45}
+.cc-note{display:block;font-size:11px;color:var(--muted);font-style:italic;margin-top:1px}
+.cc-per{font-size:10px;color:var(--muted);font-weight:400;margin-left:2px}
+.cc-bonus{font-size:12px;color:var(--gold);margin-top:8px;text-align:right;line-height:1.4;display:none}
 </style>
 </head>
 <body>
@@ -856,9 +860,10 @@ a.btn-line{text-decoration:none}
     <div id="installs"></div>
     <div class="card" id="commCalcCard">
       <div class="card-h">🧮 Commission Calculator <span class="ch-r">goal projector</span></div>
-      <div class="req-note" style="margin-bottom:6px">Set how many of each you plan to sell — internet by speed tier, each provider, and ADT alarm systems — to project your earnings. Uses the 1099 rate card; paid on confirmed install &amp; activation.</div>
+      <div class="req-note" style="margin-bottom:6px">Set how many of each you plan to sell — internet by speed tier, EarthLink wireless by the number of lines, and ADT alarm systems — to project your earnings. Uses the 1099 rate card; paid on confirmed install &amp; activation.</div>
       <div id="ccBody"></div>
       <div class="cc-total"><span class="cc-t-lbl">Projected Earnings</span><span class="cc-t-val" id="ccTotal">$0</span></div>
+      <div class="cc-bonus" id="ccBonus"></div>
       <div class="cc-sum" id="ccSummary">Add quantities above to project your earnings.</div>
       <button class="btn-line" id="ccReset" style="margin-top:14px">↺ Reset Calculator</button>
     </div>
@@ -2530,30 +2535,58 @@ function renderPipeline(){
 }
 
 /* ════════ STATS ════════ */
-/* ════════ COMMISSION CALCULATOR (goal -> projected earnings) ════════ */
+/* ════════ COMMISSION CALCULATOR (goal -> projected earnings · per 1099 rate card) ════════ */
 var calcQty={};
-function ccGroupLabel(g){
-  return g==='Frontier Communications'?'\ud83d\udfe0 Frontier'
-    :g==='EarthLink'?'\ud83d\udd35 EarthLink'
-    :g==='EarthLink Bundles'?'\ud83d\udd35 EarthLink Bundles'
-    :g==='ADT \u2014 Home Security'?'\ud83d\udd12 ADT Alarm Systems':g;
-}
-function ccItemName(p){ return p.name.replace('Frontier ','').replace('EarthLink ','').replace('ADT \u2014 ',''); }
+var CALC_DATA=[
+  {g:'🟠 Frontier — Fiber Internet', items:[
+    {id:'fr7',   label:'Fiber Internet — 7 Gig', amt:450, note:'ZIP code dependent', fiber:1, net:1},
+    {id:'fr5',   label:'Fiber Internet — 5 Gig', amt:400, note:'ZIP code dependent', fiber:1, net:1},
+    {id:'fr2',   label:'Fiber Internet — 2 Gig', amt:350, note:'ZIP code dependent', fiber:1, net:1},
+    {id:'fr1',   label:'Fiber Internet — 1 Gig', amt:300, note:'ZIP code dependent', fiber:1, net:1},
+    {id:'fr500', label:'Internet — 500 Mbps',    amt:125, note:'ZIP code dependent', net:1},
+    {id:'frc2f', label:'Copper-to-Fiber Upgrade',amt:50,  note:'Existing customer'},
+    {id:'frwhw', label:'Whole-Home Wi-Fi (WHW)', amt:40,  note:'Hardware activated'},
+    {id:'frvas', label:'Value Added Service (VAS)',amt:25, note:'Activated in system'},
+    {id:'frvoip',label:'VoIP Line',              amt:75,  note:'Voice activated & tested'}
+  ]},
+  {g:'🟢 EarthLink — Fiber Internet', items:[
+    {id:'el5',   label:'Fiber — 5 Gig',    amt:300, note:'Confirmed installation', net:1},
+    {id:'el2',   label:'Fiber — 2 Gig',    amt:250, note:'Confirmed installation', net:1},
+    {id:'el1',   label:'Fiber — 1 Gig',    amt:200, note:'Confirmed installation', net:1},
+    {id:'el500', label:'Fiber — 500 Mbps', amt:175, note:'Confirmed installation', net:1},
+    {id:'el100', label:'Fiber — 100 Mbps', amt:125, note:'Confirmed installation', net:1}
+  ]},
+  {g:'🟢 EarthLink — Wireless 4G / 5G', sub:'Add a line for each plan sold — every line pays the full rate below. Stack as many Unlimited or Essentials lines as the customer takes.', items:[
+    {id:'elunl', label:'Unlimited Plan',  amt:100, note:'per line · SIM activated', line:1},
+    {id:'eless', label:'Essentials Plan', amt:45,  note:'per line · SIM activated', line:1}
+  ]},
+  {g:'🟢 EarthLink — Value Added', items:[
+    {id:'eleasy',label:'Easy Tech',    amt:10, note:'Service activated'},
+    {id:'elprot',label:'Protect Plus', amt:10, note:'Service activated'}
+  ]},
+  {g:'🟣 ADT — Home Security', items:[
+    {id:'adtb', label:'ADT — Bronze Package',         amt:500, note:'Monitored account activated', sec:1},
+    {id:'adts', label:'ADT — Silver Package',         amt:600, note:'Monitored account activated', sec:1},
+    {id:'adtg', label:'ADT — Gold Package',           amt:650, note:'Monitored account activated', sec:1},
+    {id:'adtso',label:'ADT — Service Only (Takeover)',amt:750, note:'Takeover of an existing security system', sec:1}
+  ]}
+];
+var FIBER_BONUS=50, FIBER_BONUS_MIN=5;   /* Frontier: $50 bonus for 5+ fiber sales in the week */
 function renderCommCalc(){
   var body=$('#ccBody'); if(!body)return;
-  var groups=[],seen={};
-  PRODUCTS.forEach(function(p){ if(!seen[p.g]){seen[p.g]=1;groups.push(p.g);} });
   var h='';
-  groups.forEach(function(g){
-    h+='<div class="cc-grp">'+esc(ccGroupLabel(g))+'</div>';
-    PRODUCTS.filter(function(p){return p.g===g;}).forEach(function(p){
-      var q=calcQty[p.name]||0;
-      h+='<div class="cc-row"><span class="cc-nm">'+esc(ccItemName(p))+'</span>'+
-         '<span class="cc-amt">'+money(p.amt)+'</span>'+
+  CALC_DATA.forEach(function(grp){
+    h+='<div class="cc-grp">'+esc(grp.g)+'</div>';
+    if(grp.sub) h+='<div class="cc-subnote">'+esc(grp.sub)+'</div>';
+    grp.items.forEach(function(it){
+      var q=calcQty[it.id]||0;
+      h+='<div class="cc-row"><span class="cc-nm">'+esc(it.label)+
+           (it.note?'<span class="cc-note">'+esc(it.note)+'</span>':'')+'</span>'+
+         '<span class="cc-amt">'+money(it.amt)+(it.line?'<span class="cc-per">/line</span>':'')+'</span>'+
          '<span class="cc-step">'+
-           '<button type="button" class="cc-b" data-cc="'+esc(p.name)+'" data-d="-1">\u2212</button>'+
-           '<input class="cc-q" type="number" inputmode="numeric" min="0" data-ccq="'+esc(p.name)+'" value="'+q+'">'+
-           '<button type="button" class="cc-b" data-cc="'+esc(p.name)+'" data-d="1">+</button>'+
+           '<button type="button" class="cc-b" data-cc="'+it.id+'" data-d="-1">−</button>'+
+           '<input class="cc-q" type="number" inputmode="numeric" min="0" data-ccq="'+it.id+'" value="'+q+'">'+
+           '<button type="button" class="cc-b" data-cc="'+it.id+'" data-d="1">+</button>'+
          '</span></div>';
     });
   });
@@ -2561,31 +2594,46 @@ function renderCommCalc(){
   ccCompute();
 }
 function ccCompute(){
-  var total=0,byG={},alarms=0,inet=0;
-  PRODUCTS.forEach(function(p){
-    var q=calcQty[p.name]||0; if(q<=0)return;
-    total+=q*p.amt; byG[p.g]=(byG[p.g]||0)+q;
-    if(p.sec)alarms+=q; else inet+=q;
+  var total=0, fiber=0, lines=0, alarms=0, inet=0;
+  CALC_DATA.forEach(function(grp){
+    grp.items.forEach(function(it){
+      var q=calcQty[it.id]||0; if(q<=0)return;
+      total+=q*it.amt;
+      if(it.fiber)fiber+=q;
+      if(it.line)lines+=q;
+      if(it.sec)alarms+=q;
+      if(it.net)inet+=q;
+    });
   });
+  var bonus=(fiber>=FIBER_BONUS_MIN)?FIBER_BONUS:0;
+  total+=bonus;
   var t=$('#ccTotal'); if(t)t.textContent=money(total);
-  var parts=Object.keys(byG).map(function(g){
-    var nm=g.replace('Frontier Communications','Frontier').replace(' \u2014 Home Security','').replace(' Bundles',' bundles');
-    return nm+' '+byG[g];
-  });
+  var bn=$('#ccBonus');
+  if(bn){
+    if(bonus){ bn.style.display='block'; bn.textContent='✔ Includes '+money(FIBER_BONUS)+' Frontier weekly bonus ('+fiber+' fiber sales).'; }
+    else if(fiber>0){ bn.style.display='block'; bn.textContent=(FIBER_BONUS_MIN-fiber)+' more Frontier fiber this week unlocks the '+money(FIBER_BONUS)+' weekly bonus.'; }
+    else { bn.style.display='none'; bn.textContent=''; }
+  }
   var sum=$('#ccSummary');
-  if(sum)sum.textContent=parts.length?(parts.join(' \u00b7 ')+'  \u2014  '+inet+' internet / '+alarms+' alarm'+(alarms===1?'':'s')):'Add quantities above to project your earnings.';
+  if(sum){
+    var bits=[];
+    if(inet)bits.push(inet+' internet');
+    if(lines)bits.push(lines+' wireless line'+(lines===1?'':'s'));
+    if(alarms)bits.push(alarms+' alarm'+(alarms===1?'':'s'));
+    sum.textContent=bits.length?bits.join(' · '):'Add quantities above to project your earnings.';
+  }
 }
 function ccBind(){
   var body=$('#ccBody'); if(!body||body._ccb)return; body._ccb=1;
   body.addEventListener('click',function(e){
     var b=e.target.closest('button[data-cc]'); if(!b)return;
-    var nm=b.getAttribute('data-cc'),d=parseInt(b.getAttribute('data-d'),10);
-    calcQty[nm]=Math.max(0,(calcQty[nm]||0)+d); renderCommCalc();
+    var id=b.getAttribute('data-cc'),d=parseInt(b.getAttribute('data-d'),10);
+    calcQty[id]=Math.max(0,(calcQty[id]||0)+d); renderCommCalc();
   });
   body.addEventListener('input',function(e){
     var inp=e.target.closest('input[data-ccq]'); if(!inp)return;
-    var nm=inp.getAttribute('data-ccq'),v=parseInt(inp.value,10);
-    calcQty[nm]=(isNaN(v)||v<0)?0:v; ccCompute();
+    var id=inp.getAttribute('data-ccq'),v=parseInt(inp.value,10);
+    calcQty[id]=(isNaN(v)||v<0)?0:v; ccCompute();
   });
   var rb=$('#ccReset'); if(rb)rb.onclick=function(){calcQty={};renderCommCalc();};
 }
