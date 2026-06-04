@@ -1142,6 +1142,7 @@ state.radar=state.radar||{token:'',on:true,proxy:''};
 })();
 function currentRep(){return state.reps.filter(function(r){return r.id===state.currentRepId;})[0]||state.reps[0];}
 function repById(id){return state.reps.filter(function(r){return r.id===id;})[0];}
+function repInfo(id){var r=repById(id);if(r)return{name:r.name,color:r.color};var c=cloudReps&&cloudReps[id];if(c)return{name:c.name,color:c.color};return null;}
 function myKnocks(){var id=state.currentRepId;return state.knocks.filter(function(k){return k.repId===id;});}
 var bc=null;
 try{bc=new BroadcastChannel('knockradar_sync');}catch(e){}
@@ -1298,11 +1299,12 @@ function refreshMarkers(){
   knockMarkers.forEach(function(m){m.setMap(null);});
   outageMarkers.forEach(function(m){m.setMap(null);});
   knockMarkers=[];outageMarkers=[];
-  myKnocks().forEach(function(k){
+  state.knocks.forEach(function(k){
     if(k.lat==null)return;
     var d=DMAP[k.disp]||DISPOS[0];
+    var ri=repInfo(k.repId);
     var m=new google.maps.Marker({position:{lat:k.lat,lng:k.lng},map:map,
-      icon:dotIcon(d.color,8), title:(k.firstName?k.firstName+' · ':'')+d.label});
+      icon:dotIcon(d.color,8), title:(ri?ri.name+' · ':'')+(k.firstName?k.firstName+' · ':'')+d.label});
     m.addListener('click',function(){suppressClick=Date.now();openKnockSheet(k.id);});
     knockMarkers.push(m);
   });
@@ -2864,10 +2866,19 @@ function planScheduleRender(goal,days,R){
   var dC=dist(Math.ceil(goal*R.convPer));
   var dA=dist(Math.ceil(goal*R.apptPer));
   var dS=dist(goal);
-  function dayBlocks(wd){
-    if(wd===6)return [{t:'10–12p',w:.25},{t:'12–2p',w:.22},{t:'2–4p',w:.25},{t:'⚡4p+',w:.28,power:1}];
-    if(wd===0)return [{t:'12–2p',w:.34},{t:'2–4p',w:.31},{t:'⚡4p+',w:.35,power:1}];
-    return [{t:'3–5p',w:.30},{t:'⚡5–7p',w:.50,power:1},{t:'7p–dark',w:.20}];
+  function fmtH(h){var ap=h>=12?'p':'a',hh=h%12;if(hh===0)hh=12;return hh+ap;}
+  /* time on doors scales with the goal: more doors/day -> earlier start & more blocks */
+  var DOORS_PER_DAY=250;   /* assume a full day of knocking = up to 250 doors */
+  function buildBlocks(wd,doors){
+    var cfg = wd===6?{end:20,early:10,max:10}:(wd===0?{end:19,early:12,max:7}:{end:20,early:13,max:7});
+    var frac=Math.min(1,(doors||0)/DOORS_PER_DAY);
+    var hrs=Math.max(2,Math.min(cfg.max,Math.ceil(frac*cfg.max)));
+    var start=cfg.end-hrs; if(start<cfg.early){start=cfg.early;hrs=cfg.end-start;}
+    var blocks=[],t=start;
+    while(t<cfg.end){var seg=Math.min(2,cfg.end-t);var power=(t+seg)>17&&t<19;blocks.push({s:t,e:t+seg,power:power});t+=seg;}
+    var sum=blocks.reduce(function(a,b){return a+(b.power?1.7:1);},0);
+    blocks.forEach(function(b){b.w=(b.power?1.7:1)/sum;b.t=(b.power?'⚡':'')+fmtH(b.s)+'–'+fmtH(b.e);});
+    return blocks;
   }
   function splitByW(total,ws){
     var raw=ws.map(function(w){return total*w;});
@@ -2884,13 +2895,15 @@ function planScheduleRender(goal,days,R){
       '<div class="sm-step"><b>🔒 Afternoon lock-in → dark</b> — knock your numbers, stay out, keep breaks short</div>'+
       '<div class="sm-step"><b>⚡ Power hours 5p–dusk</b> — most people are home; go your hardest here</div>'+
       '<div class="sm-step"><b>🌙 Night</b> — log every door, review your inputs, reset for tomorrow</div>'+
+      '<div class="sm-step"><b>⏱ Hours scale with your goal</b> — a full day assumes up to ~250 doors; a bigger goal starts you earlier, a smaller goal keeps the day tight.</div>'+
     '</div>';
   for(var i=0;i<days;i++){
     var d=new Date(today); d.setDate(today.getDate()+i);
     var wd=d.getDay();
-    var win=wd===6?'Biggest day · 10a → 5p':(wd===0?'Lighter · 12 → 5p':'Lock in 3p → dark · power hrs 5–7p');
     var doors=dD(i),conv=dC(i),appt=dA(i),sale=dS(i);
-    var bs=dayBlocks(wd),bw=bs.map(function(b){return b.w;});
+    var bs=buildBlocks(wd,doors),bw=bs.map(function(b){return b.w;});
+    var thrs=bs.reduce(function(a,b){return a+(b.e-b.s);},0);
+    var win=(wd===6?'Saturday':(wd===0?'Sunday':'Lock-in'))+' · ~'+thrs+'h on doors · '+fmtH(bs[0].s)+'→'+fmtH(bs[bs.length-1].e);
     var bD=splitByW(doors,bw),bC=splitByW(conv,bw),bS=splitByW(sale,bw);
     var blocks='<div class="sched-blocks">';
     for(var b=0;b<bs.length;b++){
