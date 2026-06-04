@@ -1276,13 +1276,38 @@ function reverseGeocode(lat,lng,cb){
   if(!geocoder){cb('');return;}
   geocoder.geocode({location:{lat:lat,lng:lng}},function(res,status){
     if(status==='OK'&&res&&res[0]){
-      var r=res[0], num='', road='';
-      r.address_components.forEach(function(c){
-        if(c.types.indexOf('street_number')>-1)num=c.long_name;
-        if(c.types.indexOf('route')>-1)road=c.long_name;
-      });
-      cb(((num+' '+road).trim())||r.formatted_address.split(',').slice(0,2).join(', '));
+      var full=String(res[0].formatted_address||'').replace(/,\s*(USA|United States)\s*$/,'').trim();
+      cb(full);
     }else cb('');
+  });
+}
+
+/* forward geocode (address -> coords) + throttled import queue */
+var geoQueue=[], geoBusy=false, geoSaveTimer=null;
+function forwardGeocode(addr,cb){
+  if(!geocoder||!addr){cb(null);return;}
+  geocoder.geocode({address:addr, componentRestrictions:{country:'US'}, region:'us'},function(res,status){
+    if(status==='OK'&&res&&res[0]){var l=res[0].geometry.location;cb({lat:l.lat(),lng:l.lng()});}
+    else if(status==='OVER_QUERY_LIMIT')cb('RETRY');
+    else cb(null);
+  });
+}
+function geocodeLeads(records){
+  (records||[]).forEach(function(k){ if(k&&k.lat==null&&k.address&&geoQueue.indexOf(k.id)<0)geoQueue.push(k.id); });
+  if(geoQueue.length&&!geoBusy)runGeoQueue();
+}
+function runGeoQueue(){
+  if(!geoQueue.length){geoBusy=false;refreshMarkers();return;}
+  geoBusy=true;
+  if(!geocoder){ setTimeout(runGeoQueue,1500); return; }   /* wait for Google Maps to finish loading */
+  var id=geoQueue.shift();
+  var k=state.knocks.filter(function(x){return x.id===id;})[0];
+  if(!k||k.lat!=null||!k.address){ setTimeout(runGeoQueue,20); return; }
+  forwardGeocode(k.address,function(pt){
+    if(pt==='RETRY'){ geoQueue.unshift(id); setTimeout(runGeoQueue,2500); return; }
+    if(pt){ k.lat=pt.lat; k.lng=pt.lng; k.updatedTs=Date.now(); leadsPushOne(k);
+      clearTimeout(geoSaveTimer); geoSaveTimer=setTimeout(function(){persist();refreshMarkers();},700); }
+    setTimeout(runGeoQueue,220);
   });
 }
 
@@ -1947,6 +1972,11 @@ var FRONTIER_TOP10=[
   {rank:9, city:'Corona', county:'Riverside', tier:'B-', cov:'≈20%', score:{a:'C',c:'A-',s:'A+',f:'C',r:'A-'}, comp:'Spectrum', gripe:'Surprise post-promo rate hikes and a painful cancellation process.', why:'High-income corridor, but Frontier fiber is thin (AT&T dominates fiber here) — work confirmed zones.'},
   {rank:10,city:'Brea', county:'Orange', tier:'B-', cov:'≈21%', score:{a:'C',c:'B+',s:'A+',f:'C',r:'A-'}, comp:'Spectrum', gripe:'Post-promo price jumps and outages tied to LA-area fiber problems.', why:'Affluent north-OC; Frontier present but thin per FCC — the only OC city with real Frontier footprint.'}
 ];
+var BIGBEAR_SCORE=[
+  {city:'Big Bear City', county:'San Bernardino', tier:'A', cov:'≈89% fiber', score:{a:'A-',c:'A',s:'A+',f:'A-',r:'A-'}, comp:'Spectrum', gripe:'Patchy cable coverage plus the usual post-promo rate hikes; satellite is the only fallback in the gaps.', why:'Largest of the three mountain towns — Frontier fiber up to 7 Gig reaches about 89% and is the fastest wireline option in town.'},
+  {city:'Big Bear Lake', county:'San Bernardino', tier:'A', cov:'≈88% fiber', score:{a:'A-',c:'A',s:'A+',f:'A-',r:'A-'}, comp:'Spectrum', gripe:'Spectrum cable reaches under half the town (mostly the east side); much of the rest is satellite-only without Frontier.', why:'Resort hub and second-home market — Frontier fiber (up to 7 Gig, symmetrical, no caps) covers about 88% and is far more available than cable. Strong work-from-home pitch.'},
+  {city:'Sugarloaf', county:'San Bernardino', tier:'A-', cov:'≈99% fiber (tier varies)', score:{a:'A',c:'B+',s:'A',f:'A',r:'A-'}, comp:'Spectrum', gripe:'Cable availability swings block to block; outside it, satellite is the only non-Frontier option.', why:'Near-universal Frontier fiber footprint; most homes qualify for multi-gig, but confirm the speed tier at the address (some entry plans are lower).'}
+];
 var EARTHLINK_TOP5=[
   {rank:1, city:'Santa Ana', county:'Orange', tier:'A', cov:'≈94%', score:{a:'A+',c:'A-',s:'A',f:'A',r:'B'}, why:'Widest EarthLink fiber in the territory (resold on AT&T lines). Spectrum (~95%) is the cable incumbent to flip; Cox is barely present.'},
   {rank:2, city:'Fullerton', county:'Orange', tier:'A', cov:'≈93%', score:{a:'A+',c:'A-',s:'A',f:'A',r:'B'}, why:'Affluent north-OC; ~93% EarthLink fiber, with Spectrum the dominant cable to switch off.'},
@@ -2098,6 +2128,19 @@ function renderMarketIntel(){
      '<div class="mi-note">Each city is graded on five factors — <b>fiber availability</b>, <b>outages vs the local competitor</b>, <b>speed delivered</b>, <b>fiber footprint</b>, and <b>recommendations</b> — shown as chips below. Availability, footprint and outage-edge are city-specific (FCC data + competitor complaint volume); <b>Speed</b> reflects Frontier\u2019s 7-Gig fiber and <b>Rec\u2019d</b> is provider-level (Frontier fiber ≈4.2–4.5/5, J.D. Power West #2) because per-city recommendation counts aren\u2019t public. Verify fiber at the exact address.</div>';
   FRONTIER_TOP10.forEach(function(t){
     h+='<div class="t10-row"><div class="t10-rank">'+t.rank+'</div>'+
+       '<div><span class="t10-city">'+esc(t.city)+'</span> <span class="t10-co">'+esc(t.county)+' Co.</span>'+
+       '<span class="t10-cov">📶 Frontier '+esc(t.cov)+'</span>'+
+       facStrip(t.score)+
+       '<div class="t10-why">'+esc(t.why)+'</div>'+
+       '<div class="t10-vs">⚔️ vs '+esc(t.comp)+': '+esc(t.gripe)+'</div></div>'+
+       '<span class="gr '+gradeCls(t.tier)+'">'+esc(t.tier)+'</span></div>';
+  });
+  h+='</div>';
+  /* Big Bear mountain communities — Frontier scorecard */
+  h+='<div class="card"><div class="card-h">🐻 Big Bear Mountain — Frontier Scorecard</div>'+
+     '<div class="mi-note">Frontier fiber (up to 5–7 Gig, symmetrical, no caps) is broadly available across the Big Bear valley and is the fastest wireline option in all three towns — Spectrum cable is only partial up the mountain and satellite (Viasat / HughesNet / Starlink) fills the gaps. FCC and provider coverage varies by source in these mountain ZIPs, so the % shown is approximate — always verify fiber and the speed tier at the exact address.</div>';
+  BIGBEAR_SCORE.forEach(function(t){
+    h+='<div class="t10-row"><div class="t10-rank">🐻</div>'+
        '<div><span class="t10-city">'+esc(t.city)+'</span> <span class="t10-co">'+esc(t.county)+' Co.</span>'+
        '<span class="t10-cov">📶 Frontier '+esc(t.cov)+'</span>'+
        facStrip(t.score)+
@@ -3300,7 +3343,7 @@ function settingsSheet(){
     '<input type="file" id="impFile" accept="application/json" style="display:none">'+
     '<button class="btn-line" id="leadBtn" style="margin-bottom:8px">⬆ Import Leads (CSV / JSON)</button>'+
     '<input type="file" id="leadFile" accept=".csv,.json,text/csv,application/json" style="display:none">'+
-    '<div class="help-note" style="margin:-2px 0 10px">Lead files can be <b>CSV</b> or <b>JSON</b> with columns like name, address, phone, city, zip, notes, lat, lng. Rows land in Pipeline as 📇 Leads (they do not count as doors) for '+esc(currentRep().name)+'.</div>'+
+    '<div class="help-note" style="margin:-2px 0 10px">Lead files can be <b>CSV</b> or <b>JSON</b> with columns like name, address, phone, city, zip, notes. Each lead is mapped from its <b>address</b> automatically — no coordinates needed — and lands in Pipeline as 📇 Leads (they do not count as doors) for '+esc(currentRep().name)+'.</div>'+
     '<button class="btn-line btn-danger" id="clrBtn">⌫ Clear All Data</button>'+
     '<div style="font-size:11.5px;color:var(--faint);margin-top:14px;text-align:center">'+
       'Complete Home Field System · saved on this device'+(storageOK?'':' · ⚠ storage unavailable')+'</div>'+
@@ -3326,12 +3369,12 @@ function settingsSheet(){
   };
   $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');};
   $('#expCsv').onclick=function(){
-    var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Latitude','Longitude','Notes']];
+    var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Notes']];
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
       var d=DMAP[k.disp],rp=repById(k.repId);
       rows.push([rp?rp.name:'',d?d.label:k.disp,fmtDate(k.ts),fmtTime(k.ts),k.firstName||'',k.address||'',k.phone||'',
         k.schedule?new Date(k.schedule).toLocaleString():'',(k.products||[]).map(function(nm){return nm+(k.qty&&k.qty[nm]>1?' x'+k.qty[nm]:'');}).join('; '),(k.vas||[]).join('; '),
-        k.commission||'',k.lat!=null?k.lat:'',k.lng!=null?k.lng:'',k.notes||'']);
+        k.commission||'',k.notes||'']);
     });
     var csv=rows.map(function(r){return r.map(function(c){
       c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(',');}).join('\n');
@@ -3438,6 +3481,7 @@ function importLeads(f){
     });
     persist();renderAll();refreshMarkers();closeSheet();
     leadsPushRows(addedRows);
+    geocodeLeads(addedRows);
     toast('Imported '+added+' lead'+(added===1?'':'s')+(dup?' \u00b7 '+dup+' duplicate'+(dup===1?'':'s')+' skipped':''));
   };
   rd.readAsText(f);
