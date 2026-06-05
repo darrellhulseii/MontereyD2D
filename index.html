@@ -977,6 +977,11 @@ function money(n){return '$'+(n||0).toLocaleString();}
 /* ── disposition config + the data each one collects ── */
 var DISPOS=[
   {k:'nothome', label:'Not Home',     color:'#8b97a8', icon:'🚪', tag:'NH', fields:[]},
+  {k:'nothome2',label:'Not Home 2',   color:'#7c8aa0', icon:'2️⃣', tag:'NH2', fields:[]},
+  {k:'nothome3',label:'Not Home 3',   color:'#6d7e98', icon:'3️⃣', tag:'NH3', fields:[]},
+  {k:'nothome4',label:'Not Home 4',   color:'#5f7390', icon:'4️⃣', tag:'NH4', fields:[]},
+  {k:'nothome5',label:'Not Home 5',   color:'#51688a', icon:'5️⃣', tag:'NH5', fields:[]},
+  {k:'vacant',  label:'Vacant',       color:'#a87b4a', icon:'🏚️', tag:'VC', fields:[]},
   {k:'conv',    label:'Conversation', color:'#00AEEF', icon:'💬', tag:'CV', fields:['firstName','address']},
   {k:'appt',    label:'Appointment',  color:'#FFD700', icon:'📅', tag:'AP', fields:['firstName','address','datetime','mobile'],
                 dateLabel:'Appointment date & time', needDate:true},
@@ -1359,9 +1364,17 @@ function refreshMarkers(){
     if(k.lat==null)return;
     var d=DMAP[k.disp]||DISPOS[0];
     var ri=repInfo(k.repId);
+    var mine=(k.repId===state.currentRepId);
     var m=new google.maps.Marker({position:{lat:k.lat,lng:k.lng},map:map,
-      icon:dotIcon(d.color,8), title:(ri?ri.name+' · ':'')+(k.firstName?k.firstName+' · ':'')+d.label});
+      icon:dotIcon(d.color,8), draggable:mine, cursor:mine?'grab':'pointer',
+      title:(ri?ri.name+' · ':'')+(k.firstName?k.firstName+' · ':'')+d.label+(mine?' · drag to move':'')});
     m.addListener('click',function(){suppressClick=Date.now();openKnockSheet(k.id);});
+    if(mine)m.addListener('dragend',function(e){
+      suppressClick=Date.now();
+      k.lat=e.latLng.lat(); k.lng=e.latLng.lng(); k.acc=0; k.updatedTs=Date.now();
+      persist(); leadsPushOne(k);
+      if(typeof toast==='function')toast('📍 Pin moved');
+    });
     knockMarkers.push(m);
   });
   state.outages.forEach(function(o){
