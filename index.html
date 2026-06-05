@@ -676,6 +676,25 @@ a.btn-line{text-decoration:none}
 .cc-per{font-size:10px;color:var(--muted);font-weight:400;margin-left:2px}
 .cc-bonus{font-size:12px;color:var(--gold);margin-top:8px;text-align:right;line-height:1.4;display:none}
 .sm-note{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+.hlp-ov{position:fixed;inset:0;z-index:140;background:rgba(4,10,18,.74);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+.hlp-ov.show{display:flex}
+.hlp-card{background:var(--navy,#0c1726);border:1px solid var(--border2,rgba(255,255,255,.12));border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;padding:22px 18px calc(20px + env(safe-area-inset-bottom));position:relative;box-shadow:0 -12px 44px rgba(0,0,0,.55);animation:hlpUp .28s cubic-bezier(.2,.7,.2,1)}
+@keyframes hlpUp{from{transform:translateY(46px);opacity:.3}to{transform:none;opacity:1}}
+@media(min-width:600px){.hlp-ov{align-items:center}.hlp-card{border-radius:18px}}
+.hlp-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;border:1px solid var(--border2,rgba(255,255,255,.12));background:rgba(255,255,255,.05);color:var(--muted,#8aa0b8);font-size:14px;cursor:pointer}
+.hlp-title{font-family:'Bebas Neue',sans-serif;font-size:27px;color:var(--ink,#eef4fb);letter-spacing:.5px;line-height:1}
+.hlp-sub{color:var(--muted,#8aa0b8);font-size:13px;margin:5px 0 15px;line-height:1.45}
+.hlp-step{display:flex;gap:11px;align-items:flex-start;padding:7px 0;font-size:13.5px;color:var(--ink,#e8eef6);line-height:1.45}
+.hlp-step b{color:#fff}
+.hlp-n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--sky,#00AEEF);color:#04121e;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif}
+.hlp-th{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted,#8aa0b8);font-weight:700;margin:17px 0 8px}
+.hlp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hlp-t{background:var(--card2,rgba(255,255,255,.04));border:1px solid var(--border2,rgba(255,255,255,.12));border-radius:10px;padding:9px 11px;font-size:12px;color:var(--muted,#8aa0b8);line-height:1.4}
+.hlp-t span{font-size:17px}.hlp-t b{color:#fff;font-size:13px}
+.hlp-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.hlp-act{background:rgba(0,174,239,.10);border:1px solid var(--sky,#00AEEF);color:#cdefff;border-radius:10px;padding:11px;font-weight:700;font-size:13px;cursor:pointer}
+.hlp-act:active{background:var(--sky,#00AEEF);color:#04121e}
+.hlp-done{width:100%;margin-top:12px;background:linear-gradient(180deg,var(--sky,#00AEEF),#0089bd);color:#04121e;border:0;border-radius:11px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:.6px}
 </style>
 </head>
 <body>
@@ -685,6 +704,7 @@ a.btn-line{text-decoration:none}
   <button class="rep-chip" id="repChip"><span class="rep-dot"></span><span class="rep-chip-name">Rep</span></button>
   <div class="ab-right">
     <div class="conn-dot" id="connDot">··</div>
+    <button class="ab-btn" id="helpBtn" title="Help & guide" aria-label="Help">?</button>
     <button class="ab-btn" id="settingsBtn">⚙</button>
   </div>
 </div>
@@ -910,6 +930,38 @@ a.btn-line{text-decoration:none}
 </nav>
 
 <div class="sheet-overlay" id="sheetOverlay"><div class="sheet" id="sheet"></div></div>
+<div class="hlp-ov" id="hlpOverlay" role="dialog" aria-modal="true" aria-label="Help">
+  <div class="hlp-card">
+    <button class="hlp-x" id="hlpClose" aria-label="Close">✕</button>
+    <div class="hlp-title">Welcome to KnockRadar 👋</div>
+    <div class="hlp-sub">Your door-to-door command center. Here's the 60-second tour.</div>
+    <div class="hlp-steps">
+      <div class="hlp-step"><span class="hlp-n">1</span><div><b>Pick your name</b> — tap the chip at the top to set who's knocking.</div></div>
+      <div class="hlp-step"><span class="hlp-n">2</span><div><b>Log every door</b> — in <b>Tally ✅</b> tap the outcome (Not Home, Not Interested, Sold…). Each one drops a colored pin on the Map.</div></div>
+      <div class="hlp-step"><span class="hlp-n">3</span><div><b>See your turf</b> — the <b>Map 🗺️</b> shows every pin from the whole team.</div></div>
+      <div class="hlp-step"><span class="hlp-n">4</span><div><b>Set a goal</b> — in <b>Stats 📊</b> enter a goal and get a prime-time schedule built around it.</div></div>
+      <div class="hlp-step"><span class="hlp-n">5</span><div><b>Go live with your team</b> — open <b>Settings ⚙</b> to turn on sync so everyone shares leads &amp; the leaderboard.</div></div>
+    </div>
+    <div class="hlp-th">What each tab does</div>
+    <div class="hlp-grid">
+      <div class="hlp-t"><span>📖</span> <b>Playbook</b><br>Training, scripts &amp; pitches</div>
+      <div class="hlp-t"><span>✅</span> <b>Tally</b><br>Log doors fast</div>
+      <div class="hlp-t"><span>🗺️</span> <b>Map</b><br>Every pin, whole team</div>
+      <div class="hlp-t"><span>📡</span> <b>Intel</b><br>Coverage, speed test, outages</div>
+      <div class="hlp-t"><span>📰</span> <b>Press</b><br>Talking-point articles</div>
+      <div class="hlp-t"><span>📋</span> <b>Pipeline</b><br>Your leads &amp; follow-ups</div>
+      <div class="hlp-t"><span>📊</span> <b>Stats</b><br>Numbers, goal &amp; calculator</div>
+      <div class="hlp-t"><span>🏆</span> <b>Leaders</b><br>Team leaderboard</div>
+    </div>
+    <div class="hlp-acts">
+      <button class="hlp-act" data-go="tally">✅ Log a door</button>
+      <button class="hlp-act" data-go="stats">📊 Set my goal</button>
+      <button class="hlp-act" data-go="__sync">📡 Turn on team sync</button>
+      <button class="hlp-act" data-go="playbook">📖 Open Playbook</button>
+    </div>
+    <button class="hlp-done" id="hlpDone">Got it — let's knock 🚪</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -3825,6 +3877,14 @@ function init(){
   });
   $$('.tab').forEach(function(t){t.onclick=function(){switchTab(t.dataset.tab);};});
   $('#settingsBtn').onclick=settingsSheet;
+  function openHelp(){var o=$('#hlpOverlay');if(o)o.classList.add('show');}
+  function closeHelp(){var o=$('#hlpOverlay');if(o)o.classList.remove('show');try{localStorage.setItem('kr_seen_help','1');}catch(e){}}
+  if($('#helpBtn'))$('#helpBtn').onclick=openHelp;
+  if($('#hlpClose'))$('#hlpClose').onclick=closeHelp;
+  if($('#hlpDone'))$('#hlpDone').onclick=closeHelp;
+  if($('#hlpOverlay'))$('#hlpOverlay').addEventListener('click',function(e){if(e.target.id==='hlpOverlay')closeHelp();});
+  document.querySelectorAll('.hlp-act').forEach(function(b){b.onclick=function(){var g=b.getAttribute('data-go');closeHelp();if(g==='__sync'){if(typeof settingsSheet==='function')settingsSheet();return;}switchTab(g);};});
+  try{if(!localStorage.getItem('kr_seen_help'))setTimeout(openHelp,700);}catch(e){}
   $('#reportOutageBtn').onclick=function(){reportOutageSheet();};
   $('#connTestBtn').onclick=connTest;
   ['planGoal','planDays'].forEach(function(id){
