@@ -1258,28 +1258,31 @@ var curPos=null;
 function startGeo(cb){
   if(!navigator.geolocation){cb&&cb(null);return;}
   navigator.geolocation.getCurrentPosition(function(p){
-    curPos={lat:p.coords.latitude,lng:p.coords.longitude};
+    curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
     cb&&cb(curPos);
-  },function(){cb&&cb(null);},{enableHighAccuracy:false,timeout:8000,maximumAge:60000});
+  },function(){cb&&cb(null);},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
   try{
     navigator.geolocation.watchPosition(function(p){
-      curPos={lat:p.coords.latitude,lng:p.coords.longitude};
+      curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
       updatePosMarker(p.coords.accuracy);
-    },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+    },function(){},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
   }catch(e){}
 }
 
 /* guarantee a map pin for any knock: GPS now, fresh fix if curPos not ready yet */
 function ensurePin(k){
-  if(!k||k.lat!=null)return;
-  if(curPos){k.lat=curPos.lat;k.lng=curPos.lng;k.updatedTs=Date.now();persist();leadsPushOne(k);refreshMarkers();return;}
-  if(!navigator.geolocation)return;
+  if(!k)return;
+  if(!navigator.geolocation){ if(k.lat==null&&curPos){k.lat=curPos.lat;k.lng=curPos.lng;k.updatedTs=Date.now();persist();leadsPushOne(k);refreshMarkers();} return; }
+  /* one-shot, fresh, high-accuracy GPS so the pin lands on the exact house */
   navigator.geolocation.getCurrentPosition(function(p){
-    var kk=state.knocks.filter(function(x){return x.id===k.id;})[0]; if(!kk||kk.lat!=null)return;
-    curPos={lat:p.coords.latitude,lng:p.coords.longitude};
-    kk.lat=curPos.lat; kk.lng=curPos.lng; kk.updatedTs=Date.now();
+    var kk=state.knocks.filter(function(x){return x.id===k.id;})[0]; if(!kk)return;
+    curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
+    kk.lat=p.coords.latitude; kk.lng=p.coords.longitude; kk.acc=p.coords.accuracy; kk.updatedTs=Date.now();
     persist(); leadsPushOne(kk); refreshMarkers();
-  },function(){},{enableHighAccuracy:true,timeout:8000,maximumAge:30000});
+  },function(){
+    var kk=state.knocks.filter(function(x){return x.id===k.id;})[0];
+    if(kk&&kk.lat==null&&curPos){kk.lat=curPos.lat;kk.lng=curPos.lng;kk.updatedTs=Date.now();persist();leadsPushOne(kk);refreshMarkers();}
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
 }
 
 /* ════════ GOOGLE MAPS ════════ */
@@ -1422,7 +1425,7 @@ function addKnock(obj){
   persist();renderAll();refreshMarkers();
   leadsPushOne(k);
   if(k.lat==null&&k.address)geocodeLeads([k]);   /* drop a map pin for any lead/door with an address */
-  if(k.lat==null&&!k.address)ensurePin(k);      /* no address: pin at GPS so every knock lands on the map */
+  if(obj.lat==null&&!k.address)ensurePin(k);    /* GPS knock: snap the pin to a precise, fresh fix */
   return k;
 }
 function updateKnock(id,patch){
