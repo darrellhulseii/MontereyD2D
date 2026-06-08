@@ -695,6 +695,10 @@ a.btn-line{text-decoration:none}
 .hlp-act{background:rgba(0,174,239,.10);border:1px solid var(--sky,#00AEEF);color:#cdefff;border-radius:10px;padding:11px;font-weight:700;font-size:13px;cursor:pointer}
 .hlp-act:active{background:var(--sky,#00AEEF);color:#04121e}
 .hlp-done{width:100%;margin-top:12px;background:linear-gradient(180deg,var(--sky,#00AEEF),#0089bd);color:#04121e;border:0;border-radius:11px;padding:14px;font-weight:800;font-size:16px;cursor:pointer;font-family:'Bebas Neue',sans-serif;letter-spacing:.6px}
+.acc-badge{position:absolute;left:10px;bottom:14px;z-index:5;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.3px;padding:5px 9px;border-radius:9px;background:rgba(10,22,38,.92);border:1px solid var(--border);color:var(--muted);display:none}
+.acc-badge.good{color:#33d39a;border-color:#1e6f55}
+.acc-badge.ok{color:var(--gold,#f0b428);border-color:#7a5a17}
+.acc-badge.poor{color:#ff6b6b;border-color:#7a2e2e}
 </style>
 </head>
 <body>
@@ -756,6 +760,7 @@ a.btn-line{text-decoration:none}
       <button id="outageBtn" title="Toggle outage layer">⚡</button>
     </div>
     <div class="map-legend" id="mapLegend"></div>
+    <div class="acc-badge" id="accBadge"></div>
     <div class="map-fab" id="mapFab">Tap map to log a door</div>
   </section>
 
@@ -1260,12 +1265,24 @@ sheetOverlay.addEventListener('click',function(e){if(e.target===sheetOverlay)clo
 /* ════════ GEOLOCATION ════════ */
 var GILROY={lat:37.0058,lng:-121.5683};
 var curPos=null;
+/* sample GPS for a few seconds and keep the MOST accurate fix (first fix is usually coarse) */
+function bestFix(cb,maxWait,targetAcc){
+  if(!navigator.geolocation){cb&&cb(null);return;}
+  maxWait=maxWait||7000; targetAcc=targetAcc||8;
+  var best=null,done=false,wid=null,timer=null;
+  function finish(){if(done)return;done=true;if(wid!=null){try{navigator.geolocation.clearWatch(wid);}catch(e){}}if(timer)clearTimeout(timer);cb&&cb(best);}
+  try{
+    wid=navigator.geolocation.watchPosition(function(p){
+      var a=p.coords.accuracy;
+      if(best==null||a<best.acc)best={lat:p.coords.latitude,lng:p.coords.longitude,acc:a};
+      if(best.acc<=targetAcc)finish();
+    },function(){if(best==null)finish();},{enableHighAccuracy:true,maximumAge:0,timeout:maxWait});
+  }catch(e){finish();return;}
+  timer=setTimeout(finish,maxWait);
+}
 function startGeo(cb){
   if(!navigator.geolocation){cb&&cb(null);return;}
-  navigator.geolocation.getCurrentPosition(function(p){
-    curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
-    cb&&cb(curPos);
-  },function(){cb&&cb(null);},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  bestFix(function(b){ if(b)curPos={lat:b.lat,lng:b.lng,acc:b.acc}; if(curPos)updatePosMarker(curPos.acc); cb&&cb(curPos); },7000,8);
   try{
     navigator.geolocation.watchPosition(function(p){
       curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
@@ -1277,17 +1294,15 @@ function startGeo(cb){
 /* guarantee a map pin for any knock: GPS now, fresh fix if curPos not ready yet */
 function ensurePin(k){
   if(!k)return;
-  if(!navigator.geolocation){ if(k.lat==null&&curPos){k.lat=curPos.lat;k.lng=curPos.lng;k.updatedTs=Date.now();persist();leadsPushOne(k);refreshMarkers();} return; }
-  /* one-shot, fresh, high-accuracy GPS so the pin lands on the exact house */
-  navigator.geolocation.getCurrentPosition(function(p){
+  if(!navigator.geolocation){ if(k.lat==null&&curPos){k.lat=curPos.lat;k.lng=curPos.lng;k.acc=curPos.acc;k.updatedTs=Date.now();persist();leadsPushOne(k);refreshMarkers();} return; }
+  /* sample for the most accurate fix, then snap the pin to the exact house */
+  bestFix(function(b){
     var kk=state.knocks.filter(function(x){return x.id===k.id;})[0]; if(!kk)return;
-    curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
-    kk.lat=p.coords.latitude; kk.lng=p.coords.longitude; kk.acc=p.coords.accuracy; kk.updatedTs=Date.now();
-    persist(); leadsPushOne(kk); refreshMarkers();
-  },function(){
-    var kk=state.knocks.filter(function(x){return x.id===k.id;})[0];
-    if(kk&&kk.lat==null&&curPos){kk.lat=curPos.lat;kk.lng=curPos.lng;kk.updatedTs=Date.now();persist();leadsPushOne(kk);refreshMarkers();}
-  },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+    if(b){curPos={lat:b.lat,lng:b.lng,acc:b.acc}; kk.lat=b.lat; kk.lng=b.lng; kk.acc=b.acc;}
+    else if(kk.lat==null&&curPos){kk.lat=curPos.lat; kk.lng=curPos.lng; kk.acc=curPos.acc;}
+    else return;
+    kk.updatedTs=Date.now(); persist(); leadsPushOne(kk); refreshMarkers();
+  },7000,8);
 }
 
 /* ════════ GOOGLE MAPS ════════ */
@@ -1344,15 +1359,18 @@ function buildMap(){
   if(curPos)updatePosMarker(40);
 }
 function updatePosMarker(acc){
+  acc=acc||(curPos&&curPos.acc)||40;
+  var b=$('#accBadge');
+  if(b){var a=Math.round(acc);b.style.display='block';b.textContent='GPS \u00b1'+a+' m';b.className='acc-badge '+(a<=15?'good':(a<=40?'ok':'poor'));}
   if(!map||!curPos)return;
   if(!posMarker){
     posMarker=new google.maps.Marker({position:curPos,map:map,zIndex:9999,
       icon:{path:google.maps.SymbolPath.CIRCLE,scale:7,fillColor:'#00AEEF',fillOpacity:1,strokeColor:'#fff',strokeWeight:3}});
-    posCircle=new google.maps.Circle({map:map,center:curPos,radius:acc||40,
+    posCircle=new google.maps.Circle({map:map,center:curPos,radius:acc,
       strokeColor:'#00AEEF',strokeWeight:1,fillColor:'#00AEEF',fillOpacity:.08});
   }else{
     posMarker.setPosition(curPos);
-    posCircle.setCenter(curPos);posCircle.setRadius(acc||40);
+    posCircle.setCenter(curPos);posCircle.setRadius(acc);
   }
 }
 function refreshMarkers(){
@@ -3913,14 +3931,11 @@ function init(){
     });
   });
   $('#locateBtn').onclick=function(){
-    if(curPos&&map){map.setCenter(curPos);map.setZoom(17);updatePosMarker(40);}
-    else{
-      toast('<span class="spin"></span> Finding you…',null,null,6000);
-      startGeo(function(p){
-        if(p&&map){map.setCenter(p);map.setZoom(17);updatePosMarker(40);toastEl.classList.remove('show');}
-        else toast('Location unavailable — enable GPS / permissions');
-      });
-    }
+    toast('<span class="spin"></span> Locking GPS\u2026',null,null,8000);
+    bestFix(function(b){
+      if(b){curPos={lat:b.lat,lng:b.lng,acc:b.acc}; if(map){map.setCenter(curPos);map.setZoom(18);} updatePosMarker(b.acc); toast('\ud83d\udccd Located \u00b7 \u00b1'+Math.round(b.acc)+' m');}
+      else { toast('Location unavailable \u2014 enable GPS / permissions'); }
+    },8000,8);
   };
   $('#outageBtn').onclick=function(){
     outageVisible=!outageVisible;
