@@ -1204,7 +1204,7 @@ state.radar=state.radar||{token:'',on:true,proxy:''};
   });
   delete state.rep;
 })();
-function currentRep(){return state.reps.filter(function(r){return r.id===state.currentRepId;})[0]||state.reps[0];}
+function currentRep(){var r=state.reps.filter(function(r){return r.id===state.currentRepId;})[0];if(r)return r;var ci=(typeof repInfo==='function')?repInfo(state.currentRepId):null;if(ci)return {id:state.currentRepId,name:ci.name,color:ci.color};return state.reps[0];}
 function repById(id){return state.reps.filter(function(r){return r.id===id;})[0];}
 function repInfo(id){var r=repById(id);if(r)return{name:r.name,color:r.color};var c=cloudReps&&cloudReps[id];if(c)return{name:c.name,color:c.color};return null;}
 function myKnocks(){var id=state.currentRepId;return state.knocks.filter(function(k){return k.repId===id;});}
@@ -3031,10 +3031,13 @@ function updateRepChip(){
     '<span class="rep-chip-name">'+esc(r.name)+'</span>';
 }
 function repSwitcherSheet(){
-  var rows=state.reps.map(function(r){
+  var _local={}; state.reps.forEach(function(r){_local[r.id]=1;});
+  var _list=state.reps.slice();
+  Object.keys(cloudReps||{}).forEach(function(id){ if(!_local[id]&&id!==TERR_KEY){var c=cloudReps[id]; _list.push({id:id,name:c.name||'Rep',color:c.color||'#8aa0b8',_cloud:true});} });
+  var rows=_list.map(function(r){
     return '<button class="rep-pick'+(r.id===state.currentRepId?' on':'')+'" data-r="'+r.id+'">'+
       '<span class="rep-dot" style="background:'+r.color+'"></span>'+
-      '<span class="rep-pick-name">'+esc(r.name)+'</span>'+
+      '<span class="rep-pick-name">'+esc(r.name)+(r._cloud?' <span style="color:var(--sky);font-size:10px;font-weight:700">SYNCED</span>':'')+'</span>'+
       (r.id===state.currentRepId?'<span class="rep-pick-chk">✓ active</span>':'')+'</button>';
   }).join('');
   openSheet(
@@ -3048,7 +3051,7 @@ function repSwitcherSheet(){
   $$('.rep-pick',sheetEl).forEach(function(b){
     b.onclick=function(){
       state.currentRepId=b.dataset.r;persist();renderAll();refreshMarkers();
-      closeSheet();toast('Now logging as <b>'+esc(currentRep().name)+'</b>');
+      closeSheet();var _cr=currentRep();toast('Now logging as <b>'+esc(_cr?_cr.name:'rep')+'</b>');
     };
   });
   $('#repAdd').onclick=function(){addRepSheet(null);};
@@ -3103,7 +3106,9 @@ function sha256hex(str){
     });
   }catch(e){return Promise.resolve('');}
 }
+var adminUnlocked=false;
 function requireAdmin(cb,msg){
+  if(adminUnlocked){cb();return;}
   openSheet(
     '<div class="sheet-title">🔒 Admin password</div>'+
     '<div class="sheet-desc">'+(msg?esc(msg)+' ':'')+'Enter the admin password to delete.</div>'+
@@ -3114,7 +3119,7 @@ function requireAdmin(cb,msg){
   function go(){
     var v=($('#admPw')||{}).value||'';
     sha256hex(v).then(function(h){
-      if(h===ADMIN_HASH){closeSheet();cb();}
+      if(h===ADMIN_HASH){adminUnlocked=true;closeSheet();cb();}
       else{toast('Wrong password');var i=$('#admPw');if(i){i.value='';i.focus();}}
     });
   }
@@ -3160,11 +3165,29 @@ function territorySheet(id){
   var R=$('#terrR'); if(R)R.oninput=function(){$('#terrRVal').textContent=fmtDist(this.value);};
   var L=$('#terrLoc'); if(L)L.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){cen={lat:b.lat,lng:b.lng}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · ±'+Math.round(b.acc)+' m'; toast('Center set to your location');} else toast('Location unavailable'); },8000,8); };
   var C=$('#terrCtr'); if(C)C.onclick=function(){ if(map){var c=map.getCenter(); cen={lat:c.lat(),lng:c.lng()}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · map center';} else toast('Open the Map tab first'); };
-  var S=$('#terrSave'); if(S)S.onclick=function(){ if(!cen){toast('Set a center point first');return;} state.territories=state.territories||{}; state.territories[id]={lat:cen.lat,lng:cen.lng,r:+(($('#terrR')||{}).value||r0)}; persist(); drawTerritories(); closeSheet(); toast('Territory saved for '+esc(info.name)); switchTab('map'); };
-  var RM=$('#terrRemove'); if(RM)RM.onclick=function(){ if(state.territories)delete state.territories[id]; persist(); drawTerritories(); closeSheet(); toast('Territory removed'); };
+  var S=$('#terrSave'); if(S)S.onclick=function(){ if(!cen){toast('Set a center point first');return;} state.territories=state.territories||{}; state.territories[id]={lat:cen.lat,lng:cen.lng,r:+(($('#terrR')||{}).value||r0)}; persist(); cloudPushTerritories(); drawTerritories(); closeSheet(); toast('Territory saved for '+esc(info.name)); switchTab('map'); };
+  var RM=$('#terrRemove'); if(RM)RM.onclick=function(){ if(state.territories)delete state.territories[id]; persist(); cloudPushTerritories(); drawTerritories(); closeSheet(); toast('Territory removed'); };
 }
 function repDeleteSheet(id){
-  var r=repById(id); if(!r){ toast('Only your local reps can be removed here'); return; }
+  var r=repById(id);
+  if(!r){
+    var info=repInfo(id)||{name:'this rep'};
+    openSheet(
+      '<div class="sheet-title">Delete '+esc(info.name)+'?</div>'+
+      '<div class="sheet-desc">'+esc(info.name)+' is a synced teammate rep. This removes them from the shared leaderboard and map. If their device is still syncing, it can reappear.</div>'+
+      '<button class="btn btn-danger" id="delCloud">Delete from leaderboard</button>'+
+      '<button class="btn-line" id="delCancel" style="margin-top:8px">Cancel</button>'
+    );
+    $('#delCloud').onclick=function(){
+      if(state.territories)delete state.territories[id];
+      if(cloudReps)delete cloudReps[id];
+      if(typeof renderLeaderboard==='function')renderLeaderboard();
+      persist();refreshMarkers();closeSheet();toast('Rep removed from leaderboard');
+      cloudDeleteRep(id,function(ok){ if(!ok)toast('Removed here — will sync when back online'); });
+    };
+    $('#delCancel').onclick=function(){ settingsSheet(); };
+    return;
+  }
   var others=state.reps.filter(function(x){return x.id!==id;});
   if(!others.length){ toast('Add another rep before deleting this one'); return; }
   var cnt=state.knocks.filter(function(k){return k.repId===id;}).length;
@@ -3195,6 +3218,8 @@ function deleteRep(id,opts){
   if(state.currentRepId===id)state.currentRepId=(repById(target)?target:others[0].id);
   if(state.territories)delete state.territories[id];
   persist();renderAll();refreshMarkers();
+  if(typeof cloudDeleteRep==='function')cloudDeleteRep(id);
+  if(typeof cloudPushTerritories==='function')cloudPushTerritories();
 }
 
 /* ════════ LEADERBOARD ════════ */
@@ -3286,6 +3311,7 @@ function renderLeaderboard(){
 var SUPA_KEY='sb_publishable_Q43w4Dz7UNbFNCcwO11AXw_NSBUrsgx';
 var SUPA_URL='https://ddlqenoqhsuygwuajeja.supabase.co';
 var SUPA_TABLE='kr_leaderboard';
+var TERR_KEY='__territories__';
 var cloudReps={}, cloudState='…', cloudTimer=null, cloudPollTimer=null;
 function cloudBase(){return ((((state.cloud&&state.cloud.url)||SUPA_URL))||'').trim().replace(/\/+$/,'');}
 function cloudKey(){return (((state.cloud&&state.cloud.key)||'').trim())||SUPA_KEY;}
@@ -3313,6 +3339,19 @@ function cloudPush(){
   }).then(function(r){if(!r.ok)throw 0;cloudStatus('live');})
     .catch(function(){cloudStatus('offline');});
 }
+function cloudPushTerritories(){
+  if(!cloudReady())return;
+  fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE,{
+    method:'POST',headers:cloudHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify([{rep_id:TERR_KEY,name:'__territories__',color:'#000000',stats:{terr:state.territories||{}}}])
+  }).then(function(r){if(!r.ok)throw 0;cloudStatus('live');}).catch(function(){cloudStatus('offline');});
+}
+function cloudDeleteRep(id,cb){
+  if(!cloudReady()){cb&&cb(false);return;}
+  fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE+'?rep_id=eq.'+encodeURIComponent(id),{
+    method:'DELETE',headers:cloudHeaders({'Prefer':'return=minimal'})
+  }).then(function(r){cb&&cb(r.ok);}).catch(function(){cb&&cb(false);});
+}
 function cloudPatchRep(id,name,color,cb){
   if(!cloudReady()){cb&&cb(false);return;}
   fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE+'?rep_id=eq.'+encodeURIComponent(id),{
@@ -3330,7 +3369,10 @@ function cloudPull(){
   fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE+'?select=rep_id,name,color,stats',{headers:cloudHeaders()})
     .then(function(r){if(!r.ok)throw 0;return r.json();})
     .then(function(arr){
-      var m={};(arr||[]).forEach(function(row){m[row.rep_id]={name:row.name,color:row.color,stats:row.stats};});
+      var m={};(arr||[]).forEach(function(row){
+        if(row.rep_id===TERR_KEY){ if(row.stats&&row.stats.terr){state.territories=row.stats.terr;persist();drawTerritories();} return; }
+        m[row.rep_id]={name:row.name,color:row.color,stats:row.stats};
+      });
       cloudReps=m;cloudStatus('live');renderLeaderboard();
     }).catch(function(){cloudStatus('offline');});
 }
@@ -3681,7 +3723,7 @@ function settingsSheet(){
       '<span class="team-name">'+esc(r.name)+(r.id===state.currentRepId?'<span class="team-active">active</span>':'')+(r._cloud?'<span class="team-active" style="background:rgba(0,174,239,.16);color:var(--sky)">synced</span>':'')+'</span>'+
       '<button class="team-mini" data-terr="'+r.id+'" title="Territory">📍</button>'+
       '<button class="team-mini" data-edit="'+r.id+'">✎</button>'+
-      (!r._cloud&&state.reps.length>1?'<button class="team-mini del" data-del="'+r.id+'">✕</button>':'')+'</div>';
+      ((r._cloud||state.reps.length>1)?'<button class="team-mini del" data-del="'+r.id+'">✕</button>':'')+'</div>';
   }).join('');
   var c=state.cloud||{url:'',on:false};
   var r=state.radar||{token:'',on:false};
