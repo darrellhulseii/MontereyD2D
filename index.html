@@ -1403,6 +1403,7 @@ function refreshMarkers(){
     m.addListener('click',function(){suppressClick=Date.now();openOutageSheet(o.id);});
     outageMarkers.push(m);
   });
+  drawTerritories();
 }
 
 /* reverse geocode (coords -> address) */
@@ -3055,14 +3056,17 @@ function repSwitcherSheet(){
 }
 function addRepSheet(editId){
   var ed=editId?repById(editId):null;
-  var chosen=ed?ed.color:REP_COLORS[state.reps.length%REP_COLORS.length];
+  var cloud=(!ed&&editId&&cloudReps&&cloudReps[editId])?cloudReps[editId]:null;
+  var isEdit=!!(ed||cloud);
+  var chosen=ed?ed.color:(cloud?(cloud.color||REP_COLORS[0]):REP_COLORS[state.reps.length%REP_COLORS.length]);
   openSheet(
-    '<div class="sheet-title">'+(ed?'✎ Edit Rep':'＋ Add Rep')+'</div>'+
+    '<div class="sheet-title">'+(isEdit?'✎ Edit Rep':'＋ Add Rep')+'</div>'+
+    (cloud?'<div class="sheet-desc">This rep is synced from a teammate\u2019s device. Editing the name or color updates it for everyone — their stats stay intact.</div>':'')+
     '<div class="field"><label>Rep name</label>'+
-      '<input id="repName" placeholder="e.g. Sam T." value="'+esc(ed?ed.name:'')+'"></div>'+
+      '<input id="repName" placeholder="e.g. Sam T." value="'+esc(ed?ed.name:(cloud?cloud.name:''))+'"></div>'+
     '<div class="field"><label>Marker color</label><div class="color-row" id="repColors"></div></div>'+
     '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button>'+
-    '<button class="btn" id="repSave">'+(ed?'Save Changes':'Add Rep')+'</button></div>'
+    '<button class="btn" id="repSave">'+(isEdit?'Save Changes':'Add Rep')+'</button></div>'
   );
   function paint(){
     $('#repColors').innerHTML=REP_COLORS.map(function(c){
@@ -3074,22 +3078,122 @@ function addRepSheet(editId){
   $('#repSave').onclick=function(){
     var nm=$('#repName').value.trim();
     if(!nm){toast('Enter a rep name');return;}
-    if(ed){ed.name=nm;ed.color=chosen;}
-    else{
+    if(ed){
+      ed.name=nm;ed.color=chosen;
+      persist();renderAll();refreshMarkers();if(typeof cloudPushSoon==='function')cloudPushSoon();closeSheet();
+      toast('Rep updated');
+    } else if(cloud){
+      cloudReps[editId]={name:nm,color:chosen,stats:cloud.stats};
+      if(typeof renderLeaderboard==='function')renderLeaderboard();
+      refreshMarkers();closeSheet();toast('Rep updated');
+      cloudPatchRep(editId,nm,chosen,function(ok){ if(!ok)toast('Saved here — will sync when back online'); });
+    } else {
       var r={id:uid(),name:nm,color:chosen,createdTs:Date.now()};
       state.reps.push(r);state.currentRepId=r.id;
+      persist();renderAll();refreshMarkers();closeSheet();
+      toast('Added <b>'+esc(nm)+'</b> — now logging as them');
     }
-    persist();renderAll();refreshMarkers();closeSheet();
-    toast(ed?'Rep updated':'Added <b>'+esc(nm)+'</b> — now logging as them');
   };
 }
-function deleteRep(id){
+var ADMIN_HASH="64b37ce11dad44722295c16a1d1c26d202f9e74c598c6e0f468f44ffc658d6f9";
+function sha256hex(str){
+  try{
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf),function(b){return ('0'+b.toString(16)).slice(-2);}).join('');
+    });
+  }catch(e){return Promise.resolve('');}
+}
+function requireAdmin(cb,msg){
+  openSheet(
+    '<div class="sheet-title">🔒 Admin password</div>'+
+    '<div class="sheet-desc">'+(msg?esc(msg)+' ':'')+'Enter the admin password to delete.</div>'+
+    '<div class="field"><input id="admPw" type="password" placeholder="Password" autocomplete="off" autocapitalize="off" autocorrect="off"></div>'+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button>'+
+    '<button class="btn" id="admGo">Unlock &amp; delete</button></div>'
+  );
+  function go(){
+    var v=($('#admPw')||{}).value||'';
+    sha256hex(v).then(function(h){
+      if(h===ADMIN_HASH){closeSheet();cb();}
+      else{toast('Wrong password');var i=$('#admPw');if(i){i.value='';i.focus();}}
+    });
+  }
+  var btn=$('#admGo'); if(btn)btn.onclick=go;
+  var inp=$('#admPw'); if(inp){inp.focus();inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go();}};}
+}
+/* ════════ TERRITORY (proximity marker) ════════ */
+var terrLayer=[];
+function fmtDist(m){m=+m;return m>=1000?(m/1000).toFixed(m%1000?1:0)+' km':Math.round(m)+' m';}
+function fmtLatLng(c){return (+c.lat).toFixed(5)+', '+(+c.lng).toFixed(5);}
+function drawTerritories(){
+  if(typeof google==='undefined'||!map)return;
+  terrLayer.forEach(function(o){o.setMap(null);}); terrLayer=[];
+  var T=state.territories||{};
+  Object.keys(T).forEach(function(id){
+    var t=T[id]; if(!t||t.lat==null)return;
+    var info=repInfo(id)||{name:'Rep',color:'#00AEEF'}; var col=info.color||'#00AEEF';
+    var circle=new google.maps.Circle({map:map,center:{lat:t.lat,lng:t.lng},radius:t.r,
+      strokeColor:col,strokeOpacity:.9,strokeWeight:2,fillColor:col,fillOpacity:.07,clickable:false,zIndex:1});
+    var mk=new google.maps.Marker({map:map,position:{lat:t.lat,lng:t.lng},zIndex:2,
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:5,fillColor:col,fillOpacity:1,strokeColor:'#fff',strokeWeight:2},
+      title:info.name+' — territory · '+fmtDist(t.r)});
+    terrLayer.push(circle,mk);
+  });
+}
+function territorySheet(id){
+  var info=repInfo(id)||{name:'Rep',color:'#00AEEF'};
+  var t=(state.territories&&state.territories[id])||null;
+  var cen=t?{lat:t.lat,lng:t.lng}:null; var r0=t?t.r:800;
+  openSheet(
+    '<div class="sheet-title">📍 '+esc(info.name)+' — Territory</div>'+
+    '<div class="sheet-desc">Drop a center point and set a radius. The area shows as a circle in '+esc(info.name)+'\u2019s color on the map.</div>'+
+    '<div class="field"><label>Center point</label>'+
+      '<div class="sheet-row"><button class="btn-line" id="terrLoc">◎ My location</button>'+
+      '<button class="btn-line" id="terrCtr">⌖ Map center</button></div>'+
+      '<div id="terrCenterLbl" style="font-size:11.5px;color:var(--muted);margin-top:7px">'+(cen?fmtLatLng(cen):'No center set yet')+'</div></div>'+
+    '<div class="field"><label>Radius — <span id="terrRVal">'+fmtDist(r0)+'</span></label>'+
+      '<input type="range" id="terrR" min="100" max="8000" step="50" value="'+r0+'" style="width:100%"></div>'+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button>'+
+      '<button class="btn" id="terrSave">Save territory</button></div>'+
+    (t?'<button class="btn-line btn-danger" id="terrRemove" style="margin-top:8px">Remove territory</button>':'')
+  );
+  var R=$('#terrR'); if(R)R.oninput=function(){$('#terrRVal').textContent=fmtDist(this.value);};
+  var L=$('#terrLoc'); if(L)L.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){cen={lat:b.lat,lng:b.lng}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · ±'+Math.round(b.acc)+' m'; toast('Center set to your location');} else toast('Location unavailable'); },8000,8); };
+  var C=$('#terrCtr'); if(C)C.onclick=function(){ if(map){var c=map.getCenter(); cen={lat:c.lat(),lng:c.lng()}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · map center';} else toast('Open the Map tab first'); };
+  var S=$('#terrSave'); if(S)S.onclick=function(){ if(!cen){toast('Set a center point first');return;} state.territories=state.territories||{}; state.territories[id]={lat:cen.lat,lng:cen.lng,r:+(($('#terrR')||{}).value||r0)}; persist(); drawTerritories(); closeSheet(); toast('Territory saved for '+esc(info.name)); switchTab('map'); };
+  var RM=$('#terrRemove'); if(RM)RM.onclick=function(){ if(state.territories)delete state.territories[id]; persist(); drawTerritories(); closeSheet(); toast('Territory removed'); };
+}
+function repDeleteSheet(id){
+  var r=repById(id); if(!r){ toast('Only your local reps can be removed here'); return; }
+  var others=state.reps.filter(function(x){return x.id!==id;});
+  if(!others.length){ toast('Add another rep before deleting this one'); return; }
+  var cnt=state.knocks.filter(function(k){return k.repId===id;}).length;
+  var opts=others.map(function(o){return '<option value="'+o.id+'">'+esc(o.name)+'</option>';}).join('');
+  openSheet(
+    '<div class="sheet-title">Delete '+esc(r.name)+'?</div>'+
+    '<div class="sheet-desc">'+esc(r.name)+' has <b>'+cnt+'</b> logged knock'+(cnt===1?'':'s')+'. Choose what happens to them.</div>'+
+    '<div class="field"><label>Move their knocks to</label><select id="delMoveTo" style="width:100%;padding:10px 11px;border-radius:10px;background:var(--card2,#0e2138);color:var(--ink,#eaf2fb);border:1px solid var(--border,#24405f);font-size:14px">'+opts+'</select></div>'+
+    '<button class="btn" id="delKeep">✓ Keep all knocks — reassign them</button>'+
+    '<button class="btn-line btn-danger" id="delPurge" style="margin-top:8px">Delete rep AND all their knocks</button>'+
+    '<button class="btn-line" id="delCancel" style="margin-top:8px">Cancel</button>'
+  );
+  $('#delKeep').onclick=function(){ var to=($('#delMoveTo')||{}).value||others[0].id; deleteRep(id,{keepKnocks:true,moveTo:to}); settingsSheet(); toast('Rep removed — all knocks kept'); };
+  $('#delPurge').onclick=function(){ if(confirm('Permanently delete '+r.name+' and their '+cnt+' knock'+(cnt===1?'':'s')+'? This cannot be undone.')){ deleteRep(id,{keepKnocks:false}); settingsSheet(); toast('Rep and knocks deleted'); } };
+  $('#delCancel').onclick=function(){ settingsSheet(); };
+}
+function deleteRep(id,opts){
   if(state.reps.length<=1)return;
+  opts=opts||{};
   var others=state.reps.filter(function(r){return r.id!==id;});
-  var target=others[0].id;
-  state.knocks.forEach(function(k){if(k.repId===id)k.repId=target;});
+  var target=opts.moveTo||others[0].id;
+  if(opts.keepKnocks===false){
+    state.knocks=state.knocks.filter(function(k){return k.repId!==id;});
+  }else{
+    state.knocks.forEach(function(k){if(k.repId===id)k.repId=target;});
+  }
   state.reps=others;
-  if(state.currentRepId===id)state.currentRepId=target;
+  if(state.currentRepId===id)state.currentRepId=(repById(target)?target:others[0].id);
+  if(state.territories)delete state.territories[id];
   persist();renderAll();refreshMarkers();
 }
 
@@ -3208,6 +3312,13 @@ function cloudPush(){
     body:JSON.stringify(rows)
   }).then(function(r){if(!r.ok)throw 0;cloudStatus('live');})
     .catch(function(){cloudStatus('offline');});
+}
+function cloudPatchRep(id,name,color,cb){
+  if(!cloudReady()){cb&&cb(false);return;}
+  fetch(cloudBase()+'/rest/v1/'+SUPA_TABLE+'?rep_id=eq.'+encodeURIComponent(id),{
+    method:'PATCH',headers:cloudHeaders({'Prefer':'return=minimal'}),
+    body:JSON.stringify({name:name,color:color})
+  }).then(function(r){cb&&cb(r.ok);}).catch(function(){cb&&cb(false);});
 }
 function cloudPushSoon(){
   if(!cloudReady())return;
@@ -3561,12 +3672,16 @@ function generateHiringDoc(info){
 }
 
 function settingsSheet(){
-  var repRows=state.reps.map(function(r){
+  var _local={}; state.reps.forEach(function(r){_local[r.id]=1;});
+  var _replist=state.reps.slice();
+  Object.keys(cloudReps||{}).forEach(function(id){ if(!_local[id]){var c=cloudReps[id]; _replist.push({id:id,name:c.name||'Rep',color:c.color||'#8aa0b8',_cloud:true});} });
+  var repRows=_replist.map(function(r){
     return '<div class="team-row">'+
       '<span class="rep-dot" style="background:'+r.color+'"></span>'+
-      '<span class="team-name">'+esc(r.name)+(r.id===state.currentRepId?'<span class="team-active">active</span>':'')+'</span>'+
+      '<span class="team-name">'+esc(r.name)+(r.id===state.currentRepId?'<span class="team-active">active</span>':'')+(r._cloud?'<span class="team-active" style="background:rgba(0,174,239,.16);color:var(--sky)">synced</span>':'')+'</span>'+
+      '<button class="team-mini" data-terr="'+r.id+'" title="Territory">📍</button>'+
       '<button class="team-mini" data-edit="'+r.id+'">✎</button>'+
-      (state.reps.length>1?'<button class="team-mini del" data-del="'+r.id+'">✕</button>':'')+'</div>';
+      (!r._cloud&&state.reps.length>1?'<button class="team-mini del" data-del="'+r.id+'">✕</button>':'')+'</div>';
   }).join('');
   var c=state.cloud||{url:'',on:false};
   var r=state.radar||{token:'',on:false};
@@ -3605,9 +3720,10 @@ function settingsSheet(){
     '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Close</button>'
   );
   $$('[data-edit]',sheetEl).forEach(function(b){b.onclick=function(){addRepSheet(b.dataset.edit);};});
+  $$('[data-terr]',sheetEl).forEach(function(b){b.onclick=function(){territorySheet(b.dataset.terr);};});
   $$('[data-del]',sheetEl).forEach(function(b){b.onclick=function(){
-    var r=repById(b.dataset.del),other=state.reps.filter(function(x){return x.id!==r.id;})[0];
-    if(confirm('Remove '+r.name+'? Their knocks move to '+other.name+'.')){deleteRep(r.id);settingsSheet();}
+    var r=repById(b.dataset.del);
+    requireAdmin(function(){repDeleteSheet(b.dataset.del);},'Delete '+(r?r.name:'this rep')+'?');
   };});
   $('#addRepBtn').onclick=function(){addRepSheet(null);};
   $('#hireBtn').onclick=function(){hiringSheet();};
@@ -3662,10 +3778,12 @@ function settingsSheet(){
   $('#leadBtn').onclick=function(){$('#leadFile').click();};
   $('#leadFile').onchange=function(e){importLeads(e.target.files[0]);e.target.value='';};
   $('#clrBtn').onclick=function(){
-    if(confirm('Delete ALL knocks, outages and history on this device? This cannot be undone.')){
-      state.knocks=[];state.outages=[];state.connDrops=[];
-      persist();renderAll();refreshMarkers();closeSheet();toast('All data cleared');
-    }
+    requireAdmin(function(){
+      if(confirm('Delete ALL knocks, outages and history on this device? This cannot be undone.')){
+        state.knocks=[];state.outages=[];state.connDrops=[];
+        persist();renderAll();refreshMarkers();closeSheet();toast('All data cleared');
+      }
+    },'This wipes all knocks, outages and history on this device.');
   };
 }
 
