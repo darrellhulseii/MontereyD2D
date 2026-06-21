@@ -699,6 +699,20 @@ a.btn-line{text-decoration:none}
 .acc-badge.good{color:#33d39a;border-color:#1e6f55}
 .acc-badge.ok{color:var(--gold,#f0b428);border-color:#7a5a17}
 .acc-badge.poor{color:#ff6b6b;border-color:#7a2e2e}
+.sched-card,.inst-card{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:10px 12px;margin-bottom:9px}
+.sched-head{display:flex;align-items:center;gap:10px;cursor:pointer}
+.sched-head .plb-ic{font-size:18px}
+.pl-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.pa-btn{display:inline-flex;align-items:center;gap:4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.3px;padding:7px 11px;border-radius:9px;background:var(--card);border:1px solid var(--border);color:var(--ink);text-decoration:none;cursor:pointer}
+.pa-btn:active{transform:scale(.96)}
+.pa-done{color:#33d39a;border-color:#1e6f55}
+.stage-row{display:flex;gap:5px;margin-top:10px}
+.stage-b{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.3px;padding:7px 4px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer}
+.stage-b.on{background:var(--sky);border-color:var(--sky);color:#04121f}
+.cb-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3px;padding:4px 8px;border-radius:8px;white-space:nowrap}
+.cb-ok{background:rgba(51,211,154,.16);color:#33d39a}
+.cb-mid{background:rgba(0,174,239,.16);color:var(--sky)}
+.cb-warn{background:rgba(240,80,80,.18);color:#ff6b6b}
 </style>
 </head>
 <body>
@@ -992,7 +1006,8 @@ var DISPOS=[
   {k:'appt',    label:'Appointment',  color:'#FFD700', icon:'📅', tag:'AP', fields:['firstName','address','datetime','mobile'],
                 dateLabel:'Appointment date & time', needDate:true},
   {k:'ni',      label:'NI',           color:'#FF4444', icon:'✕',  tag:'NI', fields:[]},
-  {k:'followup',label:'Follow Up',    color:'#b46bff', icon:'🔄', tag:'FU', fields:['firstName','address','phone','notes']},
+  {k:'dnk',     label:'Do Not Knock', color:'#d11f1f', icon:'🚫', tag:'DNK', fields:[]},
+  {k:'followup',label:'Follow Up',    color:'#b46bff', icon:'🔄', tag:'FU', fields:['firstName','address','phone','datetime','notes'], dateLabel:'Callback date & time'},
   {k:'sold',    label:'Sold',         color:'#00C853', icon:'✅', tag:'SD', fields:['firstName','address','datetime','mobile','products','vas'],
                 dateLabel:'Installation date & time', needDate:true, needProduct:true},
   {k:'retained',label:'Retained',     color:'#00d4c0', icon:'🛡️', tag:'RT', fields:['firstName','address']},
@@ -1386,6 +1401,7 @@ function refreshMarkers(){
     var mine=(k.repId===state.currentRepId);
     var m=new google.maps.Marker({position:{lat:k.lat,lng:k.lng},map:map,
       icon:dotIcon(d.color,8), draggable:mine, cursor:mine?'grab':'pointer',
+      label:(k.disp==='dnk'?{text:'🚫',fontSize:'12px'}:undefined),
       title:(ri?ri.name+' · ':'')+(k.firstName?k.firstName+' · ':'')+d.label+(mine?' · drag to move':'')});
     m.addListener('click',function(){suppressClick=Date.now();openKnockSheet(k.id);});
     if(mine)m.addListener('dragend',function(e){
@@ -1701,7 +1717,10 @@ function attachAutocomplete(input,fctx){
 }
 
 /* disposition picker for a map tap */
+function distM(a,b,c,d){var R=6371000,t=Math.PI/180,dl=(c-a)*t,dg=(d-b)*t,la=a*t,lc=c*t;var x=Math.sin(dl/2),y=Math.sin(dg/2);var h=x*x+Math.cos(la)*Math.cos(lc)*y*y;return 2*R*Math.asin(Math.sqrt(h));}
+function nearDNK(lat,lng,m){m=m||35;return state.knocks.some(function(k){return k.disp==='dnk'&&k.lat!=null&&distM(lat,lng,k.lat,k.lng)<=m;});}
 function pickDispositionForPin(lat,lng){
+  if(nearDNK(lat,lng)&&!confirm('🚫 This spot is marked Do Not Knock / no soliciting. Log here anyway?'))return;
   var btns=DISPOS.map(function(d){
     return '<button class="dp-btn" style="--c:'+d.color+'" data-d="'+d.k+'">'+
       '<span class="dpb-ic">'+d.icon+'</span><span class="dpb-lbl">'+esc(d.label)+'</span></button>';
@@ -1730,6 +1749,7 @@ function openKnockSheet(id){
   if(k.address)rows+='<div class="kv"><span class="k">Address</span><span class="v">'+esc(k.address)+'</span></div>';
   if(k.phone)rows+='<div class="kv"><span class="k">Phone</span><span class="v"><a href="tel:'+esc(k.phone)+'" style="color:var(--sky)">'+esc(k.phone)+'</a></span></div>';
   if(k.schedule)rows+='<div class="kv"><span class="k">'+esc(d.dateLabel||'Scheduled')+'</span><span class="v">'+fmtDateLong(k.schedule)+' · '+fmtTime(k.schedule)+'</span></div>';
+  if(k.disp==='sold'){var _b=k.schedule||k.ts,_l=90-Math.floor((Date.now()-_b)/86400000);rows+='<div class="kv"><span class="k">Chargeback</span><span class="v">'+(k.stage==='paid'?'Paid in full':(_l>0?('day '+Math.max(0,90-_l)+'/90 · '+_l+'d left · clears '+fmtDate(_b+90*86400000)):'past window — cleared'))+'</span></div>';}
   if(k.products&&k.products.length)rows+='<div class="kv"><span class="k">Products</span><span class="v">'+k.products.map(function(nm){return esc(nm)+(k.qty&&k.qty[nm]>1?' ×'+k.qty[nm]:'');}).join('<br>')+'</span></div>';
   if(k.vas&&k.vas.length)rows+='<div class="kv"><span class="k">Value-Added</span><span class="v">'+k.vas.map(esc).join('<br>')+'</span></div>';
   if(k.commission)rows+='<div class="kv"><span class="k">Commission</span><span class="v" style="color:var(--green)">'+money(k.commission)+'</span></div>';
@@ -2612,6 +2632,38 @@ function plItem(k){
       (dateChip||commChip?'<div>'+dateChip+commChip+'</div>':'')+'</div>'+
     '<div class="pl-time">'+fmtDate(k.ts)+'<br>'+fmtTime(k.ts)+'</div></div>';
 }
+function schedItem(k){
+  var d=DMAP[k.disp]||DISPOS[0]; var ph=k.phone||'';
+  var go=k.lat!=null?('https://www.google.com/maps/dir/?api=1&destination='+k.lat+','+k.lng):(k.address?('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(k.address)):'');
+  var acts='<div class="pl-actions">'+
+    (ph?'<a class="pa-btn" href="tel:'+esc(ph)+'">📞 Call</a><a class="pa-btn" href="sms:'+esc(ph)+'">💬 Text</a>':'')+
+    (go?'<a class="pa-btn" href="'+go+'" target="_blank" rel="noopener">🧭 Go</a>':'')+
+    '<button class="pa-btn" data-resched="'+k.id+'">⏰ Reschedule</button>'+
+    '<button class="pa-btn pa-done" data-done="'+k.id+'">✓ Done</button></div>';
+  return '<div class="sched-card"><div class="sched-head" data-open="'+k.id+'"><span class="plb-ic">'+d.icon+'</span>'+
+    '<div style="flex:1"><div class="plb-name">'+esc(knockTitle(k))+'</div>'+
+    '<div class="pl-date '+(k.schedule<Date.now()?'due':'')+'">'+relDate(k.schedule)+' · '+fmtTime(k.schedule)+'</div></div></div>'+acts+'</div>';
+}
+function installCard(k){
+  var base=k.schedule||k.ts, days=Math.floor((Date.now()-base)/86400000), left=90-days, clears=fmtDate(base+90*86400000), stage=k.stage||'sold';
+  var cbTxt,cbCls;
+  if(stage==='paid'){cbTxt='✓ Paid';cbCls='cb-ok';}
+  else if(left>0){cbTxt='Day '+Math.max(0,days)+'/90 · '+left+'d to clear';cbCls=(left<=21?'cb-warn':'cb-mid');}
+  else {cbTxt='✓ Past chargeback';cbCls='cb-ok';}
+  var labels={sold:'Sold',scheduled:'Scheduled',installed:'Installed',paid:'Paid'};
+  var seg=['sold','scheduled','installed','paid'].map(function(st){return '<button class="stage-b'+(st===stage?' on':'')+'" data-stage="'+k.id+'|'+st+'">'+labels[st]+'</button>';}).join('');
+  return '<div class="inst-card"><div class="sched-head" data-open="'+k.id+'"><span class="plb-ic">✅</span>'+
+    '<div style="flex:1"><div class="plb-name">'+esc(knockTitle(k))+'</div>'+
+    '<div class="plb-extra">'+(k.commission?money(k.commission)+' · ':'')+'clears '+clears+'</div></div>'+
+    '<span class="cb-badge '+cbCls+'">'+cbTxt+'</span></div>'+
+    '<div class="stage-row">'+seg+'</div></div>';
+}
+function wireSchedActions(){
+  $$('#screen-pipeline [data-open]').forEach(function(b){b.onclick=function(){openKnockSheet(b.dataset.open);};});
+  $$('#screen-pipeline [data-done]').forEach(function(b){b.onclick=function(e){e.stopPropagation();updateKnock(b.dataset.done,{done:true});toast('Marked done');};});
+  $$('#screen-pipeline [data-resched]').forEach(function(b){b.onclick=function(e){e.stopPropagation();var kk=state.knocks.filter(function(x){return x.id===b.dataset.resched;})[0];if(kk)openDispositionForm(kk.disp,{},kk.id);};});
+  $$('#screen-pipeline [data-stage]').forEach(function(b){b.onclick=function(e){e.stopPropagation();var pr=b.dataset.stage.split('|');updateKnock(pr[0],{stage:pr[1]});};});
+}
 function renderPipeline(){
   var ks=myKnocks();
   var chips='<button class="chip '+(plFilter==='all'?'active':'')+'" data-f="all">All ('+ks.length+')</button>';
@@ -2624,21 +2676,33 @@ function renderPipeline(){
 
   var schedHtml='';
   if(plFilter==='all'){
-    var sched=ks.filter(function(k){return k.schedule;}).sort(function(a,b){return a.schedule-b.schedule;});
-    if(sched.length)schedHtml='<div class="section-lbl">⏰ Scheduled</div>'+sched.map(plItem).join('');
+    var due=ks.filter(function(k){return k.schedule&&!k.done&&k.disp!=='sold';}).sort(function(a,b){return a.schedule-b.schedule;});
+    var t0=new Date();t0.setHours(0,0,0,0);var ts0=t0.getTime(),ts1=ts0+86400000;
+    var over=due.filter(function(k){return k.schedule<ts0;});
+    var tod=due.filter(function(k){return k.schedule>=ts0&&k.schedule<ts1;});
+    var up=due.filter(function(k){return k.schedule>=ts1;});
+    if(over.length)schedHtml+='<div class="section-lbl" style="color:var(--red)">⚠️ Overdue ('+over.length+')</div>'+over.map(schedItem).join('');
+    if(tod.length)schedHtml+='<div class="section-lbl">📅 Today ('+tod.length+')</div>'+tod.map(schedItem).join('');
+    if(up.length)schedHtml+='<div class="section-lbl">⏰ Upcoming ('+up.length+')</div>'+up.map(schedItem).join('');
   }
   $('#plScheduled').innerHTML=schedHtml;
 
   var list=ks.slice().sort(function(a,b){return b.ts-a.ts;});
   if(plFilter!=='all')list=list.filter(function(k){return k.disp===plFilter;});
+  if(plFilter==='sold'){
+    var sold=list.slice().sort(function(a,b){return (b.schedule||b.ts)-(a.schedule||a.ts);});
+    $('#plList').innerHTML=sold.length?('<div class="section-lbl">🔧 Install pipeline & chargeback</div>'+sold.map(installCard).join('')):'<div class="empty"><span class="e-ic">✅</span>No sales logged yet.</div>';
+    wireSchedActions();return;
+  }
   if(!list.length){
     $('#plList').innerHTML='<div class="empty"><span class="e-ic">📋</span>No knocks logged yet.<br>Start tallying or tap the map to drop your first door.</div>';
-    return;
+    wireSchedActions();return;
   }
   $('#plList').innerHTML=(plFilter==='all'?'<div class="section-lbl">📜 All Knocks</div>':'')+list.map(plItem).join('');
   $$('#screen-pipeline .pl-item').forEach(function(it){
     it.onclick=function(){openKnockSheet(it.dataset.k);};
   });
+  wireSchedActions();
 }
 
 /* ════════ STATS ════════ */
