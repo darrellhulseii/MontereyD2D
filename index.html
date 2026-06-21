@@ -713,6 +713,16 @@ a.btn-line{text-decoration:none}
 .cb-ok{background:rgba(51,211,154,.16);color:#33d39a}
 .cb-mid{background:rgba(0,174,239,.16);color:var(--sky)}
 .cb-warn{background:rgba(240,80,80,.18);color:#ff6b6b}
+.eod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}
+.eod-tile{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:9px 4px;text-align:center}
+.eod-n{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--sky);line-height:1}
+.eod-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.obj-pick{margin:6px 0 4px}
+.obj-pick-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.obj-chips{display:flex;flex-wrap:wrap;gap:6px}
+.obj-chip{font-size:12px;padding:6px 10px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--muted);cursor:pointer}
+.obj-chip.on{background:rgba(255,107,107,.18);border-color:#ff6b6b;color:#ff9a9a}
+.obj-chip.clr{font-style:italic}
 </style>
 </head>
 <body>
@@ -865,6 +875,7 @@ a.btn-line{text-decoration:none}
       <div class="cb-lbl">Commission Booked</div>
       <div class="cb-sub" id="commSub">Per the 1099 rate card · earned on confirmed install</div>
     </div>
+    <button class="btn-line" id="eodBtn" style="margin-bottom:12px">📋 End-of-day report</button>
     <div class="card">
       <div class="card-h">💵 Earnings <span class="ch-r">installed vs pending</span></div>
       <div id="earnGrid"></div>
@@ -895,6 +906,10 @@ a.btn-line{text-decoration:none}
     <div class="card">
       <div class="card-h">Disposition Breakdown</div>
       <div id="breakdown"></div>
+    </div>
+    <div class="card" id="objCard" style="display:none">
+      <div class="card-h">🛑 Top Objections <span class="ch-r">tag them on a knock</span></div>
+      <div id="objBreakdown"></div>
     </div>
     <div class="section-lbl">📅 Upcoming Installations</div>
     <div id="installs"></div>
@@ -1015,6 +1030,7 @@ var DISPOS=[
 ];
 var DMAP={}; DISPOS.forEach(function(d){DMAP[d.k]=d;});
 var CONTACT=['conv','appt','sold','retained','followup'];
+var OBJECTIONS=['Already have provider','Happy with current','Too expensive','Renting / not owner','No time now','Bad past experience','Spouse decides','In a contract','Just got service','Not interested'];
 
 /* ── 1099 RATE CARD (effective 01/19/2026) ── */
 var PRODUCTS=[
@@ -1756,9 +1772,16 @@ function openKnockSheet(id){
   if(k.notes)rows+='<div class="kv"><span class="k">Notes</span><span class="v">'+esc(k.notes)+'</span></div>';
   if(k.lat!=null)rows+='<div class="kv"><span class="k">Coordinates</span><span class="v">'+k.lat.toFixed(5)+', '+k.lng.toFixed(5)+'</span></div>';
   var nav=k.lat!=null?'<button class="btn-line" id="ksNav" style="margin-bottom:9px">🧭 Navigate Here</button>':'';
+  var calBtn=k.schedule?'<button class="btn-line" id="ksCal" style="margin-bottom:9px">📅 Add to calendar</button>':'';
+  var objRow='';
+  if(k.disp!=='sold'&&k.disp!=='lead'&&k.disp!=='retained'){
+    objRow='<div class="obj-pick"><div class="obj-pick-lbl">Objection at the door</div><div class="obj-chips">'+
+      OBJECTIONS.map(function(o){return '<button class="obj-chip'+(k.objection===o?' on':'')+'" data-obj="'+esc(o)+'">'+esc(o)+'</button>';}).join('')+
+      (k.objection?'<button class="obj-chip clr" data-obj="">clear</button>':'')+'</div></div>';
+  }
   openSheet(
     '<div class="sheet-title"><span class="pin-disp-tag" style="background:'+d.color+'">'+d.icon+' '+esc(d.label)+'</span></div>'+
-    '<div style="margin:11px 0">'+rows+'</div>'+nav+
+    '<div style="margin:11px 0">'+rows+'</div>'+objRow+nav+calBtn+
     '<div class="sheet-row"><button class="btn-line" id="ksEdit">✎ Edit Details</button>'+
     '<button class="btn-line btn-danger" id="ksDel">Delete</button></div>'+
     '<button class="btn-line" style="margin-top:9px" onclick="closeSheet()">Close</button>'
@@ -1766,7 +1789,9 @@ function openKnockSheet(id){
   if(k.lat!=null)$('#ksNav').onclick=function(){
     window.open('https://www.google.com/maps/dir/?api=1&destination='+k.lat+','+k.lng,'_blank');
   };
+  if(k.schedule)$('#ksCal').onclick=function(){addToCal(k.id);};
   $('#ksDel').onclick=function(){deleteKnock(k.id);closeSheet();toast('Knock deleted');};
+  $$('[data-obj]',sheetEl).forEach(function(b){b.onclick=function(){updateKnock(k.id,{objection:b.dataset.obj||null});closeSheet();setTimeout(function(){openKnockSheet(k.id);},60);};});
   $('#ksEdit').onclick=function(){
     if(!d.fields.length){
       /* allow re-classifying no-field dispositions */
@@ -2638,6 +2663,7 @@ function schedItem(k){
   var acts='<div class="pl-actions">'+
     (ph?'<a class="pa-btn" href="tel:'+esc(ph)+'">📞 Call</a><a class="pa-btn" href="sms:'+esc(ph)+'">💬 Text</a>':'')+
     (go?'<a class="pa-btn" href="'+go+'" target="_blank" rel="noopener">🧭 Go</a>':'')+
+    '<button class="pa-btn" data-cal="'+k.id+'">📅 Calendar</button>'+
     '<button class="pa-btn" data-resched="'+k.id+'">⏰ Reschedule</button>'+
     '<button class="pa-btn pa-done" data-done="'+k.id+'">✓ Done</button></div>';
   return '<div class="sched-card"><div class="sched-head" data-open="'+k.id+'"><span class="plb-ic">'+d.icon+'</span>'+
@@ -2662,6 +2688,7 @@ function wireSchedActions(){
   $$('#screen-pipeline [data-open]').forEach(function(b){b.onclick=function(){openKnockSheet(b.dataset.open);};});
   $$('#screen-pipeline [data-done]').forEach(function(b){b.onclick=function(e){e.stopPropagation();updateKnock(b.dataset.done,{done:true});toast('Marked done');};});
   $$('#screen-pipeline [data-resched]').forEach(function(b){b.onclick=function(e){e.stopPropagation();var kk=state.knocks.filter(function(x){return x.id===b.dataset.resched;})[0];if(kk)openDispositionForm(kk.disp,{},kk.id);};});
+  $$('#screen-pipeline [data-cal]').forEach(function(b){b.onclick=function(e){e.stopPropagation();addToCal(b.dataset.cal);};});
   $$('#screen-pipeline [data-stage]').forEach(function(b){b.onclick=function(e){e.stopPropagation();var pr=b.dataset.stage.split('|');updateKnock(pr[0],{stage:pr[1]});};});
 }
 function renderPipeline(){
@@ -2809,6 +2836,58 @@ function ccBind(){
   var rb=$('#ccReset'); if(rb)rb.onclick=function(){calcQty={};renderCommCalc();};
 }
 
+function icsPad(x){return (x<10?'0':'')+x;}
+function icsStamp(d){d=new Date(d);return d.getUTCFullYear()+icsPad(d.getUTCMonth()+1)+icsPad(d.getUTCDate())+'T'+icsPad(d.getUTCHours())+icsPad(d.getUTCMinutes())+'00Z';}
+function icsEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
+function addToCal(id){
+  var k=state.knocks.filter(function(x){return x.id===id;})[0]; if(!k||!k.schedule){toast('No date set on this one');return;}
+  var d=DMAP[k.disp]||{}; var title=(d.label||'Follow up')+' - '+knockTitle(k);
+  var start=k.schedule, end=start+30*60000, loc=k.address||(k.lat!=null?(k.lat+','+k.lng):'');
+  var desc=[]; if(k.phone)desc.push('Phone: '+k.phone); if(k.notes)desc.push(k.notes); desc.push('Complete Home Field System');
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Complete Home//KnockRadar//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT',
+    'UID:'+k.id+'@completehome','DTSTAMP:'+icsStamp(Date.now()),'DTSTART:'+icsStamp(start),'DTEND:'+icsStamp(end),
+    'SUMMARY:'+icsEsc(title),'LOCATION:'+icsEsc(loc),'DESCRIPTION:'+icsEsc(desc.join('\n')),
+    'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(title),'END:VALARM',
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  try{
+    var blob=new Blob([ics],{type:'text/calendar'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=(d.label||'event').replace(/\s+/g,'-').toLowerCase()+'.ics';
+    document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);
+    toast('\ud83d\udcc5 Calendar event ready');
+  }catch(e){ toast('Could not create calendar file'); }
+}
+function eodTile(num,lbl){return '<div class="eod-tile"><div class="eod-n">'+num+'</div><div class="eod-l">'+lbl+'</div></div>';}
+function eodSheet(){
+  var ks=myKnocks(), t0=new Date(); t0.setHours(0,0,0,0); var ts0=t0.getTime();
+  var today=ks.filter(function(k){return k.ts>=ts0;});
+  var doors=today.length;
+  var contacts=today.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
+  var appts=today.filter(function(k){return k.disp==='appt';}).length;
+  var sales=today.filter(function(k){return k.disp==='sold';}).length;
+  var ni=today.filter(function(k){return k.disp==='ni';}).length;
+  var booked=today.reduce(function(a,k){return a+(k.disp==='sold'?(k.commission||0):0);},0);
+  var rep=currentRep()?currentRep().name:'Rep';
+  var atrisk=0,atN=0;
+  ks.forEach(function(k){if(k.disp==='sold'&&k.stage!=='paid'){var base=k.schedule||k.ts;if(Date.now()-base<90*86400000){atrisk+=k.commission||0;atN++;}}});
+  var lines=[rep+' - '+fmtDateLong(Date.now()),'Doors: '+doors,'Contacts: '+contacts,'Appointments: '+appts,'Sales: '+sales,'Not interested: '+ni,'Booked today: '+money(booked)];
+  if(atN)lines.push('In chargeback window: '+money(atrisk)+' ('+atN+' deal'+(atN===1?'':'s')+')');
+  lines.push('- Complete Home Field System');
+  var txt=lines.join('\n');
+  openSheet(
+    '<div class="sheet-title">\ud83d\udccb End-of-day report</div>'+
+    '<div class="sheet-desc">'+esc(rep)+' \u00b7 '+esc(fmtDateLong(Date.now()))+'</div>'+
+    '<div class="eod-grid">'+eodTile(doors,'Doors')+eodTile(contacts,'Contacts')+eodTile(appts,'Appts')+eodTile(sales,'Sales')+'</div>'+
+    '<div class="kv"><span class="k">Booked today</span><span class="v" style="color:var(--green)">'+money(booked)+'</span></div>'+
+    (atN?'<div class="kv"><span class="k">In chargeback window</span><span class="v" style="color:var(--gold)">'+money(atrisk)+' \u00b7 '+atN+' deal'+(atN===1?'':'s')+'</span></div>':'')+
+    '<button class="btn" id="eodShare" style="margin-top:11px">\ud83d\udce4 Share / copy report</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Close</button>'
+  );
+  $('#eodShare').onclick=function(){
+    if(navigator.share){navigator.share({text:txt}).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('Report copied');},function(){toast('Copy failed');});}
+    else toast('Sharing not supported on this device');
+  };
+}
 function renderStats(){
   var ks=myKnocks();
   var doors=ks.length;
@@ -2883,8 +2962,19 @@ function renderStats(){
     }).join('');
     $$('#installs .pl-item').forEach(function(it){it.onclick=function(){openKnockSheet(it.dataset.k);};});
   }
+  var objs={}; ks.forEach(function(k){if(k.objection)objs[k.objection]=(objs[k.objection]||0)+1;});
+  var objArr=Object.keys(objs).map(function(o){return {o:o,n:objs[o]};}).sort(function(a,b){return b.n-a.n;});
+  var _oc=$('#objCard');
+  if(objArr.length){ if(_oc)_oc.style.display=''; var om=objArr[0].n;
+    $('#objBreakdown').innerHTML=objArr.map(function(x){
+      return '<div class="brk-row"><span class="brk-lbl" style="flex:0 0 auto;min-width:128px">'+esc(x.o)+'</span>'+
+        '<span class="brk-bar"><span class="brk-fill" style="width:'+Math.round(x.n/om*100)+'%;background:#ff6b6b"></span></span>'+
+        '<span class="brk-n">'+x.n+'</span></div>';
+    }).join('');
+  } else if(_oc){ _oc.style.display='none'; }
   renderPlan();
   renderEarnings();
+  var _eb=$('#eodBtn'); if(_eb)_eb.onclick=eodSheet;
 }
 
 /* Earnings tracker — installed (commission earned) vs pending install */
