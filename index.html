@@ -743,6 +743,15 @@ a.btn-line{text-decoration:none}
 .rt-body{flex:1;min-width:0}
 .rt-name{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rt-meta{font-size:11px;color:var(--muted)}
+.wr-row{margin-bottom:12px}
+.wr-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink);margin-bottom:5px}
+.wr-vals b{color:var(--sky);font-size:15px}
+.wr-bar{position:relative;height:9px;background:var(--card);border-radius:6px;margin-bottom:2px}
+.wr-fill{height:100%;border-radius:6px}
+.wr-pace{position:absolute;top:-3px;width:2px;height:15px;background:#fff;opacity:.75;border-radius:2px}
+.wr-note{font-size:10.5px;margin-top:5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.wr-note.ok{color:#33d39a}
+.wr-note.warn{color:#ffb454}
 </style>
 </head>
 <body>
@@ -911,6 +920,11 @@ a.btn-line{text-decoration:none}
       <div class="stat-tile"><div class="st-num" id="stCloseRate">0%</div><div class="st-lbl">Close Rate</div></div>
       <div class="stat-tile"><div class="st-num" id="stApptRate">0%</div><div class="st-lbl">Appt Rate</div></div>
       <div class="stat-tile"><div class="st-num" id="stDoorsSale">0</div><div class="st-lbl">Doors / Sale</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h">📅 End-of-Week Progress <span class="ch-r" id="wrWhen">this week</span></div>
+      <div id="weekReport"></div>
+      <button class="btn-line" id="wrGoals" style="margin-top:10px">🎯 Set weekly goals</button>
     </div>
     <div class="card">
       <div class="card-h">🎯 Goal Planner <span class="ch-r" id="planBasis">benchmark</span></div>
@@ -3020,6 +3034,52 @@ function routeSheet(order,start){
   );
   var rc=$('#rtClear'); if(rc)rc.onclick=function(){clearRoute();closeSheet();toast('Route cleared');};
 }
+function weekStartMon(){var d=new Date();d.setHours(0,0,0,0);var day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.getTime();}
+function renderWeekReport(){
+  var box=$('#weekReport'); if(!box)return;
+  var ws=weekStartMon(), elapsed=Math.min(7,(Date.now()-ws)/86400000), paceFrac=Math.min(1,elapsed/7), dayN=Math.min(7,Math.floor(elapsed)+1);
+  var when=$('#wrWhen'); if(when)when.textContent='day '+dayN+' of 7';
+  var wk=myKnocks().filter(function(k){return k.ts>=ws;});
+  var cnt=function(f){return wk.filter(f).length;};
+  var installed=myKnocks().filter(function(k){return k.disp==='sold'&&(k.stage==='installed'||k.stage==='paid')&&((k.schedule||k.ts)>=ws);}).length;
+  var g=state.goals||{};
+  var rows=[
+    {k:'doors',l:'Doors knocked',a:cnt(function(k){return k.disp!=='lead';}),c:'#00AEEF'},
+    {k:'conv',l:'Conversations',a:cnt(function(k){return k.disp==='conv';}),c:'#7aa7ff'},
+    {k:'followup',l:'Follow-ups',a:cnt(function(k){return k.disp==='followup';}),c:'#b46bff'},
+    {k:'lead',l:'Leads collected',a:cnt(function(k){return k.disp==='lead';}),c:'#5b8def'},
+    {k:'sold',l:'Sold',a:cnt(function(k){return k.disp==='sold';}),c:'#00C853'},
+    {k:'installed',l:'Installed',a:installed,c:'#33d39a'}
+  ];
+  if(!rows.some(function(r){return (g[r.k]||0)>0;})){ box.innerHTML='<div class="empty"><span class="e-ic">🎯</span>Set your weekly goals to see a side-by-side of what you knocked vs what you should have.</div>'; return; }
+  box.innerHTML=rows.map(function(r){
+    var goal=g[r.k]||0, pct=goal?Math.min(100,Math.round(r.a/goal*100)):0, target=Math.round(goal*paceFrac), pacePct=Math.round(paceFrac*100), note,cls='';
+    if(!goal){note='no goal set';}
+    else if(r.a>=goal){note='✓ goal hit';cls='ok';}
+    else if(r.a>=target){note='on pace · '+r.a+' of ~'+target+' expected by now';cls='ok';}
+    else {note='behind by '+(target-r.a)+' · ~'+target+' expected by now';cls='warn';}
+    return '<div class="wr-row"><div class="wr-top"><span class="wr-lbl">'+r.l+'</span>'+
+      '<span class="wr-vals"><b>'+r.a+'</b> / '+(goal||'—')+'</span></div>'+
+      '<div class="wr-bar"><div class="wr-fill" style="width:'+pct+'%;background:'+r.c+'"></div>'+
+      (goal?'<span class="wr-pace" style="left:'+pacePct+'%"></span>':'')+'</div>'+
+      '<div class="wr-note '+cls+'">'+note+'</div></div>';
+  }).join('');
+}
+function goalsSheet(){
+  var g=state.goals||{};
+  var defs=[['doors','Doors knocked'],['conv','Conversations'],['followup','Follow-ups'],['lead','Leads collected'],['sold','Sold'],['installed','Installed']];
+  openSheet(
+    '<div class="sheet-title">🎯 Weekly goals</div>'+
+    '<div class="sheet-desc">Your personal weekly target for each metric. The report shows actual vs goal, plus a marker for where you should be by now.</div>'+
+    defs.map(function(d){return '<div class="field"><label>'+d[1]+'</label><input type="number" min="0" inputmode="numeric" id="g_'+d[0]+'" value="'+(g[d[0]]||'')+'" placeholder="0"></div>';}).join('')+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button><button class="btn" id="gSave">Save goals</button></div>'
+  );
+  $('#gSave').onclick=function(){
+    state.goals=state.goals||{};
+    defs.forEach(function(d){var v=parseInt(($('#g_'+d[0])||{}).value,10);state.goals[d[0]]=(isNaN(v)||v<0)?0:v;});
+    persist();renderStats();closeSheet();toast('Weekly goals saved');
+  };
+}
 function renderStats(){
   var ks=myKnocks();
   var doors=ks.length;
@@ -3107,6 +3167,8 @@ function renderStats(){
   renderPlan();
   renderEarnings();
   var _eb=$('#eodBtn'); if(_eb)_eb.onclick=eodSheet;
+  renderWeekReport();
+  var _wg=$('#wrGoals'); if(_wg)_wg.onclick=goalsSheet;
 }
 
 /* Earnings tracker — installed (commission earned) vs pending install */
