@@ -770,6 +770,12 @@ a.btn-line{text-decoration:none}
 .lasso-rep{display:flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 11px;color:var(--ink);font-size:13px;font-weight:600}
 .lasso-rep.on{border-color:var(--sky);background:rgba(0,174,239,.12);color:var(--sky)}
 .lasso-chosen{font-size:12px;color:var(--muted);margin-bottom:10px;min-height:16px}
+#lassoBar{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;z-index:9;display:flex;align-items:center;gap:7px;background:rgba(9,20,34,.97);border:1px solid var(--sky);border-radius:13px;padding:7px 9px;box-shadow:0 6px 22px rgba(0,0,0,.45)}
+#lassoBar #lassoCount{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--sky);padding:0 4px;white-space:nowrap}
+#lassoBar button{background:rgba(0,174,239,.14);border:1px solid var(--border);color:var(--sky);border-radius:9px;padding:8px 11px;font-size:13px;font-weight:700}
+#lassoBar #lassoFinish{background:var(--sky);color:#04121e;border-color:var(--sky)}
+#lassoBar #lassoFinish:disabled{opacity:.4}
+#lassoBar #lassoX{background:rgba(255,68,68,.14);border-color:rgba(255,68,68,.4);color:#ff9090;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -1444,7 +1450,7 @@ function buildMap(){
     clickableIcons:false, keyboardShortcuts:false
   });
   map.addListener('click',function(e){
-    if(lassoActive)return;
+    if(lassoActive){lassoAddVertex(e.latLng.lat(),e.latLng.lng());return;}
     if(Date.now()-suppressClick<350)return;
     var lat=e.latLng.lat(), lng=e.latLng.lng();
     pickDispositionForPin(lat,lng);
@@ -3053,34 +3059,67 @@ function toggleTeamLayer(){
   }
 }
 /* ════════ LASSO AREA → ASSIGN + AUTO-PIN ════════ */
-var lassoMgr=null, lassoPoly=null, lassoActive=false;
+var lassoPoly=null, lassoActive=false, lassoPts=[], lassoLine=null, lassoVerts=[];
 var OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
 function cancelLasso(){
-  if(lassoMgr){try{lassoMgr.setMap(null);}catch(e){} lassoMgr=null;}
-  if(lassoPoly){try{lassoPoly.setMap(null);}catch(e){} lassoPoly=null;}
-  lassoActive=false; var b=$('#lassoBtn'); if(b)b.classList.remove('on');
+  lassoActive=false;
+  if(lassoLine){lassoLine.setMap(null);lassoLine=null;}
+  lassoVerts.forEach(function(m){m.setMap(null);}); lassoVerts=[];
+  if(lassoPoly){try{lassoPoly.setMap(null);}catch(e){}lassoPoly=null;}
+  lassoPts=[];
+  var bar=document.getElementById('lassoBar'); if(bar)bar.remove();
+  var b=$('#lassoBtn'); if(b)b.classList.remove('on');
 }
 function startLasso(){
   if(typeof google==='undefined'||!map){toast('Map is still loading — try again in a moment');return;}
-  if(!(google.maps.drawing&&google.maps.drawing.DrawingManager)){toast('Drawing tools failed to load — reload the app');return;}
   if(lassoActive){cancelLasso();toast('Area draw cancelled');return;}
-  requireAdmin(function(){ beginLassoDraw(); },'Drawing an area assigns its doors to a rep.','assign an area');
+  requireAdmin(function(){ beginLasso(); },'Drawing an area assigns its doors to a rep.','assign an area');
 }
-function beginLassoDraw(){
-  cancelLasso(); switchTab('map'); lassoActive=true;
+function beginLasso(){
+  cancelLasso(); switchTab('map'); lassoActive=true; lassoPts=[];
   var b=$('#lassoBtn'); if(b)b.classList.add('on');
-  toast('<b>Draw the area</b> — tap the map to drop corners, then tap the first corner again to close it. Tap ✏️ again to cancel.',null,null,6000);
-  lassoMgr=new google.maps.drawing.DrawingManager({
-    drawingMode:google.maps.drawing.OverlayType.POLYGON, drawingControl:false,
-    polygonOptions:{fillColor:'#00AEEF',fillOpacity:.12,strokeColor:'#00AEEF',strokeWeight:2,clickable:false,editable:false,zIndex:2000}
+  showLassoBar();
+  toast('<b>Draw your area</b> — tap the map at each corner around the houses, then tap <b>Finish</b>. Pan &amp; zoom still work.',null,null,6500);
+}
+function showLassoBar(){
+  var host=document.getElementById('screen-map'); if(!host)return;
+  var old=document.getElementById('lassoBar'); if(old)old.remove();
+  var bar=document.createElement('div'); bar.id='lassoBar';
+  bar.innerHTML='<span id="lassoCount">0 corners</span>'+
+    '<button id="lassoUndo" type="button">↶ Undo</button>'+
+    '<button id="lassoFinish" type="button" disabled>✓ Finish</button>'+
+    '<button id="lassoX" type="button">✕</button>';
+  host.appendChild(bar);
+  bar.querySelector('#lassoUndo').onclick=function(){ if(lassoPts.length){lassoPts.pop(); redrawLasso();} };
+  bar.querySelector('#lassoFinish').onclick=finishLasso;
+  bar.querySelector('#lassoX').onclick=function(){ cancelLasso(); toast('Area draw cancelled'); };
+}
+function lassoAddVertex(lat,lng){ lassoPts.push({lat:lat,lng:lng}); redrawLasso(); }
+function redrawLasso(){
+  if(lassoLine){lassoLine.setMap(null);lassoLine=null;}
+  lassoVerts.forEach(function(m){m.setMap(null);}); lassoVerts=[];
+  var pts=lassoPts.map(function(p){return {lat:p.lat,lng:p.lng};});
+  if(pts.length>1){
+    var loop=pts.concat(pts.length>2?[pts[0]]:[]);
+    lassoLine=new google.maps.Polyline({path:loop,map:map,strokeColor:'#00AEEF',strokeWeight:2.5,strokeOpacity:.95,zIndex:2000});
+  }
+  pts.forEach(function(p){
+    lassoVerts.push(new google.maps.Marker({position:p,map:map,zIndex:2100,clickable:false,
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:5,fillColor:'#00AEEF',fillOpacity:1,strokeColor:'#ffffff',strokeWeight:1.5}}));
   });
-  lassoMgr.setMap(map);
-  google.maps.event.addListener(lassoMgr,'polygoncomplete',function(poly){
-    lassoPoly=poly;
-    if(lassoMgr){lassoMgr.setDrawingMode(null);lassoMgr.setMap(null);lassoMgr=null;}
-    lassoActive=false; var bb=$('#lassoBtn'); if(bb)bb.classList.remove('on');
-    lassoAssignSheet(poly);
-  });
+  var c=document.getElementById('lassoCount'); if(c)c.textContent=lassoPts.length+' corner'+(lassoPts.length===1?'':'s');
+  var f=document.getElementById('lassoFinish'); if(f)f.disabled=lassoPts.length<3;
+}
+function finishLasso(){
+  if(lassoPts.length<3){toast('Tap at least 3 corners to make an area');return;}
+  if(lassoLine){lassoLine.setMap(null);lassoLine=null;}
+  lassoVerts.forEach(function(m){m.setMap(null);}); lassoVerts=[];
+  var bar=document.getElementById('lassoBar'); if(bar)bar.remove();
+  lassoActive=false;
+  var b=$('#lassoBtn'); if(b)b.classList.remove('on');
+  lassoPoly=new google.maps.Polygon({paths:lassoPts.map(function(p){return {lat:p.lat,lng:p.lng};}),map:map,
+    fillColor:'#00AEEF',fillOpacity:.12,strokeColor:'#00AEEF',strokeWeight:2,clickable:false,zIndex:2000});
+  lassoAssignSheet(lassoPoly);
 }
 function polyBounds(poly){ var b=new google.maps.LatLngBounds(), pa=poly.getPath(); for(var i=0;i<pa.getLength();i++)b.extend(pa.getAt(i)); return b; }
 function lassoNearExisting(la,lo,addr){
