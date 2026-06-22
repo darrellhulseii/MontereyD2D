@@ -757,6 +757,15 @@ a.btn-line{text-decoration:none}
 .ru-tbl th{text-align:right;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:6px 6px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card2)}
 .ru-tbl th:first-child,.ru-tbl td:first-child{text-align:left}
 .ru-tbl td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--border);color:var(--ink)}
+.rost-row{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:10px 12px;margin-bottom:8px}
+.rost-row.me{border-color:var(--sky)}
+.rost-mid{flex:1;min-width:0}
+.rost-name{font-weight:600;color:var(--ink);font-size:13.5px}
+.rost-you{display:inline-block;margin-left:6px;font-size:9.5px;font-weight:700;color:var(--sky);background:rgba(0,174,239,.14);padding:1px 6px;border-radius:8px;vertical-align:middle}
+.rost-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.rost-badge{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.rost-badge.loc{color:var(--green);background:rgba(0,200,83,.13)}
+.rost-badge.syn{color:var(--sky);background:rgba(0,174,239,.14)}
 </style>
 </head>
 <body>
@@ -982,7 +991,8 @@ a.btn-line{text-decoration:none}
       <button data-r="year">This Year</button>
       <button data-r="all">All</button>
     </div>
-    <button class="btn-line" id="rollupBtn" style="margin:2px 0 12px">📊 Team rollup (manager view)</button>
+    <button class="btn-line" id="rollupBtn" style="margin:2px 0 8px">📊 Team rollup (manager view)</button>
+    <button class="btn-line" id="rosterBtn" style="margin:0 0 12px">👥 Team roster — everyone logged in</button>
     <div id="lbList"></div>
     <div class="section-lbl" style="margin-top:16px">🔥 Live Team Feed</div>
     <div id="teamFeed"></div>
@@ -3667,6 +3677,41 @@ function leaderboardData(range){
   });
   return Object.keys(map).map(function(k){return map[k];});
 }
+function repLastActive(id,cloud){
+  var t=0;
+  if(!cloud){ state.knocks.forEach(function(k){ if(k.repId===id&&k.ts>t)t=k.ts; }); return t; }
+  var c=cloudReps&&cloudReps[id]; if(!c||!c.stats)return 0;
+  if(c.stats.loc&&c.stats.loc.ts)t=c.stats.loc.ts;
+  if(c.stats.wins&&c.stats.wins.length)c.stats.wins.forEach(function(w){ if(w.ts>t)t=w.ts; });
+  return t;
+}
+function teamRosterSheet(){
+  var _local={}; state.reps.forEach(function(r){_local[r.id]=1;});
+  var list=state.reps.map(function(r){return {id:r.id,name:r.name,color:r.color,cloud:false};});
+  Object.keys(cloudReps||{}).forEach(function(id){ if(!_local[id]&&id!==TERR_KEY){var c=cloudReps[id]; list.push({id:id,name:c.name||'Rep',color:c.color||'#8aa0b8',cloud:true});} });
+  list.forEach(function(r){ r.last=repLastActive(r.id,r.cloud); });
+  list.sort(function(a,b){ var am=a.id===state.currentRepId,bm=b.id===state.currentRepId; if(am!==bm)return am?-1:1; return (b.last||0)-(a.last||0); });
+  var localN=list.filter(function(r){return !r.cloud;}).length, cloudN=list.length-localN;
+  var rows=list.map(function(r){
+    var active=r.id===state.currentRepId;
+    var badge=r.cloud?'<span class="rost-badge syn">synced</span>':'<span class="rost-badge loc">this device</span>';
+    var last=r.last?('last active '+timeAgo(r.last)):'no knocks logged yet';
+    return '<div class="rost-row'+(active?' me':'')+'">'+
+      '<span class="rep-dot" style="background:'+r.color+'"></span>'+
+      '<div class="rost-mid"><div class="rost-name">'+esc(r.name)+(active?'<span class="rost-you">you</span>':'')+'</div>'+
+      '<div class="rost-sub">'+last+'</div></div>'+badge+'</div>';
+  }).join('')||'<div class="empty"><span class="e-ic">👥</span>No reps yet.</div>';
+  var sync=(state.cloud&&state.cloud.on);
+  openSheet(
+    '<div class="sheet-title">👥 Team roster</div>'+
+    '<div class="sheet-desc">'+list.length+' rep'+(list.length===1?'':'s')+' total · '+localN+' on this device'+(cloudN?' · '+cloudN+' synced from other phones':'')+'.</div>'+
+    rows+
+    (sync?'':'<div class="help-note" style="margin-top:10px">Turn on <b>Team Sync</b> in ⚙ Settings to see reps logged in on other phones.</div>')+
+    '<button class="btn-line" style="margin-top:12px" id="rostSwitch">🔁 Switch active rep</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Close</button>'
+  );
+  var rsw=$('#rostSwitch'); if(rsw)rsw.onclick=repSwitcherSheet;
+}
 function teamRollupSheet(){
   var range=lbRange, data=leaderboardData(range);
   var T={doors:0,contacts:0,sold:0,commission:0};
@@ -3738,6 +3783,7 @@ function renderLeaderboard(){
     else sy.textContent='this device — enable Team Sync in ⚙ to go live across phones';
   }
   var _rb=$('#rollupBtn'); if(_rb)_rb.onclick=teamRollupSheet;
+  var _ro=$('#rosterBtn'); if(_ro)_ro.onclick=teamRosterSheet;
   renderTeamFeed();
 }
 
