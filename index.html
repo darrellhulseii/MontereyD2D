@@ -1455,6 +1455,7 @@ function buildMap(){
     var lat=e.latLng.lat(), lng=e.latLng.lng();
     pickDispositionForPin(lat,lng);
   });
+  try{ lassoProjOverlay=new google.maps.OverlayView(); lassoProjOverlay.onAdd=function(){}; lassoProjOverlay.draw=function(){}; lassoProjOverlay.setMap(map); }catch(e){}
   $('#mapLoader').style.display='none';
   refreshMarkers();
   if(curPos)updatePosMarker(40);
@@ -3059,7 +3060,7 @@ function toggleTeamLayer(){
   }
 }
 /* ════════ LASSO AREA → ASSIGN + AUTO-PIN ════════ */
-var lassoPoly=null, lassoActive=false, lassoPts=[], lassoLine=null, lassoVerts=[];
+var lassoPoly=null, lassoActive=false, lassoPts=[], lassoLine=null, lassoVerts=[], lassoProjOverlay=null, lassoCap=null;
 var OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
 function cancelLasso(){
   lassoActive=false;
@@ -3067,6 +3068,7 @@ function cancelLasso(){
   lassoVerts.forEach(function(m){m.setMap(null);}); lassoVerts=[];
   if(lassoPoly){try{lassoPoly.setMap(null);}catch(e){}lassoPoly=null;}
   lassoPts=[];
+  if(lassoCap){try{lassoCap.remove();}catch(e){} lassoCap=null;}
   var bar=document.getElementById('lassoBar'); if(bar)bar.remove();
   var b=$('#lassoBtn'); if(b)b.classList.remove('on');
 }
@@ -3078,8 +3080,22 @@ function startLasso(){
 function beginLasso(){
   cancelLasso(); switchTab('map'); lassoActive=true; lassoPts=[];
   var b=$('#lassoBtn'); if(b)b.classList.add('on');
+  var host=document.getElementById('screen-map');
+  if(host){
+    lassoCap=document.createElement('div'); lassoCap.id='lassoCap';
+    lassoCap.style.cssText='position:absolute;left:0;top:0;right:0;bottom:0;z-index:6;cursor:crosshair;touch-action:manipulation;background:rgba(0,174,239,0.01)';
+    host.appendChild(lassoCap);
+    var tap=function(cx,cy){
+      var proj=(lassoProjOverlay&&lassoProjOverlay.getProjection)?lassoProjOverlay.getProjection():null;
+      if(!proj){toast('Map not ready — tap once more');return;}
+      var r=lassoCap.getBoundingClientRect();
+      var ll=proj.fromContainerPixelToLatLng(new google.maps.Point(cx-r.left,cy-r.top));
+      if(ll)lassoAddVertex(ll.lat(),ll.lng());
+    };
+    lassoCap.addEventListener('click',function(ev){ ev.preventDefault(); ev.stopPropagation(); tap(ev.clientX,ev.clientY); });
+  }
   showLassoBar();
-  toast('<b>Draw your area</b> — tap the map at each corner around the houses, then tap <b>Finish</b>. Pan &amp; zoom still work.',null,null,6500);
+  toast('<b>Tap each corner</b> of the area on the map — a border builds as you go. Use ↶ Undo to fix one, then tap <b>✓ Finish</b>.',null,null,7000);
 }
 function showLassoBar(){
   var host=document.getElementById('screen-map'); if(!host)return;
@@ -3114,6 +3130,7 @@ function finishLasso(){
   if(lassoPts.length<3){toast('Tap at least 3 corners to make an area');return;}
   if(lassoLine){lassoLine.setMap(null);lassoLine=null;}
   lassoVerts.forEach(function(m){m.setMap(null);}); lassoVerts=[];
+  if(lassoCap){try{lassoCap.remove();}catch(e){} lassoCap=null;}
   var bar=document.getElementById('lassoBar'); if(bar)bar.remove();
   lassoActive=false;
   var b=$('#lassoBtn'); if(b)b.classList.remove('on');
