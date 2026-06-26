@@ -776,6 +776,66 @@ a.btn-line{text-decoration:none}
 #lassoBar #lassoFinish{background:var(--sky);color:#04121e;border-color:var(--sky)}
 #lassoBar #lassoFinish:disabled{opacity:.4}
 #lassoBar #lassoX{background:rgba(255,68,68,.14);border-color:rgba(255,68,68,.4);color:#ff9090;padding:8px 10px}
+.q-chips{display:flex;flex-wrap:wrap;gap:6px}
+.q-chip{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:7px 10px;color:var(--muted);font-size:12px;font-weight:600}
+.q-chip.on{border-color:var(--sky);background:rgba(0,174,239,.12);color:var(--sky)}
+.q-sel{width:100%}
+.q-out{margin-top:6px}
+.q-hint{color:var(--muted);font-size:12.5px;text-align:center;padding:10px}
+.q-card{background:var(--card2);border:1px solid var(--border2);border-radius:13px;padding:14px}
+.q-row{display:flex;justify-content:space-between;font-size:13px;color:var(--ink);padding:3px 0}
+.q-row span{color:var(--muted)}
+.q-big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;text-align:center;margin:8px 0 2px;line-height:1}
+.q-big.good{color:var(--green)}
+.q-big.bad{color:var(--gold)}
+.q-sub{text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:2px}
+.q-yr2{margin-top:11px;font-size:12px;color:#ffd9a0;background:rgba(255,138,60,.12);border:1px solid rgba(255,138,60,.3);border-radius:9px;padding:8px 10px;line-height:1.45}
+.q-tt{margin-top:12px;font-size:13.5px;line-height:1.5;color:var(--ink);background:rgba(0,174,239,.08);border-left:3px solid var(--sky);border-radius:0 9px 9px 0;padding:10px 12px;font-style:italic}
+.sess-live{text-align:center;margin-top:4px}
+.sess-clock{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:40px;color:var(--sky);line-height:1}
+.sess-mini{font-size:12.5px;color:var(--muted);margin-top:2px}
+.sess-idle{font-size:12.5px;color:var(--muted);margin:2px 0 8px;line-height:1.5}
+.ch-r.live{color:var(--green)}
+.sess-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sess-tile{background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:9px;text-align:center}
+.sess-tile .st-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--ink)}
+.sess-tile .st-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.sess-log-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;font-weight:700}
+.sess-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink);padding:6px 0;border-bottom:1px solid var(--border)}
+.sess-row.open{color:var(--sky)}
+.sess-when{flex:1;color:var(--muted)}
+.sess-stat{white-space:nowrap}
+.sess-addmi{background:rgba(0,174,239,.12);border:1px solid var(--border);color:var(--sky);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:700}
+.sess-note{font-size:10.5px;color:var(--faint);margin-top:10px;line-height:1.45}
+.field textarea{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 10px;color:var(--ink);font-size:13px;font-family:inherit;line-height:1.4;resize:vertical}
+.field textarea::placeholder{color:var(--faint)}
+.q-sec{margin-top:16px}
+.q-sec-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--sky);margin-bottom:8px}
+.q-seg-wrap{display:flex;gap:6px;margin-bottom:10px}
+.q-seg{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px;color:var(--muted);font-weight:700;font-size:13px}
+.q-seg.on{border-color:var(--sky);background:rgba(0,174,239,.14);color:var(--sky)}
+.q-trow{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink)}
+.q-trow i{color:var(--faint);font-style:normal;font-size:11px}
+.q-trow input[type=checkbox]{width:20px;height:20px;accent-color:var(--sky);flex:none}
+.q-check{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:12.5px;color:var(--ink);border-bottom:1px solid var(--border)}
+.q-check b{margin-left:auto;color:var(--muted);font-weight:700;white-space:nowrap}
+.q-check b i{color:var(--green);font-style:normal;font-size:10.5px}
+.q-check input{width:18px;height:18px;accent-color:var(--sky);flex:none}
+.q-compare{display:flex;gap:8px;margin-top:6px}
+.q-col{flex:1;background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:11px;text-align:center}
+.q-col.ours{border-color:var(--sky);background:rgba(0,174,239,.08)}
+.q-col-h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.q-col-amt{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:var(--ink);line-height:1.15}
+.q-col.ours .q-col-amt{color:var(--sky)}
+.q-col-sub{font-size:10.5px;color:var(--faint)}
+.q-items{margin-top:12px;background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:10px 12px}
+.q-irow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink);padding:4px 0}
+.q-irow span i{color:var(--green);font-style:normal;font-size:10.5px}
+.q-irow.tot{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;font-weight:800}
+.q-promo{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.55;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.q-photo{margin-top:10px}
+.q-photo img{max-width:100%;border-radius:9px;margin-top:8px;border:1px solid var(--border2)}
+.q-mini{font-size:11px;color:var(--faint)}
 </style>
 </head>
 <body>
@@ -801,6 +861,7 @@ a.btn-line{text-decoration:none}
   <!-- TALLY -->
   <section class="screen" id="screen-tally">
     <div class="day-bar" id="dayBar"></div>
+    <button class="btn orange" style="margin:0 0 12px" onclick="quoteSheet()">💰 Build a quote — price compare</button>
     <div class="tally-head">
       <div>
         <div class="th-date" id="thDate">Today</div>
@@ -868,6 +929,7 @@ a.btn-line{text-decoration:none}
     </div>
 
     <div class="section-lbl">📶 ISP Pricing &amp; Cancellation</div>
+    <button class="btn orange" id="quoteBtn" style="margin:2px 0 12px" onclick="quoteSheet()">💰 Build a quote — their bill vs your offer</button>
     <div class="isp-note" id="ispNote"></div>
     <div id="ispGuide"></div>
 
@@ -933,6 +995,7 @@ a.btn-line{text-decoration:none}
       <div class="cb-sub" id="commSub">Per the 1099 rate card · earned on confirmed install</div>
     </div>
     <button class="btn-line" id="eodBtn" style="margin-bottom:12px">📋 End-of-day report</button>
+    <div class="card" id="sessionCard"><div id="sessionBody"></div></div>
     <div class="card">
       <div class="card-h">💵 Earnings <span class="ch-r">installed vs pending</span></div>
       <div id="earnGrid"></div>
@@ -2372,6 +2435,190 @@ function renderPress(){
   });
   box.innerHTML=h;
 }
+/* ════════ QUOTE / PRICE-COMPARE ════════ */
+var OUR_PLANS=[
+  {co:'Frontier',label:'Fiber 200M',price:29.99},
+  {co:'Frontier',label:'Fiber 500M',price:29.99},
+  {co:'Frontier',label:'Fiber 1 Gig',price:49.99},
+  {co:'Frontier',label:'Fiber 2 Gig',price:64.99},
+  {co:'Frontier',label:'Fiber 5 Gig',price:89.99},
+  {co:'Frontier',label:'Fiber 7 Gig',price:109.99},
+  {co:'EarthLink',label:'Fiber 1 Gig',price:89.95,note:'incl. ~$15 router'},
+  {co:'EarthLink',label:'5G Home Unlimited',price:74.95,note:'incl. ~$15 modem'}
+];
+var COMP_REF=[
+  {co:'Spectrum',now:80,yr2:120,jumps:true},
+  {co:'Xfinity',now:70,yr2:95,jumps:true},
+  {co:'AT&T Fiber',now:80,yr2:80,jumps:false},
+  {co:'T-Mobile 5G',now:60,yr2:60,jumps:false},
+  {co:'Starlink',now:120,yr2:120,jumps:false},
+  {co:'Other / not sure',now:0,yr2:0,jumps:false}
+];
+/* ════════ QUOTE PRICING DATA (from offer sheets) ════════ */
+var Q_FRONTIER=[
+  {id:'200M',label:'200 Mbps',price:29.99},
+  {id:'500M',label:'500 Mbps',price:29.99},
+  {id:'1G',label:'1 Gig',price:49.99},
+  {id:'2G',label:'2 Gig',price:64.99},
+  {id:'5G',label:'5 Gig',price:89.99},
+  {id:'7G',label:'7 Gig',price:109.99}
+];
+var Q_EARTHLINK=[
+  {id:'100M',label:'100 Mbps',price:39.95},
+  {id:'300M',label:'300 Mbps',price:49.95},
+  {id:'500M',label:'500 Mbps',price:54.95},
+  {id:'1G',label:'1 Gig',price:74.95},
+  {id:'2G',label:'2 Gig',price:109.95},
+  {id:'5G',label:'5 Gig',price:149.95}
+];
+var Q_FVAS=[
+  {id:'fuwf',label:'Unbreakable Wi-Fi',price:25,note:'1st mo free'},
+  {id:'fwhw',label:'Whole Home Wi-Fi (per extender)',price:10},
+  {id:'fwfs',label:'Wi-Fi Security',price:6},
+  {id:'fwfsp',label:'Wi-Fi Security Plus',price:10},
+  {id:'fnflx',label:'Netflix & Pro Wi-Fi bundle',price:32}
+];
+var Q_EVAS=[
+  {id:'eprot',label:'EarthLink Protect+',price:9.95},
+  {id:'elife',label:'LifeLock',price:7.95},
+  {id:'eez',label:'EasyTech',price:9.95}
+];
+function quoteSheet(){
+  function speedOpts(svc){ var a=svc==='EarthLink'?Q_EARTHLINK:Q_FRONTIER; return a.map(function(pl,i){return '<option value="'+i+'">'+esc(pl.label)+' \u2014 '+money(pl.price)+'/mo</option>';}).join(''); }
+  function vasRows(svc){ var a=svc==='EarthLink'?Q_EVAS:Q_FVAS; return a.map(function(v){return '<label class="q-check"><input type="checkbox" class="qvas" data-price="'+v.price+'" data-label="'+esc(v.label)+'" value="'+v.id+'"><span>'+esc(v.label)+'</span><b>'+money(v.price)+(v.note?'<i> '+esc(v.note)+'</i>':'')+'</b></label>';}).join(''); }
+  var provOpts=['Spectrum','Xfinity','AT&T','T-Mobile Home Internet','Verizon Fios','Cox','Starlink','Other / none'].map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+  var tvOpts=['DirecTV','Dish','Spectrum TV','Xfinity TV','YouTube TV','Hulu + Live TV','Other'].map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+  openSheet(
+    '<div class="sheet-title">💰 Quote &amp; price compare</div>'+
+    '<div class="sheet-desc">Build their current plan against your Frontier or EarthLink offer and show the monthly difference side by side.</div>'+
+    '<div class="q-sec"><div class="q-sec-h">📋 What they have now</div>'+
+      '<div class="field"><label>Internet provider</label><select id="qNowProv">'+provOpts+'</select></div>'+
+      '<div class="field"><label>Internet speed (optional)</label><input id="qNowSpeed" placeholder="e.g. 300 Mbps"></div>'+
+      '<label class="q-trow"><span>TV service?</span><input type="checkbox" id="qNowTv"></label>'+
+      '<div class="field q-dep" id="qNowTvWrap" style="display:none;margin-top:8px"><label>TV provider</label><select id="qNowTvProv">'+tvOpts+'</select></div>'+
+      '<label class="q-trow"><span>Home phone?</span><input type="checkbox" id="qNowPhone"></label>'+
+      '<label class="q-trow"><span>Mobile / cellular?</span><input type="checkbox" id="qNowCell"></label>'+
+      '<div class="field q-dep" id="qNowCellWrap" style="display:none;margin-top:8px"><label>How many lines</label><input type="number" inputmode="numeric" id="qNowLines" placeholder="e.g. 3"></div>'+
+      '<div class="field"><label>How much is the bill? ($/mo)</label><input type="number" inputmode="decimal" id="qNow" placeholder="e.g. 180"></div>'+
+      '<div class="field"><label>How long have they had it?</label><select id="qNowTenure"><option>Less than 1 year</option><option>1\u20132 years</option><option>2+ years</option><option>Not sure</option></select></div>'+
+      '<div class="q-photo"><span class="q-mini">Photo of current bill (optional)</span><br><input type="file" id="qNowPhoto" accept="image/*" style="margin-top:6px"><div id="qNowPhotoPrev"></div></div>'+
+    '</div>'+
+    '<div class="q-sec"><div class="q-sec-h">\u2705 Your Complete Home offer</div>'+
+      '<div class="q-seg-wrap"><button type="button" class="q-seg on" data-svc="Frontier">Frontier</button><button type="button" class="q-seg" data-svc="EarthLink">EarthLink</button></div>'+
+      '<div class="field"><label>Internet speed</label><select id="qSpeed">'+speedOpts('Frontier')+'</select></div>'+
+      '<label class="q-trow q-fonly"><span>Add YouTube TV <i>(Frontier)</i></span><input type="checkbox" id="qYtv"></label>'+
+      '<label class="q-trow q-fonly"><span>Verizon Mobile + Home discount (\u2212$15)</span><input type="checkbox" id="qMh"></label>'+
+      '<label class="q-trow"><span>Still want home phone?</span><input type="checkbox" id="qPhone"></label>'+
+      '<div class="field q-dep" id="qPhoneWrap" style="display:none;margin-top:8px"><label>Home phone price ($/mo \u2014 enter quoted)</label><input type="number" inputmode="decimal" id="qPhonePrice" placeholder="price varies"></div>'+
+      '<label class="q-trow q-eonly"><span>Add EarthLink cellular <i>(EarthLink)</i></span><input type="checkbox" id="qCell"></label>'+
+      '<div class="q-dep" id="qCellWrap" style="display:none;margin-top:8px"><div class="field"><label>How many lines</label><input type="number" inputmode="numeric" id="qCellLines" placeholder="e.g. 2"></div><div class="field"><label>Price per line ($/mo \u2014 enter quoted)</label><input type="number" inputmode="decimal" id="qCellPrice" placeholder="price varies"></div></div>'+
+      '<div class="q-sec-h" style="margin-top:14px;color:var(--muted)">Value-added services</div>'+
+      '<div id="qVasBox">'+vasRows('Frontier')+'</div>'+
+    '</div>'+
+    '<div id="qOut" class="q-out"></div>'+
+    '<div class="field" style="margin-top:14px"><label>Notes for the customer (optional)</label><textarea id="qNotes" rows="2" placeholder="e.g. installs Thursday, eero included"></textarea></div>'+
+    '<div class="field"><label>Customer email (to send the quote)</label><input type="email" id="qEmail" inputmode="email" placeholder="name@email.com"></div>'+
+    '<button class="btn" id="qSend">📧 Email this quote</button>'+
+    '<div class="help-note" style="margin:8px 0 0">Opens your mail app pre-filled and sends from the account on this phone \u2014 set that to Darrell@completehomellc.com to send from there. A bill photo cannot auto-attach; add it manually if needed.</div>'+
+    '<button class="btn-line" id="qCopy" style="margin-top:12px">📋 Copy the breakdown</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Close</button>'
+  );
+  var cur={svc:'Frontier'};
+  function recalc(){
+    var out=$('#qOut'); if(!out)return;
+    var svc=cur.svc, arr=svc==='EarthLink'?Q_EARTHLINK:Q_FRONTIER;
+    var pl=arr[parseInt(($('#qSpeed')||{}).value,10)||0];
+    var items=[], tot=0;
+    items.push({k:svc+' '+pl.label+' fiber',v:pl.price}); tot+=pl.price;
+    if(svc==='EarthLink'){ items.push({k:'Router / equipment',v:14.95}); tot+=14.95; }
+    if(svc==='Frontier' && $('#qYtv') && $('#qYtv').checked){ items.push({k:'YouTube TV',v:82.99,note:'$10/mo off \u00d7 12'}); tot+=82.99; }
+    $$('.qvas',sheetEl).forEach(function(c){ if(c.checked){ var pr=+c.dataset.price; items.push({k:c.dataset.label,v:pr}); tot+=pr; } });
+    if($('#qPhone') && $('#qPhone').checked){ var hp=parseFloat(($('#qPhonePrice')||{}).value)||0; items.push({k:'Home phone',v:hp}); tot+=hp; }
+    if(svc==='EarthLink' && $('#qCell') && $('#qCell').checked){ var ln=parseInt(($('#qCellLines')||{}).value,10)||0, pp=parseFloat(($('#qCellPrice')||{}).value)||0, ct=ln*pp; items.push({k:'EarthLink cellular \u00d7 '+ln+(pp?(' @ '+money(pp)):''),v:ct}); tot+=ct; }
+    if(svc==='Frontier' && $('#qMh') && $('#qMh').checked){ items.push({k:'Verizon Mobile + Home discount',v:-15}); tot-=15; }
+    if(tot<0)tot=0;
+    var now=parseFloat(($('#qNow')||{}).value)||0;
+    var h='<div class="q-compare">'+
+      '<div class="q-col"><div class="q-col-h">They pay now</div><div class="q-col-amt">'+(now>0?money(now):'\u2014')+'</div><div class="q-col-sub">per month</div></div>'+
+      '<div class="q-col ours"><div class="q-col-h">Complete Home</div><div class="q-col-amt">'+money(Math.round(tot*100)/100)+'</div><div class="q-col-sub">per month</div></div>'+
+      '</div>';
+    if(now>0){ var sv=now-tot; h+='<div class="q-big '+(sv>0?'good':'bad')+'">'+(sv>0?'Save ':'+')+money(Math.round(Math.abs(sv)*100)/100)+'/mo</div>'+
+      '<div class="q-sub">'+(sv>0?(money(Math.round(Math.abs(sv)*12))+'/year back in their pocket'):'about '+money(Math.round(Math.abs(sv)*12))+'/year more \u2014 lead with speed &amp; reliability')+'</div>'; }
+    h+='<div class="q-items">';
+    items.forEach(function(it){ h+='<div class="q-irow"><span>'+esc(it.k)+(it.note?' <i>'+esc(it.note)+'</i>':'')+'</span><b>'+(it.v<0?('\u2212'+money(Math.abs(it.v))):money(Math.round(it.v*100)/100))+'</b></div>'; });
+    h+='<div class="q-irow tot"><span>Monthly total</span><b>'+money(Math.round(tot*100)/100)+'</b></div></div>';
+    var pn=[];
+    if(svc==='Frontier' && (pl.id==='1G'||pl.id==='500M')) pn.push('Frontier 2 Months \u201cOn Us\u201d: '+pl.label+' is $0 for months 1\u20132, then '+money(pl.id==='1G'?49.99:34.99)+'/mo (F2F, thru 6/30; ETF if internet cancelled within 12 mo).');
+    if(svc==='Frontier' && (pl.id==='1G'||pl.id==='2G'||pl.id==='5G'||pl.id==='7G')) pn.push('Eligible for $400 Samsung credit at Best Buy (1 Gig+, keep service 180 days).');
+    if(svc==='EarthLink' && (pl.id==='1G'||pl.id==='500M')) pn.push('EarthLink intro: '+pl.label+' is '+money(pl.id==='1G'?44.95:34.95)+'/mo for months 1\u20133, then '+money(pl.id==='1G'?74.95:54.95)+'/mo.');
+    if(svc==='EarthLink') pn.push('One-time: $24.95 install + $79.95 processing &amp; handling (disclose at point of sale). Router $14.95/mo included above.');
+    if(svc==='Frontier') pn.push('eero Wi-Fi included. Prices include the $10 AutoPay discount.');
+    if(pn.length) h+='<div class="q-promo">'+pn.map(function(t){return '\u2022 '+t;}).join('<br>')+'</div>';
+    out.innerHTML=h; out._items=items; out._tot=tot; out._now=now; out._svc=svc; out._pl=pl; out._pn=pn;
+  }
+  function setSvc(svc){
+    cur.svc=svc;
+    $$('.q-seg',sheetEl).forEach(function(b){b.classList.toggle('on',b.dataset.svc===svc);});
+    var sp=$('#qSpeed'); if(sp)sp.innerHTML=speedOpts(svc);
+    var vb=$('#qVasBox'); if(vb){ vb.innerHTML=vasRows(svc); $$('.qvas',vb).forEach(function(c){c.onchange=recalc;}); }
+    $$('.q-fonly',sheetEl).forEach(function(e){e.style.display=(svc==='Frontier')?'':'none';});
+    $$('.q-eonly',sheetEl).forEach(function(e){e.style.display=(svc==='EarthLink')?'':'none';});
+    if(svc!=='EarthLink'){ var cw=$('#qCellWrap'); if(cw)cw.style.display='none'; var cc=$('#qCell'); if(cc)cc.checked=false; }
+    recalc();
+  }
+  $$('.q-seg',sheetEl).forEach(function(b){b.onclick=function(){setSvc(b.dataset.svc);};});
+  function dep(cb,wrap){ var c=$(cb),w=$(wrap); if(c&&w)c.onchange=function(){w.style.display=c.checked?'':'none'; recalc();}; }
+  dep('#qNowTv','#qNowTvWrap'); dep('#qNowCell','#qNowCellWrap'); dep('#qPhone','#qPhoneWrap'); dep('#qCell','#qCellWrap');
+  ['#qSpeed','#qNow','#qYtv','#qMh','#qPhonePrice','#qCellLines','#qCellPrice'].forEach(function(id){var e=$(id); if(e){e.oninput=recalc; e.onchange=recalc;}});
+  $$('.qvas',sheetEl).forEach(function(c){c.onchange=recalc;});
+  var ph=$('#qNowPhoto'); if(ph)ph.onchange=function(){ var f=ph.files&&ph.files[0], pv=$('#qNowPhotoPrev'); if(!pv)return; if(!f){pv.innerHTML='';return;} var r=new FileReader(); r.onload=function(){pv.innerHTML='<img src="'+r.result+'" alt="bill">';}; r.readAsDataURL(f); };
+  $('#qSend').onclick=function(){
+    var out=$('#qOut'), items=out&&out._items; if(!items){toast('Pick a plan first');return;}
+    var svc=out._svc, tot=out._tot, now=out._now, pn=out._pn||[];
+    var email=(($('#qEmail')||{}).value||'').trim(), notes=(($('#qNotes')||{}).value||'').trim();
+    var prov=(($('#qNowProv')||{}).value)||'Current provider';
+    var L=[]; L.push('Hi,'); L.push('');
+    L.push('Here is the comparison we went over:'); L.push('');
+    L.push('WHAT YOU HAVE NOW'); L.push(prov+(now>0?(': '+money(now)+'/mo'):''));
+    var ext=[]; if($('#qNowTv')&&$('#qNowTv').checked)ext.push('TV'); if($('#qNowPhone')&&$('#qNowPhone').checked)ext.push('home phone'); if($('#qNowCell')&&$('#qNowCell').checked){var ln=parseInt(($('#qNowLines')||{}).value,10)||0; ext.push('mobile'+(ln?(' ('+ln+' lines)'):''));}
+    if(ext.length)L.push('Includes: '+ext.join(', '));
+    L.push(''); L.push('COMPLETE HOME \u2014 '+svc.toUpperCase());
+    items.forEach(function(it){ L.push('  '+it.k+': '+(it.v<0?('-'+money(Math.abs(it.v))):money(Math.round(it.v*100)/100))+'/mo'); });
+    L.push('  Monthly total: '+money(Math.round(tot*100)/100)+'/mo'); L.push('');
+    if(now>0){ var sv=now-tot; if(sv>0){ L.push('YOUR SAVINGS'); L.push(money(Math.round(sv*100)/100)+'/mo \u2014 about '+money(Math.round(sv*12))+'/year'); } else { L.push('A little more than today, but symmetrical fiber speed, no peak-hour slowdowns, and a flat rate.'); } L.push(''); }
+    if(pn.length){ L.push('GOOD TO KNOW'); pn.forEach(function(t){L.push('- '+t.replace(/&amp;/g,'&'));}); L.push(''); }
+    if(notes){ L.push('NOTES'); L.push(notes); L.push(''); }
+    L.push('Questions? Just reply to this email or give me a call.'); L.push('');
+    L.push('\u2014 Darrell'); L.push('Complete Home Today'); L.push('Darrell@completehomellc.com');
+    var subj='Your Complete Home Today quote'+(now>0&&(now-tot)>0?(' \u2014 save '+money(Math.round(now-tot))+'/mo'):'');
+    var url='mailto:'+email+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(L.join('\n'));
+    window.location.href=url; toast('\u2713 Opening your email\u2026');
+  };
+  $('#qCopy').onclick=function(){
+    var out=$('#qOut'), items=out&&out._items; if(!items){toast('Pick a plan first');return;}
+    var L=[]; L.push(out._svc+' '+out._pl.label);
+    items.forEach(function(it){L.push(it.k+': '+(it.v<0?('-'+money(Math.abs(it.v))):money(Math.round(it.v*100)/100))+'/mo');});
+    L.push('Monthly total: '+money(Math.round(out._tot*100)/100)+'/mo');
+    if(out._now>0){var sv=out._now-out._tot; L.push(sv>0?('Saves '+money(Math.round(sv*100)/100)+'/mo vs '+money(out._now)):('+'+money(Math.round(Math.abs(sv)*100)/100)+'/mo vs '+money(out._now)));}
+    var t=L.join('\n'); if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('\u2713 Breakdown copied');},function(){toast(t);});}else{toast(t);}
+  };
+  setSvc('Frontier');
+}
+/* ════════ BACKUP NUDGE ════════ */
+function backupStatusText(){
+  var t=state&&state.lastBackupTs;
+  if(!t)return '\u26a0 No backup yet \u2014 export a JSON backup to protect this phone\u2019s data.';
+  var days=Math.floor((Date.now()-t)/86400000);
+  var when=days<=0?'today':(days===1?'yesterday':days+' days ago');
+  return (days>=7?'\u26a0 ':'\u2713 ')+'Last backup: '+when+(days>=7?' \u2014 time to back up again.':'.');
+}
+function backupNudge(){
+  try{
+    if(!state||!state.knocks||state.knocks.length<5)return;
+    var t=state.lastBackupTs||0, days=(Date.now()-t)/86400000;
+    if(days>=7)setTimeout(function(){toast('<b>💾 Back up your data</b> \u2014 '+(t?('it has been '+Math.floor(days)+' days'):'you have not backed up yet')+'. Settings \u25b8 Data \u25b8 Export Backup.',null,null,6500);},4500);
+  }catch(e){}
+}
 function renderMarketIntel(){
   var box=$('#marketIntel'); if(!box)return;
   var h='';
@@ -3301,6 +3548,74 @@ function goalsSheet(){
     persist();renderStats();closeSheet();toast('Weekly goals saved');
   };
 }
+var MILE_RATE=0.70;
+var sessTimer=null;
+function activeSession(){ return (state.sessions||[]).filter(function(x){return x.repId===state.currentRepId && !x.endTs;}).slice(-1)[0]||null; }
+function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead';}).length; }
+function fmtDur(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60; return h>0?(h+'h '+m+'m'):(m+'m'); }
+function clockIn(){
+  if(activeSession()){toast('A shift is already running');return;}
+  state.sessions=state.sessions||[];
+  state.sessions.push({id:uid(),repId:state.currentRepId,startTs:Date.now(),endTs:null,miles:0});
+  persist(); renderSession(); toast('\u23f1\ufe0f Started \u2014 knocks now count toward this shift');
+}
+function clockOut(){
+  var ss=activeSession(); if(!ss){toast('No shift is running');return;}
+  ss.endTs=Date.now(); persist(); renderSession(); sessionMilesSheet(ss.id);
+}
+function sessionMilesSheet(id){
+  var ss=(state.sessions||[]).filter(function(x){return x.id===id;})[0]; if(!ss)return;
+  var end=ss.endTs||Date.now();
+  openSheet('<div class="sheet-title">\u23f1\ufe0f Shift logged</div>'+
+    '<div class="sheet-desc">'+workedDoorsBetween(ss.repId,ss.startTs,end)+' doors in '+fmtDur(end-ss.startTs)+'. Add the miles you drove for this shift \u2014 it counts toward your 1099 mileage deduction.</div>'+
+    '<div class="field"><label>Miles driven this shift</label><input type="number" inputmode="decimal" id="sMiles" min="0" placeholder="e.g. 24" value="'+(ss.miles||'')+'"></div>'+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Skip</button><button class="btn" id="sMilesSave">Save</button></div>');
+  $('#sMilesSave').onclick=function(){ var v=parseFloat(($('#sMiles')||{}).value)||0; ss.miles=v<0?0:v; persist(); closeSheet(); renderSession(); toast('Shift saved'); };
+}
+function renderSession(){
+  var box=$('#sessionBody'); if(!box)return;
+  var a=activeSession(), now=Date.now();
+  var dayStart=new Date(); dayStart.setHours(0,0,0,0); dayStart=dayStart.getTime();
+  var mine=(state.sessions||[]).filter(function(x){return x.repId===state.currentRepId;}).sort(function(x,y){return y.startTs-x.startTs;});
+  var ws=weekStartMon();
+  var weekMiles=mine.filter(function(x){return (x.endTs||now)>=ws;}).reduce(function(t,x){return t+(x.miles||0);},0);
+  var h='<div class="card-h">\u23f1\ufe0f Work session'+(a?' <span class="ch-r live">on the clock</span>':'')+'</div>';
+  if(a){
+    var dur=now-a.startTs, doors=workedDoorsBetween(a.repId,a.startTs,now), hrs=dur/3600000, dph=hrs>0.02?(doors/hrs):0;
+    h+='<div class="sess-live"><div class="sess-clock" id="sessClock">'+fmtDur(dur)+'</div>'+
+       '<div class="sess-mini"><b>'+doors+'</b> doors \u00b7 <b>'+(dph?dph.toFixed(1):'0')+'</b>/hr</div></div>'+
+       '<button class="btn" id="clockOutBtn" style="margin-top:10px">\u23f9 Stop</button>';
+  } else {
+    h+='<div class="sess-idle">Tap Start to track your hours, doors-per-hour and miles for this shift.</div>'+
+       '<button class="btn" id="clockInBtn">\u25b6 Start</button>';
+  }
+  var tDoors=0,tMs=0; var todays=mine.filter(function(x){return (x.endTs||now)>=dayStart;});
+  todays.forEach(function(x){ var end=x.endTs||now; tDoors+=workedDoorsBetween(x.repId,x.startTs,end); tMs+=(end-x.startTs); });
+  var tHrs=tMs/3600000;
+  h+='<div class="sess-grid">'+
+     '<div class="sess-tile"><div class="st-num">'+fmtDur(tMs)+'</div><div class="st-lbl">Today on the clock</div></div>'+
+     '<div class="sess-tile"><div class="st-num">'+(tHrs>0.02?(tDoors/tHrs).toFixed(1):'0')+'</div><div class="st-lbl">Doors / hr today</div></div>'+
+     '<div class="sess-tile"><div class="st-num">'+(Math.round(weekMiles*10)/10)+'</div><div class="st-lbl">Miles this week</div></div>'+
+     '<div class="sess-tile"><div class="st-num">'+money(Math.round(weekMiles*MILE_RATE))+'</div><div class="st-lbl">Est. mileage value</div></div>'+
+     '</div>';
+  if(mine.length){
+    h+='<div class="sess-log-h">Recent shifts</div>';
+    h+=mine.slice(0,6).map(function(x){
+      var end=x.endTs||now, d=workedDoorsBetween(x.repId,x.startTs,end), open=!x.endTs;
+      return '<div class="sess-row'+(open?' open':'')+'"><span class="sess-when">'+relDate(x.startTs)+' '+fmtTime(x.startTs)+'</span>'+
+        '<span class="sess-stat">'+fmtDur(end-x.startTs)+(open?' \u00b7 live':'')+'</span>'+
+        '<span class="sess-stat">'+d+' doors</span>'+
+        '<span class="sess-stat">'+(x.miles?((Math.round(x.miles*10)/10)+' mi'):(open?'\u2014':'<button class="sess-addmi" data-mi="'+x.id+'">+ miles</button>'))+'</span></div>';
+    }).join('');
+  }
+  h+='<div class="sess-note">Mileage value is an estimate at $'+MILE_RATE.toFixed(2)+'/mi (\u2248 IRS standard rate \u2014 verify the current year). Log every business mile for your 1099 deduction.</div>';
+  box.innerHTML=h;
+  var ci=$('#clockInBtn'); if(ci)ci.onclick=clockIn;
+  var co=$('#clockOutBtn'); if(co)co.onclick=clockOut;
+  $$('.sess-addmi',box).forEach(function(b){b.onclick=function(){sessionMilesSheet(b.dataset.mi);};});
+  if(sessTimer){clearInterval(sessTimer);sessTimer=null;}
+  if(a){ sessTimer=setInterval(function(){ var cl=$('#sessClock'), aa=activeSession(); if(cl&&aa){cl.textContent=fmtDur(Date.now()-aa.startTs);} else if(!aa){clearInterval(sessTimer);sessTimer=null;} },1000); }
+}
 function renderStats(){
   var ks=myKnocks();
   var doors=ks.filter(function(k){return k.disp!=='new';}).length;
@@ -3388,6 +3703,7 @@ function renderStats(){
   renderPlan();
   renderEarnings();
   var _eb=$('#eodBtn'); if(_eb)_eb.onclick=eodSheet;
+  renderSession();
   renderWeekReport();
   var _wg=$('#wrGoals'); if(_wg)_wg.onclick=goalsSheet;
 }
@@ -4437,6 +4753,7 @@ function settingsSheet(){
     '<div id="cloudStat" style="font-size:11.5px;color:var(--faint);margin:7px 2px 16px">'+
       (c.on?'Sync on — '+cloudState:'Sync off — leaderboard is local to this device')+'</div>'+
     '<div class="section-lbl">💾 Data</div>'+
+    '<div class="help-note" style="margin:-2px 0 10px" id="bkStatus">'+backupStatusText()+'</div>'+
     '<button class="btn-line" id="expJson" style="margin-bottom:8px">⬇ Export Backup (JSON)</button>'+
     '<button class="btn-line" id="expCsv" style="margin-bottom:8px">⬇ Export Knocks (CSV)</button>'+
     '<button class="btn-line" id="impBtn" style="margin-bottom:8px">⬆ Import / Merge Backup</button>'+
@@ -4468,7 +4785,7 @@ function settingsSheet(){
     $('#cloudStat').textContent=state.cloud.on?'Sync on — connecting…':'Sync off — leaderboard is local to this device';
     if(state.cloud.on&&!cloudBase())toast('Enter your Supabase project URL to sync');
   };
-  $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');};
+  $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
   $('#expCsv').onclick=function(){
     var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Notes']];
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
@@ -4745,6 +5062,7 @@ function injectManifest(){
 }
 function init(){
   injectManifest();
+  backupNudge();
   /* Home-screen (standalone) web apps trap external links inside the app shell on iOS,
      leaving the user stuck with no way back. Pop any external http(s) link out to the
      real browser so it behaves like a normal website link. mailto:, tel:, in-app and
