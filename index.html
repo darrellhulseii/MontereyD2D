@@ -836,6 +836,23 @@ a.btn-line{text-decoration:none}
 .q-photo{margin-top:10px}
 .q-photo img{max-width:100%;border-radius:9px;margin-top:8px;border:1px solid var(--border2)}
 .q-mini{font-size:11px;color:var(--faint)}
+.q-sql{white-space:pre-wrap;word-break:break-word;font-size:11px;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:10px;color:var(--ink);max-height:50vh;overflow:auto;font-family:monospace;line-height:1.5}
+.rv-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:14px 0 6px}
+.rv-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.rv-badge{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.rv-main{flex:1;min-width:0}
+.rv-ttl{font-size:13px;color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-dist{font-size:12px;font-weight:700;color:var(--sky);white-space:nowrap}
+.rv-go{font-size:17px;flex:none}
+.bt-chart{display:flex;align-items:flex-end;gap:3px;height:96px;margin:12px 0 2px}
+.bt-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.bt-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end}
+.bt-bar{width:100%;background:rgba(0,174,239,.35);border-radius:3px 3px 0 0;min-height:2px}
+.bt-bar.best{background:var(--green)}
+.bt-x{font-size:8.5px;color:var(--faint);margin-top:3px}
+.bt-note{font-size:12px;color:var(--ink);background:rgba(0,200,83,.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:8px 10px;margin-top:8px;line-height:1.5}
+.bt-mini{font-size:10.5px;color:var(--faint);margin-top:8px;line-height:1.45}
 </style>
 </head>
 <body>
@@ -980,6 +997,7 @@ a.btn-line{text-decoration:none}
   <section class="screen" id="screen-pipeline">
     <div class="scr-title">📋 Pipeline</div>
     <div class="scr-sub">Every door you've logged — names, addresses, appointments, follow-ups and installs.</div>
+    <button class="btn orange" id="revisitBtn" style="margin:0 0 12px" onclick="revisitSheet()">🔁 Smart revisit — closest first</button>
     <div class="chips" id="plChips"></div>
     <div id="plScheduled"></div>
     <div id="plList"></div>
@@ -996,6 +1014,7 @@ a.btn-line{text-decoration:none}
     </div>
     <button class="btn-line" id="eodBtn" style="margin-bottom:12px">📋 End-of-day report</button>
     <div class="card" id="sessionCard"><div id="sessionBody"></div></div>
+    <div class="card" id="bestTimeCard"><div id="bestTimeBody"></div></div>
     <div class="card">
       <div class="card-h">💵 Earnings <span class="ch-r">installed vs pending</span></div>
       <div id="earnGrid"></div>
@@ -1356,7 +1375,7 @@ function migrate(){
 }
 var state=loadState()||migrate()||{};
 state.knocks=state.knocks||[]; state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
-state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true};
+state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true}; if(state.cloud.shareLeads===undefined)state.cloud.shareLeads=false;
 state.radar=state.radar||{token:'',on:true,proxy:''};
 (function(){
   if(!state.reps.length){
@@ -3572,6 +3591,64 @@ function sessionMilesSheet(id){
     '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Skip</button><button class="btn" id="sMilesSave">Save</button></div>');
   $('#sMilesSave').onclick=function(){ var v=parseFloat(($('#sMiles')||{}).value)||0; ss.miles=v<0?0:v; persist(); closeSheet(); renderSession(); toast('Shift saved'); };
 }
+function revisitSheet(){
+  var rid=state.currentRepId, cp=(typeof curPos!=='undefined')?curPos:null;
+  var REV=['nothome','nothome2','nothome3','nothome4','nothome5','gated'];
+  function lastTs(k){return k.updatedTs||k.ts||0;}
+  function ago(t){ if(!t)return 'a while ago'; var s=(Date.now()-t)/1000; if(s<3600)return Math.max(1,Math.round(s/60))+'m ago'; if(s<86400)return Math.round(s/3600)+'h ago'; return Math.round(s/86400)+'d ago'; }
+  function dist(k){ return (cp&&k.lat!=null&&k.lng!=null)?distM(cp.lat,cp.lng,k.lat,k.lng):Infinity; }
+  function distLbl(k){ var d=dist(k); if(!isFinite(d))return ''; var mi=d/1609.34; return mi<0.1?(Math.round(d)+' m'):(mi.toFixed(mi<10?1:0)+' mi'); }
+  function goUrl(k){ return k.lat!=null?('https://www.google.com/maps/dir/?api=1&destination='+k.lat+','+k.lng+'&travelmode=walking'):(k.address?('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(k.address)+'&travelmode=walking'):''); }
+  var list=state.knocks.filter(function(k){return k.repId===rid && REV.indexOf(k.disp)>=0;});
+  var dayEnd=new Date(); dayEnd.setHours(23,59,59,999); dayEnd=dayEnd.getTime();
+  var due=state.knocks.filter(function(k){return k.repId===rid && (k.disp==='followup'||k.disp==='appt') && k.schedule && (new Date(k.schedule)).getTime()<=dayEnd;});
+  list.sort(function(a,b){var da=dist(a),db=dist(b); if(da!==db)return da-db; return lastTs(a)-lastTs(b);});
+  due.sort(function(a,b){return (new Date(a.schedule)).getTime()-(new Date(b.schedule)).getTime();});
+  function row(k){
+    var d=DMAP[k.disp]||DISPOS[0];
+    var title=k.firstName||k.address||(k.lat!=null?('Pin '+k.lat.toFixed(4)+', '+k.lng.toFixed(4)):'Door');
+    var sub=[]; if(k.address&&k.firstName)sub.push(k.address); sub.push('seen '+ago(lastTs(k)));
+    var dl=distLbl(k), go=goUrl(k);
+    return '<div class="rv-row" data-go="'+esc(go)+'">'+
+      '<span class="rv-badge" style="background:'+d.color+'">'+d.icon+'</span>'+
+      '<div class="rv-main"><div class="rv-ttl">'+esc(title)+'</div><div class="rv-sub">'+esc(sub.join(' \u00b7 '))+'</div></div>'+
+      (dl?'<span class="rv-dist">'+dl+'</span>':'')+
+      (go?'<span class="rv-go">🧭</span>':'')+'</div>';
+  }
+  var body='';
+  if(due.length) body+='<div class="rv-h">\u23f0 Callbacks &amp; appointments due</div>'+due.map(row).join('');
+  body+='<div class="rv-h">🚪 Not-homes to try again'+(cp?' (closest first)':'')+'</div>';
+  body+= list.length?list.map(row).join(''):'<div class="q-hint">No not-homes logged yet for you.</div>';
+  openSheet(
+    '<div class="sheet-title">🔁 Smart revisit</div>'+
+    '<div class="sheet-desc">Doors worth another knock \u2014 due callbacks first, then your not-homes'+(cp?', sorted by how close they are to you right now':'')+'.</div>'+
+    (cp?'':'<button class="btn-line" id="rvLoc" style="margin-bottom:10px">📍 Use my location to sort by distance</button>')+
+    '<div id="rvList">'+body+'</div>'+
+    '<button class="btn-line" style="margin-top:10px" onclick="closeSheet()">Close</button>'
+  );
+  $$('.rv-row',sheetEl).forEach(function(r){ r.onclick=function(){ var go=r.dataset.go; if(go)window.open(go,'_blank','noopener'); }; });
+  var rl=$('#rvLoc'); if(rl)rl.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){curPos={lat:b.lat,lng:b.lng,acc:b.acc}; closeSheet(); revisitSheet();} else toast('Location unavailable'); },8000,12); };
+}
+function renderBestTime(){
+  var box=$('#bestTimeBody'); if(!box)return;
+  var rid=state.currentRepId, H={};
+  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead')return; var h=new Date(k.ts).getHours(); var o=H[h]||(H[h]={d:0,c:0}); o.d++; if(CONTACT.indexOf(k.disp)>=0)o.c++; });
+  var hrs=[]; for(var h=7;h<=21;h++){ var o=H[h]||{d:0,c:0}; hrs.push({h:h,d:o.d,c:o.c,r:o.d?o.c/o.d:0}); }
+  var total=hrs.reduce(function(t,x){return t+x.d;},0);
+  var head='<div class="card-h">\u23f0 Best time to knock <span class="ch-r">your contact rate by hour</span></div>';
+  if(total<10){ box.innerHTML=head+'<div class="q-hint">Log a few more doors and this will show which hours convert best for you.</div>'; return; }
+  var maxR=Math.max.apply(null,hrs.map(function(x){return x.r;}))||1;
+  var ranked=hrs.filter(function(x){return x.d>=3;}).slice().sort(function(a,b){return b.r-a.r;});
+  var best=ranked[0];
+  var bars=hrs.map(function(x){
+    var pct=Math.round(x.r*100), hgt=Math.round((x.r/maxR)*100);
+    var lbl=(x.h%12===0?12:x.h%12)+(x.h<12?'a':'p');
+    var on=best&&x.h===best.h;
+    return '<div class="bt-col"><div class="bt-bar-wrap"><div class="bt-bar'+(on?' best':'')+'" style="height:'+(x.d?Math.max(hgt,4):0)+'%" title="'+pct+'% of '+x.d+' doors"></div></div><div class="bt-x">'+lbl+'</div></div>';
+  }).join('');
+  var note=best?('Your strongest hour is <b>'+((best.h%12===0?12:best.h%12)+(best.h<12?' AM':' PM'))+'</b> at <b>'+Math.round(best.r*100)+'%</b> contact rate \u2014 stack your toughest streets there.'):'';
+  box.innerHTML=head+'<div class="bt-chart">'+bars+'</div>'+(note?'<div class="bt-note">'+note+'</div>':'')+'<div class="bt-mini">Bars = share of doors that became a conversation or better, based on '+total+' of your logged doors.</div>';
+}
 function renderSession(){
   var box=$('#sessionBody'); if(!box)return;
   var a=activeSession(), now=Date.now();
@@ -3704,6 +3781,7 @@ function renderStats(){
   renderEarnings();
   var _eb=$('#eodBtn'); if(_eb)_eb.onclick=eodSheet;
   renderSession();
+  renderBestTime();
   renderWeekReport();
   var _wg=$('#wrGoals'); if(_wg)_wg.onclick=goalsSheet;
 }
@@ -4407,12 +4485,25 @@ function cloudHelpSheet(){
 /* ════════ LEAD CLOUD SYNC (Supabase kr_leads — cross-device shared truth) ════════ */
 var SUPA_LEADS='kr_leads';
 var leadsPollTimer=null, leadsPushTimer=null, leadsQueue={};
-function leadsPushOne(k){ if(!cloudReady()||!k)return; leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; scheduleLeadsPush(); }
-function leadsPushTomb(id){ if(!cloudReady()||!id)return; leadsQueue[id]={id:id,data:{id:id},updated_ts:Date.now(),deleted:true}; scheduleLeadsPush(); }
-function leadsPushRows(rows){ if(!cloudReady()||!rows||!rows.length)return; rows.forEach(function(k){ if(k&&k.id)leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; }); scheduleLeadsPush(); }
+var RLS_SQL='-- Complete Home Field System \u2014 lock down customer data\n'+
+'-- Supabase dashboard > SQL editor > New query > paste > Run\n\n'+
+'-- Leaderboard (rep stats only) stays team-readable:\n'+
+'drop policy if exists "team access" on kr_leaderboard;\n'+
+'create policy "lb read" on kr_leaderboard for select using (true);\n'+
+'create policy "lb insert" on kr_leaderboard for insert with check (true);\n'+
+'create policy "lb update" on kr_leaderboard for update using (true) with check (true);\n\n'+
+'-- Leads table holds customer names, addresses, phones \u2014 remove public read:\n'+
+'drop policy if exists "team leads" on kr_leads;\n'+
+'create policy "leads insert" on kr_leads for insert with check (true);\n'+
+'create policy "leads update" on kr_leads for update using (true) with check (true);\n'+
+'-- (no select policy = customer rows cannot be read with the public key)\n';
+function leadsShare(){return cloudReady()&&!!(state.cloud&&state.cloud.shareLeads);}
+function leadsPushOne(k){ if(!leadsShare()||!k)return; leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; scheduleLeadsPush(); }
+function leadsPushTomb(id){ if(!leadsShare()||!id)return; leadsQueue[id]={id:id,data:{id:id},updated_ts:Date.now(),deleted:true}; scheduleLeadsPush(); }
+function leadsPushRows(rows){ if(!leadsShare()||!rows||!rows.length)return; rows.forEach(function(k){ if(k&&k.id)leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; }); scheduleLeadsPush(); }
 function scheduleLeadsPush(){ clearTimeout(leadsPushTimer); leadsPushTimer=setTimeout(flushLeads,1000); }
 function flushLeads(){
-  if(!cloudReady())return;
+  if(!leadsShare())return;
   var rows=Object.keys(leadsQueue).map(function(id){return leadsQueue[id];});
   if(!rows.length)return;
   leadsQueue={};
@@ -4752,6 +4843,12 @@ function settingsSheet(){
       '<input type="checkbox" id="cloudOn"'+(c.on?' checked':'')+'></label>'+
     '<div id="cloudStat" style="font-size:11.5px;color:var(--faint);margin:7px 2px 16px">'+
       (c.on?'Sync on — '+cloudState:'Sync off — leaderboard is local to this device')+'</div>'+
+    '<div class="section-lbl" style="margin-top:2px">🔒 Customer data &amp; privacy</div>'+
+    '<label class="toggle-row"><span>Share customer leads to the cloud</span>'+
+      '<input type="checkbox" id="cloudShareLeads"'+(c.shareLeads?' checked':'')+'></label>'+
+    '<div class="help-note" style="margin:7px 0 10px">When <b>off</b> (recommended), customer names, addresses and phone numbers stay on this phone and are never uploaded \u2014 only leaderboard stats sync. Turn on only if your team needs the same lead list on every device, and lock your database first with the button below.</div>'+
+    '<button class="btn-line" id="copyRls" style="margin-bottom:8px">🔒 Copy database lock-down SQL</button>'+
+    '<div class="help-note" style="margin:-2px 0 16px">Paste it in your Supabase SQL editor. It removes open read access on the lead table so a leaked key can\u2019t pull customer info. Cross-device lead <i>viewing</i> then needs Supabase Auth.</div>'+
     '<div class="section-lbl">💾 Data</div>'+
     '<div class="help-note" style="margin:-2px 0 10px" id="bkStatus">'+backupStatusText()+'</div>'+
     '<button class="btn-line" id="expJson" style="margin-bottom:8px">⬇ Export Backup (JSON)</button>'+
@@ -4785,6 +4882,8 @@ function settingsSheet(){
     $('#cloudStat').textContent=state.cloud.on?'Sync on — connecting…':'Sync off — leaderboard is local to this device';
     if(state.cloud.on&&!cloudBase())toast('Enter your Supabase project URL to sync');
   };
+  var _csl=$('#cloudShareLeads'); if(_csl)_csl.onchange=function(){ state.cloud.shareLeads=_csl.checked; persist(); toast(_csl.checked?'\u26a0 Leads will now sync \u2014 lock your database with the SQL button':'\u2713 Customer info stays on this device'); };
+  var _rls=$('#copyRls'); if(_rls)_rls.onclick=function(){ var sql=RLS_SQL; var show=function(){openSheet('<div class="sheet-title">\ud83d\udd12 Lock-down SQL</div><div class="sheet-desc">Paste in Supabase \u203a SQL editor \u203a Run.</div><pre class="q-sql">'+esc(sql)+'</pre><button class="btn-line" style="margin-top:10px" onclick="closeSheet()">Close</button>');}; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sql).then(function(){toast('\u2713 Security SQL copied \u2014 paste in Supabase');},show);}else{show();} };
   $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
   $('#expCsv').onclick=function(){
     var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Notes']];
