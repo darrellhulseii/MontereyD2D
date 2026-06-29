@@ -862,6 +862,10 @@ a.btn-line{text-decoration:none}
 .fn-list{margin:0;padding-left:16px}
 .fn-list li{font-size:12px;color:var(--ink);line-height:1.5;margin-bottom:5px}
 .fn-src{font-size:10px;color:var(--faint);margin-top:6px;line-height:1.4}
+.cp-card{margin-top:2px}
+.cp-row{border-top:1px solid var(--border);padding:9px 0}
+.cp-obj{font-size:12.5px;font-weight:700;color:#ff8a3c;margin-bottom:3px}
+.cp-ans{font-size:12px;color:var(--ink);line-height:1.5}
 </style>
 </head>
 <body>
@@ -2675,8 +2679,16 @@ var FIBER_NEWS=[
     'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
     'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
     'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
-    'Shutting down most copper / DSL by end of 2029 and pushing fiber + wireless "convergence" bundles hard.'
+    'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
+    'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
+    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.'
   ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Jun 2026)'}
+];
+var AT_T_COUNTERS=[
+  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $49.99 flat with no wireless required; if they already have Verizon, Mobile + Home takes $15 off without switching carriers.'},
+  {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well (~369 Mbps median) \u2014 but that is a national average, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
+  {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
+  {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
 ];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
@@ -2687,6 +2699,9 @@ function renderFiberNews(){
        '<ul class="fn-list">'+nw.items.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>'+
        '<div class="fn-src">Sources: '+esc(nw.src)+'</div></div>';
   });
+  h+='<div class="fn-card cp-card"><div class="fn-h"><span class="fn-co">🎯 Answering AT&T at the door</span><span class="fn-tag comp">COUNTER-PITCH</span></div>';
+  AT_T_COUNTERS.forEach(function(c){ h+='<div class="cp-row"><div class="cp-obj">'+esc(c.obj)+'</div><div class="cp-ans">'+esc(c.ans)+'</div></div>'; });
+  h+='<div class="fn-src">Keep it honest \u2014 AT&T fiber is a strong product. Win on availability, flat pricing, and no wireless lock-in.</div></div>';
   box.innerHTML=h;
 }
 function renderMarketIntel(){
