@@ -853,6 +853,15 @@ a.btn-line{text-decoration:none}
 .bt-x{font-size:8.5px;color:var(--faint);margin-top:3px}
 .bt-note{font-size:12px;color:var(--ink);background:rgba(0,200,83,.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:8px 10px;margin-top:8px;line-height:1.5}
 .bt-mini{font-size:10.5px;color:var(--faint);margin-top:8px;line-height:1.45}
+.fn-card{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:12px 13px;margin-bottom:10px}
+.fn-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.fn-co{font-weight:800;font-size:14px;color:var(--ink)}
+.fn-tag{font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.fn-tag.ours{background:rgba(0,200,83,.15);color:var(--green)}
+.fn-tag.comp{background:rgba(255,138,60,.15);color:#ff8a3c}
+.fn-list{margin:0;padding-left:16px}
+.fn-list li{font-size:12px;color:var(--ink);line-height:1.5;margin-bottom:5px}
+.fn-src{font-size:10px;color:var(--faint);margin-top:6px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -952,6 +961,9 @@ a.btn-line{text-decoration:none}
 
     <div class="section-lbl">📊 ISP Market Intel — IE &amp; South Bay</div>
     <div id="marketIntel"></div>
+
+    <div class="section-lbl">📣 Fiber News — June 2026</div>
+    <div id="fiberNews"></div>
 
     <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Log an Internet Outage</button>
     <div class="card og-card">
@@ -2646,6 +2658,37 @@ function backupNudge(){
     if(days>=7)setTimeout(function(){toast('<b>💾 Back up your data</b> \u2014 '+(t?('it has been '+Math.floor(days)+' days'):'you have not backed up yet')+'. Settings \u25b8 Data \u25b8 Export Backup.',null,null,6500);},4500);
   }catch(e){}
 }
+var FIBER_NEWS=[
+  {co:'Frontier \u2014 a Verizon Company', ours:true, color:'#ee1d2e', items:[
+    'Jan 20, 2026: Verizon closed its $20B acquisition \u2014 Frontier now operates as "Frontier, a Verizon Company."',
+    'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
+    'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
+    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.'
+  ], src:'Verizon & Frontier press releases, Broadband Communities, DCD (Jan\u2013May 2026)'},
+  {co:'EarthLink', ours:true, color:'#f7901e', items:[
+    'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
+    'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
+    'Network-rental model gives near-nationwide reach (~48 states) with a customer-service-first focus.',
+    'Keeps topping customer-satisfaction surveys for price and support; new-customer intro pricing runs through 6/30/2026.'
+  ], src:'EarthLink.net, HighSpeedInternet, Allconnect (May\u2013Jun 2026)'},
+  {co:'AT&T Fiber', ours:false, color:'#00a8e0', items:[
+    'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
+    'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
+    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
+    'Shutting down most copper / DSL by end of 2029 and pushing fiber + wireless "convergence" bundles hard.'
+  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Jun 2026)'}
+];
+function renderFiberNews(){
+  var box=$('#fiberNews'); if(!box)return;
+  var h='<div class="mi-note">Verified from public sources, June 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
+  FIBER_NEWS.forEach(function(nw){
+    h+='<div class="fn-card" style="border-left:3px solid '+nw.color+'">'+
+       '<div class="fn-h"><span class="fn-co">'+esc(nw.co)+'</span><span class="fn-tag '+(nw.ours?'ours':'comp')+'">'+(nw.ours?'OURS':'COMPETITOR')+'</span></div>'+
+       '<ul class="fn-list">'+nw.items.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>'+
+       '<div class="fn-src">Sources: '+esc(nw.src)+'</div></div>';
+  });
+  box.innerHTML=h;
+}
 function renderMarketIntel(){
   var box=$('#marketIntel'); if(!box)return;
   var h='';
@@ -2863,6 +2906,7 @@ function openIntel(){
   selectCity(cityIdx);
   loadPublicOutages();
   renderMarketIntel();
+  renderFiberNews();
 }
 function nearestCity(){
   if(!curPos)return;
