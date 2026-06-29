@@ -1455,21 +1455,29 @@ var curPos=null;
 /* sample GPS for a few seconds and keep the MOST accurate fix (first fix is usually coarse) */
 function bestFix(cb,maxWait,targetAcc){
   if(!navigator.geolocation){cb&&cb(null);return;}
-  maxWait=maxWait||7000; targetAcc=targetAcc||8;
-  var best=null,done=false,wid=null,timer=null;
-  function finish(){if(done)return;done=true;if(wid!=null){try{navigator.geolocation.clearWatch(wid);}catch(e){}}if(timer)clearTimeout(timer);cb&&cb(best);}
+  maxWait=maxWait||12000; targetAcc=targetAcc||6;
+  var best=null,samples=[],done=false,wid=null,timer=null,settle=null;
+  function pick(){
+    if(!best)return null;
+    var b=best.acc, near=samples.filter(function(s){return s.acc<=Math.max(b*1.6,b+6);});
+    if(near.length<2)return best;
+    var w=0,la=0,lo=0;
+    near.forEach(function(s){var wt=1/(s.acc*s.acc+1); w+=wt; la+=s.lat*wt; lo+=s.lng*wt;});
+    return {lat:la/w,lng:lo/w,acc:b};
+  }
+  function finish(){if(done)return;done=true;if(wid!=null){try{navigator.geolocation.clearWatch(wid);}catch(e){}}if(timer)clearTimeout(timer);if(settle)clearTimeout(settle);cb&&cb(pick());}
   try{
     wid=navigator.geolocation.watchPosition(function(p){
-      var a=p.coords.accuracy;
-      if(best==null||a<best.acc)best={lat:p.coords.latitude,lng:p.coords.longitude,acc:a};
-      if(best.acc<=targetAcc)finish();
+      var a=p.coords.accuracy, s={lat:p.coords.latitude,lng:p.coords.longitude,acc:a};
+      samples.push(s); if(best==null||a<best.acc)best=s;
+      if(best.acc<=targetAcc&&!settle)settle=setTimeout(finish,1500);
     },function(){if(best==null)finish();},{enableHighAccuracy:true,maximumAge:0,timeout:maxWait});
   }catch(e){finish();return;}
   timer=setTimeout(finish,maxWait);
 }
 function startGeo(cb){
   if(!navigator.geolocation){cb&&cb(null);return;}
-  bestFix(function(b){ if(b)curPos={lat:b.lat,lng:b.lng,acc:b.acc}; if(curPos)updatePosMarker(curPos.acc); cb&&cb(curPos); },7000,8);
+  bestFix(function(b){ if(b)curPos={lat:b.lat,lng:b.lng,acc:b.acc}; if(curPos)updatePosMarker(curPos.acc); cb&&cb(curPos); },10000,7);
   try{
     navigator.geolocation.watchPosition(function(p){
       curPos={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
@@ -1489,7 +1497,7 @@ function ensurePin(k){
     else if(kk.lat==null&&curPos){kk.lat=curPos.lat; kk.lng=curPos.lng; kk.acc=curPos.acc;}
     else return;
     kk.updatedTs=Date.now(); persist(); leadsPushOne(kk); refreshMarkers();
-  },7000,8);
+  },11000,6);
 }
 
 /* ════════ GOOGLE MAPS ════════ */
@@ -4127,7 +4135,7 @@ function territorySheet(id){
     (t?'<button class="btn-line btn-danger" id="terrRemove" style="margin-top:8px">Remove territory</button>':'')
   );
   var R=$('#terrR'); if(R)R.oninput=function(){$('#terrRVal').textContent=fmtDist(this.value);};
-  var L=$('#terrLoc'); if(L)L.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){cen={lat:b.lat,lng:b.lng}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · ±'+Math.round(b.acc)+' m'; toast('Center set to your location');} else toast('Location unavailable'); },8000,8); };
+  var L=$('#terrLoc'); if(L)L.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){cen={lat:b.lat,lng:b.lng}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · ±'+Math.round(b.acc)+' m'; toast('Center set to your location');} else toast('Location unavailable'); },10000,7); };
   var C=$('#terrCtr'); if(C)C.onclick=function(){ if(map){var c=map.getCenter(); cen={lat:c.lat(),lng:c.lng()}; var el=$('#terrCenterLbl'); if(el)el.textContent=fmtLatLng(cen)+' · map center';} else toast('Open the Map tab first'); };
   var S=$('#terrSave'); if(S)S.onclick=function(){ if(!cen){toast('Set a center point first');return;} state.territories=state.territories||{}; state.territories[id]={lat:cen.lat,lng:cen.lng,r:+(($('#terrR')||{}).value||r0)}; persist(); cloudPushTerritories(); drawTerritories(); closeSheet(); toast('Territory saved for '+esc(info.name)); switchTab('map'); };
   var RM=$('#terrRemove'); if(RM)RM.onclick=function(){ if(state.territories)delete state.territories[id]; persist(); cloudPushTerritories(); drawTerritories(); closeSheet(); toast('Territory removed'); };
@@ -5210,7 +5218,7 @@ function init(){
     bestFix(function(b){
       if(b){curPos={lat:b.lat,lng:b.lng,acc:b.acc}; if(map){map.setCenter(curPos);map.setZoom(18);} updatePosMarker(b.acc); toast('\ud83d\udccd Located \u00b7 \u00b1'+Math.round(b.acc)+' m');}
       else { toast('Location unavailable \u2014 enable GPS / permissions'); }
-    },8000,8);
+    },12000,6);
   };
   $('#outageBtn').onclick=function(){
     outageVisible=!outageVisible;
