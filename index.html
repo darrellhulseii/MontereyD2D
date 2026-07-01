@@ -866,6 +866,7 @@ a.btn-line{text-decoration:none}
 .cp-row{border-top:1px solid var(--border);padding:9px 0}
 .cp-obj{font-size:12.5px;font-weight:700;color:#ff8a3c;margin-bottom:3px}
 .cp-ans{font-size:12px;color:var(--ink);line-height:1.5}
+.sess-note2{font-size:10.5px;color:var(--faint);margin-top:8px;text-align:center}
 </style>
 </head>
 <body>
@@ -3636,6 +3637,19 @@ function goalsSheet(){
 }
 var MILE_RATE=0.70;
 var sessTimer=null;
+var milesWatchId=null, milesLast=null, _milesPersistT=null;
+function persistMilesSoon(){ var s=activeSession(); if(s){var lm=$('#sessMiles'); if(lm)lm.textContent=(Math.round((s.miles||0)*10)/10)+' mi';} if(_milesPersistT)return; _milesPersistT=setTimeout(function(){_milesPersistT=null; persist();},5000); }
+function startMileTracking(){
+  if(milesWatchId!=null||!navigator.geolocation)return; milesLast=null;
+  try{ milesWatchId=navigator.geolocation.watchPosition(function(pp){
+    var a=pp.coords.accuracy; if(a>60)return;
+    var cur={lat:pp.coords.latitude,lng:pp.coords.longitude,ts:Date.now()};
+    if(milesLast){ var d=distM(milesLast.lat,milesLast.lng,cur.lat,cur.lng), dt=(cur.ts-milesLast.ts)/1000, spd=dt>0?d/dt:0;
+      if(d>=12){ if(spd<45){ var s=activeSession(); if(s){ s.miles=(s.miles||0)+d/1609.34; s.autoMiles=true; persistMilesSoon(); } } milesLast=cur; } }
+    else { milesLast=cur; }
+  }, function(){}, {enableHighAccuracy:true,maximumAge:0,timeout:20000}); }catch(e){}
+}
+function stopMileTracking(){ if(milesWatchId!=null){try{navigator.geolocation.clearWatch(milesWatchId);}catch(e){}} milesWatchId=null; milesLast=null; if(_milesPersistT){clearTimeout(_milesPersistT);_milesPersistT=null;} }
 function activeSession(){ return (state.sessions||[]).filter(function(x){return x.repId===state.currentRepId && !x.endTs;}).slice(-1)[0]||null; }
 function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead';}).length; }
 function fmtDur(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60; return h>0?(h+'h '+m+'m'):(m+'m'); }
@@ -3643,18 +3657,18 @@ function clockIn(){
   if(activeSession()){toast('A shift is already running');return;}
   state.sessions=state.sessions||[];
   state.sessions.push({id:uid(),repId:state.currentRepId,startTs:Date.now(),endTs:null,miles:0});
-  persist(); renderSession(); toast('\u23f1\ufe0f Started \u2014 knocks now count toward this shift');
+  persist(); renderSession(); startMileTracking(); toast('\u23f1\ufe0f Started \u2014 tracking time, doors and miles for this shift');
 }
 function clockOut(){
   var ss=activeSession(); if(!ss){toast('No shift is running');return;}
-  ss.endTs=Date.now(); persist(); renderSession(); sessionMilesSheet(ss.id);
+  ss.endTs=Date.now(); stopMileTracking(); persist(); renderSession(); sessionMilesSheet(ss.id);
 }
 function sessionMilesSheet(id){
   var ss=(state.sessions||[]).filter(function(x){return x.id===id;})[0]; if(!ss)return;
   var end=ss.endTs||Date.now();
   openSheet('<div class="sheet-title">\u23f1\ufe0f Shift logged</div>'+
-    '<div class="sheet-desc">'+workedDoorsBetween(ss.repId,ss.startTs,end)+' doors in '+fmtDur(end-ss.startTs)+'. Add the miles you drove for this shift \u2014 it counts toward your 1099 mileage deduction.</div>'+
-    '<div class="field"><label>Miles driven this shift</label><input type="number" inputmode="decimal" id="sMiles" min="0" placeholder="e.g. 24" value="'+(ss.miles||'')+'"></div>'+
+    '<div class="sheet-desc">'+workedDoorsBetween(ss.repId,ss.startTs,end)+' doors in '+fmtDur(end-ss.startTs)+'.'+(ss.autoMiles?(' We tracked about '+(Math.round((ss.miles||0)*10)/10)+' mi by GPS \u2014 adjust if needed.'):' Add the miles you drove for this shift.')+' Counts toward your 1099 mileage deduction.</div>'+
+    '<div class="field"><label>Miles driven this shift</label><input type="number" inputmode="decimal" id="sMiles" min="0" placeholder="e.g. 24" value="'+(ss.miles?(Math.round(ss.miles*10)/10):'')+'"></div>'+
     '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Skip</button><button class="btn" id="sMilesSave">Save</button></div>');
   $('#sMilesSave').onclick=function(){ var v=parseFloat(($('#sMiles')||{}).value)||0; ss.miles=v<0?0:v; persist(); closeSheet(); renderSession(); toast('Shift saved'); };
 }
@@ -3727,8 +3741,8 @@ function renderSession(){
   if(a){
     var dur=now-a.startTs, doors=workedDoorsBetween(a.repId,a.startTs,now), hrs=dur/3600000, dph=hrs>0.02?(doors/hrs):0;
     h+='<div class="sess-live"><div class="sess-clock" id="sessClock">'+fmtDur(dur)+'</div>'+
-       '<div class="sess-mini"><b>'+doors+'</b> doors \u00b7 <b>'+(dph?dph.toFixed(1):'0')+'</b>/hr</div></div>'+
-       '<button class="btn" id="clockOutBtn" style="margin-top:10px">\u23f9 Stop</button>';
+       '<div class="sess-mini"><b>'+doors+'</b> doors \u00b7 <b>'+(dph?dph.toFixed(1):'0')+'</b>/hr \u00b7 <b id="sessMiles">'+(Math.round((a.miles||0)*10)/10)+' mi</b></div></div>'+
+       '<button class="btn" id="clockOutBtn" style="margin-top:10px">\u23f9 Stop</button>'+'<div class="sess-note2">Miles auto-track by GPS while the shift runs.</div>';
   } else {
     h+='<div class="sess-idle">Tap Start to track your hours, doors-per-hour and miles for this shift.</div>'+
        '<button class="btn" id="clockInBtn">\u25b6 Start</button>';
@@ -3758,7 +3772,7 @@ function renderSession(){
   var co=$('#clockOutBtn'); if(co)co.onclick=clockOut;
   $$('.sess-addmi',box).forEach(function(b){b.onclick=function(){sessionMilesSheet(b.dataset.mi);};});
   if(sessTimer){clearInterval(sessTimer);sessTimer=null;}
-  if(a){ sessTimer=setInterval(function(){ var cl=$('#sessClock'), aa=activeSession(); if(cl&&aa){cl.textContent=fmtDur(Date.now()-aa.startTs);} else if(!aa){clearInterval(sessTimer);sessTimer=null;} },1000); }
+  if(a){ sessTimer=setInterval(function(){ var cl=$('#sessClock'), aa=activeSession(); if(cl&&aa){cl.textContent=fmtDur(Date.now()-aa.startTs); var lm=$('#sessMiles'); if(lm)lm.textContent=(Math.round((aa.miles||0)*10)/10)+' mi';} else if(!aa){clearInterval(sessTimer);sessTimer=null;} },1000); }
 }
 function renderStats(){
   var ks=myKnocks();
@@ -5229,6 +5243,7 @@ function injectManifest(){
 function init(){
   injectManifest();
   backupNudge();
+  if(activeSession())startMileTracking();
   /* Home-screen (standalone) web apps trap external links inside the app shell on iOS,
      leaving the user stuck with no way back. Pop any external http(s) link out to the
      real browser so it behaves like a normal website link. mailto:, tel:, in-app and
