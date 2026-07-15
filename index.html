@@ -4530,11 +4530,82 @@ var cloudReps={}, cloudState='…', cloudTimer=null, cloudPollTimer=null;
 function cloudBase(){return ((((state.cloud&&state.cloud.url)||SUPA_URL))||'').trim().replace(/\/+$/,'');}
 function cloudKey(){return (((state.cloud&&state.cloud.key)||'').trim())||SUPA_KEY;}
 function cloudHeaders(extra){
-  var h={'apikey':cloudKey(),'Authorization':'Bearer '+cloudKey(),'Content-Type':'application/json'};
+  var au=state.cloud&&state.cloud.auth, bearer=(au&&au.token)?au.token:cloudKey();
+  var h={'apikey':cloudKey(),'Authorization':'Bearer '+bearer,'Content-Type':'application/json'};
   if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});
   return h;
 }
 function cloudReady(){return !!(state.cloud&&state.cloud.on&&cloudBase()&&cloudKey());}
+var authTimer=null;
+function authed(){ return !!(state.cloud&&state.cloud.auth&&state.cloud.auth.token); }
+function authUser(){ return (state.cloud&&state.cloud.auth)||null; }
+function linkRepToAuth(){
+  var au=state.cloud&&state.cloud.auth; if(!au||!au.userId)return;
+  var rep=(state.reps||[]).filter(function(r){return r.authId===au.userId;})[0];
+  if(!rep){ rep=(state.reps||[]).filter(function(r){return !r.authId;})[0];
+    if(rep){ rep.authId=au.userId; }
+    else { rep={id:uid(),name:(au.email?au.email.split('@')[0]:'Rep'),color:REP_COLORS[(state.reps||[]).length%REP_COLORS.length],createdTs:Date.now(),authId:au.userId}; state.reps.push(rep); } }
+  state.currentRepId=rep.id;
+}
+function authStore(j,email){
+  state.cloud=state.cloud||{url:'',key:'',on:true};
+  state.cloud.on=true;
+  state.cloud.auth={ token:j.access_token, refresh:j.refresh_token, exp:Date.now()+((j.expires_in||3600)*1000), email:(j.user&&j.user.email)||email||'', userId:(j.user&&j.user.id)||'' };
+  linkRepToAuth(); persist();
+}
+function authSignIn(email,pw,cb){
+  var base=cloudBase(); if(!base){cb&&cb('No Supabase URL set in Settings');return;}
+  fetch(base+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':cloudKey(),'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pw})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(x){ if(x.ok&&x.j.access_token){authStore(x.j,email); cb&&cb(null);} else {cb&&cb((x.j&&(x.j.error_description||x.j.msg||x.j.error))||'Sign-in failed');} })
+    .catch(function(){cb&&cb('Network error');});
+}
+function authSignUp(email,pw,cb){
+  var base=cloudBase(); if(!base){cb&&cb('No Supabase URL set in Settings');return;}
+  fetch(base+'/auth/v1/signup',{method:'POST',headers:{'apikey':cloudKey(),'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pw})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(x){ if(x.ok&&x.j.access_token){authStore(x.j,email); cb&&cb(null,'in');} else if(x.ok){ cb&&cb(null,'confirm'); } else {cb&&cb((x.j&&(x.j.error_description||x.j.msg||x.j.error))||'Sign-up failed');} })
+    .catch(function(){cb&&cb('Network error');});
+}
+function authRefresh(cb){
+  var au=state.cloud&&state.cloud.auth; if(!au||!au.refresh){cb&&cb('no session');return;}
+  fetch(cloudBase()+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'apikey':cloudKey(),'Content-Type':'application/json'},body:JSON.stringify({refresh_token:au.refresh})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(x){ if(x.ok&&x.j.access_token){ state.cloud.auth.token=x.j.access_token; state.cloud.auth.refresh=x.j.refresh_token||au.refresh; state.cloud.auth.exp=Date.now()+((x.j.expires_in||3600)*1000); persist(); cb&&cb(null);} else { if(state.cloud)state.cloud.auth=null; persist(); cb&&cb('session expired'); } })
+    .catch(function(){cb&&cb('network');});
+}
+function authEnsure(cb){ var au=state.cloud&&state.cloud.auth; if(!au||!au.token){cb&&cb();return;} if(au.exp&&au.exp-Date.now()<120000){authRefresh(function(){cb&&cb();});}else{cb&&cb();} }
+function authSignOut(){ try{ if(authed())fetch(cloudBase()+'/auth/v1/logout',{method:'POST',headers:cloudHeaders()}); }catch(e){} if(state.cloud)state.cloud.auth=null; if(authTimer){clearInterval(authTimer);authTimer=null;} persist(); }
+function authInit(){ if(!authed())return; authEnsure(function(){ linkRepToAuth(); }); if(authTimer)clearInterval(authTimer); authTimer=setInterval(function(){ authEnsure(function(){}); },45*60000); }
+function authSheet(){
+  var mode={s:'in'};
+  function render(){
+    openSheet(
+      '<div class="sheet-title">🔐 '+(mode.s==='in'?'Sign in':'Create account')+'</div>'+
+      '<div class="sheet-desc">Sign in with your Complete Home account so your doors, stats and leads sync securely under your name.</div>'+
+      '<div class="field"><label>Email</label><input type="email" id="auEmail" inputmode="email" autocomplete="username" placeholder="you@email.com"></div>'+
+      '<div class="field"><label>Password</label><input type="password" id="auPw" autocomplete="'+(mode.s==='in'?'current-password':'new-password')+'" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"></div>'+
+      '<div id="auMsg" class="help-note" style="color:var(--red);display:none"></div>'+
+      '<button class="btn" id="auGo">'+(mode.s==='in'?'Sign in':'Create account')+'</button>'+
+      '<button class="btn-line" id="auSwap" style="margin-top:8px">'+(mode.s==='in'?'New rep? Create an account':'Have an account? Sign in')+'</button>'+
+      '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Cancel</button>'
+    );
+    $('#auSwap').onclick=function(){ mode.s=(mode.s==='in'?'up':'in'); render(); };
+    $('#auGo').onclick=function(){
+      var em=(($('#auEmail')||{}).value||'').trim(), pw=(($('#auPw')||{}).value||''), msg=$('#auMsg');
+      function err(t){ if(msg){msg.style.display='';msg.textContent=t;} }
+      if(!em||!pw){err('Enter your email and password');return;}
+      var go=$('#auGo'); go.disabled=true; go.textContent='\u2026';
+      var done=function(e,kind){ go.disabled=false; go.textContent=(mode.s==='in'?'Sign in':'Create account');
+        if(e){err(e);return;}
+        if(kind==='confirm'){ closeSheet(); toast('\u2713 Account created \u2014 check your email to confirm, then sign in'); return; }
+        closeSheet(); renderAll(); if(typeof cloudStart==='function')cloudStart(); authInit(); toast('\u2713 Signed in as '+((authUser()||{}).email||'you')); };
+      if(mode.s==='in')authSignIn(em,pw,function(e){done(e);}); else authSignUp(em,pw,done);
+    };
+  }
+  render();
+}
+
 function cloudStatus(s){
   cloudState=s;
   if(state.cloud&&state.cloud.on){var sy=$('#lbSync');if(sy)renderLeaderboard();}
@@ -4671,7 +4742,11 @@ var RLS_SQL='-- Complete Home Field System \u2014 lock down customer data\n'+
 'drop policy if exists "team leads" on kr_leads;\n'+
 'create policy "leads insert" on kr_leads for insert with check (true);\n'+
 'create policy "leads update" on kr_leads for update using (true) with check (true);\n'+
-'-- (no select policy = customer rows cannot be read with the public key)\n';
+'-- Signed-in reps CAN read/write leads (this is why you set up Auth):\n'+
+'create policy "leads auth read" on kr_leads for select to authenticated using (true);\n'+
+'create policy "leads auth insert" on kr_leads for insert to authenticated with check (true);\n'+
+'create policy "leads auth update" on kr_leads for update to authenticated using (true) with check (true);\n'+
+'-- Anonymous public key still cannot read customer rows.\n';
 function leadsShare(){return cloudReady()&&!!(state.cloud&&state.cloud.shareLeads);}
 function leadsPushOne(k){ if(!leadsShare()||!k)return; leadsQueue[k.id]={id:k.id,data:k,updated_ts:k.updatedTs||k.ts||Date.now(),deleted:false}; scheduleLeadsPush(); }
 function leadsPushTomb(id){ if(!leadsShare()||!id)return; leadsQueue[id]={id:id,data:{id:id},updated_ts:Date.now(),deleted:true}; scheduleLeadsPush(); }
@@ -5018,6 +5093,10 @@ function settingsSheet(){
       '<input type="checkbox" id="cloudOn"'+(c.on?' checked':'')+'></label>'+
     '<div id="cloudStat" style="font-size:11.5px;color:var(--faint);margin:7px 2px 16px">'+
       (c.on?'Sync on — '+cloudState:'Sync off — leaderboard is local to this device')+'</div>'+
+    '<div class="section-lbl" style="margin-top:2px">👤 Account</div>'+
+    (authed()
+      ? '<div class="help-note" style="margin:2px 0 8px">Signed in as <b>'+esc((authUser()||{}).email||'you')+'</b>. Your work syncs securely to your account.</div><button class="btn-line" id="authOut" style="margin-bottom:16px">Sign out</button>'
+      : '<div class="help-note" style="margin:2px 0 8px">Sign in so your work syncs under your name and locked lead sharing works across the team.</div><button class="btn" id="authIn" style="margin-bottom:16px">🔐 Sign in / create account</button>')+
     '<div class="section-lbl" style="margin-top:2px">🔒 Customer data &amp; privacy</div>'+
     '<label class="toggle-row"><span>Share customer leads to the cloud</span>'+
       '<input type="checkbox" id="cloudShareLeads"'+(c.shareLeads?' checked':'')+'></label>'+
@@ -5057,6 +5136,8 @@ function settingsSheet(){
     $('#cloudStat').textContent=state.cloud.on?'Sync on — connecting…':'Sync off — leaderboard is local to this device';
     if(state.cloud.on&&!cloudBase())toast('Enter your Supabase project URL to sync');
   };
+  var _ai=$('#authIn'); if(_ai)_ai.onclick=function(){authSheet();};
+  var _ao=$('#authOut'); if(_ao)_ao.onclick=function(){authSignOut(); closeSheet(); renderAll(); toast('Signed out');};
   var _csl=$('#cloudShareLeads'); if(_csl)_csl.onchange=function(){ state.cloud.shareLeads=_csl.checked; persist(); toast(_csl.checked?'\u26a0 Leads will now sync \u2014 lock your database with the SQL button':'\u2713 Customer info stays on this device'); };
   var _rls=$('#copyRls'); if(_rls)_rls.onclick=function(){ var sql=RLS_SQL; var show=function(){openSheet('<div class="sheet-title">\ud83d\udd12 Lock-down SQL</div><div class="sheet-desc">Paste in Supabase \u203a SQL editor \u203a Run.</div><pre class="q-sql">'+esc(sql)+'</pre><button class="btn-line" style="margin-top:10px" onclick="closeSheet()">Close</button>');}; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sql).then(function(){toast('\u2713 Security SQL copied \u2014 paste in Supabase');},show);}else{show();} };
   $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
@@ -5338,6 +5419,7 @@ function init(){
   injectManifest();
   backupNudge();
   if(activeSession())startMileTracking();
+  authInit();
   /* Home-screen (standalone) web apps trap external links inside the app shell on iOS,
      leaving the user stuck with no way back. Pop any external http(s) link out to the
      real browser so it behaves like a normal website link. mailto:, tel:, in-app and
