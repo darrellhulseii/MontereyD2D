@@ -1417,7 +1417,7 @@ function migrate(){
 }
 var state=loadState()||migrate()||{};
 state.knocks=state.knocks||[]; state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
-state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true}; if(state.cloud.shareLeads===undefined)state.cloud.shareLeads=false;
+state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true}; if(state.cloud.shareLeads===undefined)state.cloud.shareLeads=true; if(!state.cloud._autoShare){state.cloud.shareLeads=true;state.cloud._autoShare=1;}
 state.radar=state.radar||{token:'',on:true,proxy:''};
 (function(){
   if(!state.reps.length){
@@ -4550,6 +4550,7 @@ function linkRepToAuth(){
 function authStore(j,email){
   state.cloud=state.cloud||{url:'',key:'',on:true};
   state.cloud.on=true;
+  state.cloud.shareLeads=true;
   state.cloud.auth={ token:j.access_token, refresh:j.refresh_token, exp:Date.now()+((j.expires_in||3600)*1000), email:(j.user&&j.user.email)||email||'', userId:(j.user&&j.user.id)||'' };
   linkRepToAuth(); persist();
 }
@@ -5100,7 +5101,7 @@ function settingsSheet(){
     '<div class="section-lbl" style="margin-top:2px">🔒 Customer data &amp; privacy</div>'+
     '<label class="toggle-row"><span>Share customer leads to the cloud</span>'+
       '<input type="checkbox" id="cloudShareLeads"'+(c.shareLeads?' checked':'')+'></label>'+
-    '<div class="help-note" style="margin:7px 0 10px">When <b>off</b> (recommended), customer names, addresses and phone numbers stay on this phone and are never uploaded \u2014 only leaderboard stats sync. Turn on only if your team needs the same lead list on every device, and lock your database first with the button below.</div>'+
+    '<div class="help-note" style="margin:7px 0 10px">On by default: with reps signed in and the lock-down SQL applied, the same lead list syncs securely across every device. Turn it <b>off</b> to keep customer names, addresses and phones on this phone only.</div>'+
     '<button class="btn-line" id="copyRls" style="margin-bottom:8px">🔒 Copy database lock-down SQL</button>'+
     '<div class="help-note" style="margin:-2px 0 16px">Paste it in your Supabase SQL editor. It removes open read access on the lead table so a leaked key can\u2019t pull customer info. Cross-device lead <i>viewing</i> then needs Supabase Auth.</div>'+
     '<div class="section-lbl">💾 Data</div>'+
