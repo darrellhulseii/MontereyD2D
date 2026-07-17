@@ -895,6 +895,26 @@ a.btn-line{text-decoration:none}
 .ml-row.on{font-weight:700}
 .ml-row.on .ml-dot{box-shadow:0 0 0 2px rgba(255,255,255,.85)}
 .ml-all{cursor:pointer;color:var(--sky);font-size:11px;font-weight:700;margin-top:6px;text-align:center;padding-top:5px;border-top:1px solid var(--border)}
+.mgr-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink)}
+.mgr-del{font-size:11px;font-weight:700;border:1px solid var(--border2);background:var(--card2);color:var(--red);border-radius:20px;padding:4px 10px}
+.bdg-streak{display:flex;align-items:baseline;gap:8px;margin:6px 0 12px}
+.bdg-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:40px;color:var(--gold);line-height:1}
+.bdg-lbl{font-size:12.5px;color:var(--muted)}
+.bdg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bdg{background:var(--card2);border:1px solid var(--border2);border-radius:11px;padding:10px 6px;text-align:center;opacity:.4}
+.bdg.got{opacity:1;border-color:var(--gold)}
+.bdg-ic{font-size:22px;line-height:1}
+.bdg-nm{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.2}
+.bdg.got .bdg-nm{color:var(--ink);font-weight:600}
+.pr-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.pr-dot{width:11px;height:11px;border-radius:50%;flex:none;opacity:.45}
+.pr-dot.live{opacity:1;box-shadow:0 0 0 3px rgba(0,200,83,.25)}
+.pr-main{flex:1;min-width:0}
+.pr-nm{font-size:13px;color:var(--ink);font-weight:600}
+.pr-nm i{color:var(--muted);font-weight:400;font-style:normal;font-size:11px}
+.pr-sub{font-size:11px;color:var(--muted)}
+.pr-doors{font-size:12px;color:var(--muted);white-space:nowrap}
+.pr-doors b{color:var(--ink);font-size:14px}
 </style>
 </head>
 <body>
@@ -1043,6 +1063,7 @@ a.btn-line{text-decoration:none}
     <div class="scr-title">📋 Pipeline</div>
     <div class="scr-sub">Every door you've logged — names, addresses, appointments, follow-ups and installs.</div>
     <button class="btn orange" id="revisitBtn" style="margin:0 0 12px" onclick="revisitSheet()">🔁 Smart revisit — closest first</button>
+    <button class="btn-line" id="alertBtn" style="margin:0 0 12px" onclick="enableAlerts()">🔔 Enable callback &amp; appointment alerts</button>
     <div class="chips" id="plChips"></div>
     <div id="plScheduled"></div>
     <div id="plList"></div>
@@ -1062,6 +1083,7 @@ a.btn-line{text-decoration:none}
     <div class="card" id="bestTimeCard"><div id="bestTimeBody"></div></div>
     <div class="card" id="funnelCard"><div id="funnelBody"></div></div>
     <button class="btn-line" id="payrollBtn" style="margin-bottom:14px" onclick="payrollSheet()">💵 Payroll &amp; commissions</button>
+    <div class="card" id="badgesCard"><div id="badgesBody"></div></div>
     <div class="card">
       <div class="card-h">💵 Earnings <span class="ch-r">installed vs pending</span></div>
       <div id="earnGrid"></div>
@@ -1131,8 +1153,10 @@ a.btn-line{text-decoration:none}
       <button data-r="year">This Year</button>
       <button data-r="all">All</button>
     </div>
+    <button class="btn-line" id="presBtn" style="margin:2px 0 8px" onclick="presenceSheet()">🟢 Who's out knocking now</button>
     <button class="btn-line" id="rollupBtn" style="margin:2px 0 8px">📊 Team rollup (manager view)</button>
     <button class="btn-line" id="rosterBtn" style="margin:0 0 12px">👥 Team roster — everyone logged in</button>
+    <button class="btn-line" id="mgrBtn" style="margin:0 0 12px" onclick="managersSheet()">👔 Managers (skip the password)</button>
     <div id="lbList"></div>
     <div class="section-lbl" style="margin-top:16px">🔥 Live Team Feed</div>
     <div id="teamFeed"></div>
@@ -3779,6 +3803,70 @@ function revisitSheet(){
   $$('.rv-claim',sheetEl).forEach(function(b){ b.onclick=function(ev){ ev.stopPropagation(); if(b.dataset.rel)releaseKnock(b.dataset.rel); else claimKnock(b.dataset.claim); closeSheet(); revisitSheet(); }; });
   var rl=$('#rvLoc'); if(rl)rl.onclick=function(){ toast('<span class="spin"></span> Locating\u2026',null,null,8000); bestFix(function(b){ if(b){curPos={lat:b.lat,lng:b.lng,acc:b.acc}; closeSheet(); revisitSheet();} else toast('Location unavailable'); },8000,12); };
 }
+function presenceSheet(){
+  var now=Date.now(), WINDOW=20*60000, list=[];
+  (state.reps||[]).forEach(function(r){ list.push({id:r.id,name:r.name,color:r.color,last:repLastActive(r.id,false),mine:r.id===state.currentRepId,cloud:false}); });
+  Object.keys(cloudReps||{}).forEach(function(id){ if((state.reps||[]).some(function(r){return r.id===id;}))return; if(id===TERR_KEY)return; var c=cloudReps[id]; list.push({id:id,name:c.name||'Rep',color:c.color||'#8aa0b8',last:repLastActive(id,true),cloud:true}); });
+  var d0=new Date(); d0.setHours(0,0,0,0); d0=d0.getTime();
+  function doorsToday(x){ if(!x.cloud)return state.knocks.filter(function(k){return k.repId===x.id&&k.ts>=d0&&k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='customer';}).length; var c=cloudReps&&cloudReps[x.id]; return (c&&c.stats&&c.stats.today&&c.stats.today.doors!=null)?c.stats.today.doors:0; }
+  function ago(t){ if(!t)return 'no activity yet'; var sc=(now-t)/1000; if(sc<90)return 'just now'; if(sc<3600)return Math.round(sc/60)+'m ago'; if(sc<86400)return Math.round(sc/3600)+'h ago'; return Math.round(sc/86400)+'d ago'; }
+  list.forEach(function(x){ x.doors=doorsToday(x); x.active=x.last&&(now-x.last<WINDOW); });
+  list.sort(function(a,b){ if(a.active!==b.active)return a.active?-1:1; return (b.last||0)-(a.last||0); });
+  var activeN=list.filter(function(x){return x.active;}).length;
+  var rows=list.map(function(x){ return '<div class="pr-row"><span class="pr-dot'+(x.active?' live':'')+'" style="background:'+x.color+'"></span><div class="pr-main"><div class="pr-nm">'+esc(x.name)+(x.mine?' <i>(you)</i>':'')+'</div><div class="pr-sub">'+(x.active?'active now':ago(x.last))+'</div></div><div class="pr-doors"><b>'+x.doors+'</b> today</div></div>'; }).join('');
+  openSheet(
+    '<div class="sheet-title">🟢 Who\u2019s out now</div>'+
+    '<div class="sheet-desc">'+activeN+' active in the last 20 minutes. Live from synced activity \u2014 keep Team sync on so everyone shows up.</div>'+
+    (list.length?rows:'<div class="q-hint">No reps yet.</div>')+
+    '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Close</button>'
+  );
+}
+var _alerted={}, alertTimer=null;
+function checkDueAlerts(){
+  var now=Date.now(), rid=state.currentRepId;
+  (state.knocks||[]).forEach(function(k){
+    if(k.repId!==rid||(k.disp!=='followup'&&k.disp!=='appt')||!k.schedule)return;
+    var t=new Date(k.schedule).getTime(); if(isNaN(t)||t>now||now-t>6*3600000||_alerted[k.id])return;
+    _alerted[k.id]=1;
+    var who=k.firstName||k.address||'a customer', label=(k.disp==='appt'?'Appointment':'Callback')+' due: '+who;
+    toast('\ud83d\udd14 '+esc(label),null,null,7000);
+    try{ if(navigator.vibrate)navigator.vibrate([120,60,120]); }catch(e){}
+    try{ if(typeof Notification!=='undefined'&&Notification.permission==='granted')new Notification('Complete Home Field',{body:label}); }catch(e){}
+  });
+}
+function enableAlerts(){
+  if(typeof Notification==='undefined'){ toast('Alerts will show in-app while the app is open'); return; }
+  try{ Notification.requestPermission().then(function(pm){ toast(pm==='granted'?'\u2713 Callback alerts on':'You\u2019ll still get in-app alerts while the app is open'); }); }catch(e){ toast('In-app alerts are on'); }
+}
+function startAlerts(){ checkDueAlerts(); if(alertTimer)clearInterval(alertTimer); alertTimer=setInterval(checkDueAlerts,60000); }
+function renderBadges(){
+  var box=$('#badgesBody'); if(!box)return;
+  var rid=state.currentRepId, mine=state.knocks.filter(function(k){return k.repId===rid;});
+  var doorK=mine.filter(function(k){return k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='customer';});
+  var doors=doorK.length, sold=mine.filter(function(k){return k.disp==='sold';}).length;
+  var days={}, perDay={};
+  doorK.forEach(function(k){ var d=new Date(k.ts); d.setHours(0,0,0,0); var t=d.getTime(); days[t]=1; perDay[t]=(perDay[t]||0)+1; });
+  var streak=0, day=new Date(); day.setHours(0,0,0,0); var t=day.getTime();
+  if(!days[t])t-=86400000;
+  while(days[t]){ streak++; t-=86400000; }
+  var bestDay=0; Object.keys(perDay).forEach(function(k){ if(perDay[k]>bestDay)bestDay=perDay[k]; });
+  var badges=[
+    {ic:'🚪',name:'50 doors',got:doors>=50},
+    {ic:'🚪',name:'250 doors',got:doors>=250},
+    {ic:'🏠',name:'1,000 doors',got:doors>=1000},
+    {ic:'💰',name:'First sale',got:sold>=1},
+    {ic:'💰',name:'10 sales',got:sold>=10},
+    {ic:'🏆',name:'50 sales',got:sold>=50},
+    {ic:'⚡',name:'5 in a day',got:bestDay>=5},
+    {ic:'🔥',name:'3-day streak',got:streak>=3},
+    {ic:'🔥',name:'7-day streak',got:streak>=7}
+  ];
+  var earned=badges.filter(function(b){return b.got;}).length;
+  var h='<div class="card-h">🔥 Streaks &amp; badges <span class="ch-r">'+earned+'/'+badges.length+' earned</span></div>';
+  h+='<div class="bdg-streak"><div class="bdg-num">'+streak+'</div><div class="bdg-lbl">day streak'+(streak>0?' \u2014 keep it alive!':' \u2014 knock a door today')+'</div></div>';
+  h+='<div class="bdg-grid">'+badges.map(function(b){ return '<div class="bdg'+(b.got?' got':'')+'"><div class="bdg-ic">'+b.ic+'</div><div class="bdg-nm">'+esc(b.name)+'</div></div>'; }).join('')+'</div>';
+  box.innerHTML=h;
+}
 function renderFunnel(){
   var box=$('#funnelBody'); if(!box)return;
   var rid=state.currentRepId, doors=0,contacts=0,booked=0,sold=0;
@@ -3977,6 +4065,7 @@ function renderStats(){
   renderSession();
   renderBestTime();
   renderFunnel();
+  renderBadges();
   renderWeekReport();
   var _wg=$('#wrGoals'); if(_wg)_wg.onclick=goalsSheet;
 }
@@ -4265,9 +4354,26 @@ function sha256hex(str){
   }catch(e){return Promise.resolve('');}
 }
 var adminUnlocked=false;
+function isManager(){ var au=(typeof authUser==='function')?authUser():null; var m=(state.cloud&&state.cloud.managers)||[]; return !!(au&&au.email&&m.indexOf((au.email||'').toLowerCase())>=0); }
+function managersSheet(){ requireAdmin(function(){ mgrRender(); },'Manager list.','manage'); }
+function mgrRender(){
+  var m=(state.cloud&&state.cloud.managers)||[];
+  var rows=m.length?m.map(function(e){return '<div class="mgr-row"><span>'+esc(e)+'</span><button class="mgr-del" data-e="'+esc(e)+'">Remove</button></div>';}).join(''):'<div class="q-hint">No managers yet \u2014 add an email below.</div>';
+  var cur=((typeof authUser==='function'&&authUser())||{}).email||'';
+  openSheet(
+    '<div class="sheet-title">👔 Managers</div>'+
+    '<div class="sheet-desc">These accounts unlock manager tools (payroll, territories, deletes, lasso) with no admin password.</div>'+
+    rows+
+    '<div class="field" style="margin-top:12px"><label>Add manager email</label><input type="email" id="mgrEmail" inputmode="email" placeholder="name@email.com" value="'+esc(cur)+'"></div>'+
+    '<button class="btn" id="mgrAdd">Add manager</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Close</button>'
+  );
+  var add=$('#mgrAdd'); if(add)add.onclick=function(){ var v=(($('#mgrEmail')||{}).value||'').trim().toLowerCase(); if(!v||v.indexOf('@')<0){toast('Enter a valid email');return;} state.cloud=state.cloud||{}; state.cloud.managers=state.cloud.managers||[]; if(state.cloud.managers.indexOf(v)<0)state.cloud.managers.push(v); persist(); mgrRender(); toast('\u2713 Manager added'); };
+  $$('.mgr-del',sheetEl).forEach(function(b){ b.onclick=function(){ state.cloud.managers=((state.cloud&&state.cloud.managers)||[]).filter(function(x){return x!==b.dataset.e;}); persist(); mgrRender(); }; });
+}
 function requireAdmin(cb,msg,action){
   var act=action||'delete';
-  if(adminUnlocked){cb();return;}
+  if(adminUnlocked||isManager()){cb();return;}
   openSheet(
     '<div class="sheet-title">🔒 Admin password</div>'+
     '<div class="sheet-desc">'+(msg?esc(msg)+' ':'')+'Enter the admin password to '+esc(act)+'.</div>'+
@@ -5441,6 +5547,7 @@ function init(){
   backupNudge();
   if(activeSession())startMileTracking();
   authInit();
+  startAlerts();
   /* Home-screen (standalone) web apps trap external links inside the app shell on iOS,
      leaving the user stuck with no way back. Pop any external http(s) link out to the
      real browser so it behaves like a normal website link. mailto:, tel:, in-app and
