@@ -890,6 +890,11 @@ a.btn-line{text-decoration:none}
 .rv-claim{font-size:10.5px;font-weight:700;border:1px solid var(--sky);background:rgba(0,174,239,.1);color:var(--sky);border-radius:20px;padding:4px 9px;flex:none;white-space:nowrap}
 .rv-claim.yours{border-color:var(--green);background:rgba(0,200,83,.15);color:var(--green)}
 .rv-claim.held{border-color:var(--border2);background:var(--card2);color:var(--muted)}
+.ml-row{cursor:pointer;user-select:none}
+.ml-row.off{opacity:.3}
+.ml-row.on{font-weight:700}
+.ml-row.on .ml-dot{box-shadow:0 0 0 2px rgba(255,255,255,.85)}
+.ml-all{cursor:pointer;color:var(--sky);font-size:11px;font-weight:700;margin-top:6px;text-align:center;padding-top:5px;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -1620,6 +1625,7 @@ function refreshMarkers(){
   state.knocks.forEach(function(k){
     if(k.lat==null)return;
     var d=DMAP[k.disp]||DISPOS[0];
+    if(mapFilter && !mapFilter[k.disp])return;
     var ri=repInfo(k.repId);
     var mine=(k.repId===state.currentRepId);
     var m=new google.maps.Marker({position:{lat:k.lat,lng:k.lng},map:map,
@@ -1637,7 +1643,7 @@ function refreshMarkers(){
   });
   state.outages.forEach(function(o){
     if(o.lat==null)return;
-    var m=new google.maps.Marker({position:{lat:o.lat,lng:o.lng},map:outageVisible?map:null,
+    var m=new google.maps.Marker({position:{lat:o.lat,lng:o.lng},map:(outageVisible&&(!mapFilter||mapFilter['__outage']))?map:null,
       icon:dotIcon('#ff8a3c',9), label:{text:'⚡',fontSize:'13px'}, title:o.provider+' outage'});
     m.addListener('click',function(){suppressClick=Date.now();openOutageSheet(o.id);});
     outageMarkers.push(m);
@@ -2059,7 +2065,7 @@ function renderTally(){
   var list=knocksInRange(tallyRange);
   var counts={};DISPOS.forEach(function(d){counts[d.k]=0;});
   list.forEach(function(k){if(counts[k.disp]!=null)counts[k.disp]++;});
-  $('#ttNum').textContent=list.filter(function(k){return k.disp!=='new';}).length;
+  $('#ttNum').textContent=list.filter(function(k){return k.disp!=='new'&&k.disp!=='customer';}).length;
   var contacts=list.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   $('#ttSub').textContent=contacts+' contacts · '+counts.appt+' appointments · '+counts.sold+' sold';
   var grid=$('#tallyGrid');
@@ -2091,12 +2097,26 @@ function renderTally(){
 }
 
 /* ════════ MAP LEGEND ════════ */
+var mapFilter=null;
+function legendToggle(key){
+  mapFilter=mapFilter||{};
+  if(mapFilter[key])delete mapFilter[key]; else mapFilter[key]=true;
+  if(!Object.keys(mapFilter).length)mapFilter=null;
+  renderLegend(); refreshMarkers();
+}
 function renderLegend(){
+  var f=mapFilter;
   var rows=DISPOS.map(function(d){
-    return '<div class="ml-row"><span class="ml-dot" style="background:'+d.color+'"></span>'+esc(d.label)+'</div>';
+    var cls=f?(f[d.k]?' on':' off'):'';
+    return '<div class="ml-row'+cls+'" data-k="'+d.k+'"><span class="ml-dot" style="background:'+d.color+'"></span>'+esc(d.label)+'</div>';
   }).join('');
-  rows+='<div class="ml-row"><span class="ml-dot" style="background:#ff8a3c"></span>Outage</div>';
-  $('#mapLegend').innerHTML=rows;
+  var oc=f?(f['__outage']?' on':' off'):'';
+  rows+='<div class="ml-row'+oc+'" data-k="__outage"><span class="ml-dot" style="background:#ff8a3c"></span>Outage</div>';
+  if(f)rows+='<div class="ml-all" id="mlAll">\u2715 Show all</div>';
+  var box=$('#mapLegend'); if(!box)return;
+  box.innerHTML=rows;
+  $$('.ml-row',box).forEach(function(r){ r.onclick=function(){ legendToggle(r.dataset.k); }; });
+  var all=$('#mlAll'); if(all)all.onclick=function(){ mapFilter=null; renderLegend(); refreshMarkers(); };
 }
 
 /* ════════ OUTAGE / RADAR ════════ */
@@ -3317,7 +3337,7 @@ function eodTile(num,lbl){return '<div class="eod-tile"><div class="eod-n">'+num
 function eodSheet(){
   var ks=myKnocks(), t0=new Date(); t0.setHours(0,0,0,0); var ts0=t0.getTime();
   var today=ks.filter(function(k){return k.ts>=ts0;});
-  var doors=today.filter(function(k){return k.disp!=='new';}).length;
+  var doors=today.filter(function(k){return k.disp!=='new'&&k.disp!=='customer';}).length;
   var contacts=today.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   var appts=today.filter(function(k){return k.disp==='appt';}).length;
   var sales=today.filter(function(k){return k.disp==='sold';}).length;
@@ -3639,7 +3659,7 @@ function renderWeekReport(){
   var installed=myKnocks().filter(function(k){return k.disp==='sold'&&(k.stage==='installed'||k.stage==='paid')&&((k.schedule||k.ts)>=ws);}).length;
   var g=state.goals||{};
   var rows=[
-    {k:'doors',l:'Doors knocked',a:cnt(function(k){return k.disp!=='lead'&&k.disp!=='new';}),c:'#00AEEF'},
+    {k:'doors',l:'Doors knocked',a:cnt(function(k){return k.disp!=='lead'&&k.disp!=='new'&&k.disp!=='customer';}),c:'#00AEEF'},
     {k:'conv',l:'Conversations',a:cnt(function(k){return k.disp==='conv';}),c:'#7aa7ff'},
     {k:'followup',l:'Follow-ups',a:cnt(function(k){return k.disp==='followup';}),c:'#b46bff'},
     {k:'lead',l:'Leads collected',a:cnt(function(k){return k.disp==='lead';}),c:'#5b8def'},
@@ -3691,7 +3711,7 @@ function startMileTracking(){
 }
 function stopMileTracking(){ if(milesWatchId!=null){try{navigator.geolocation.clearWatch(milesWatchId);}catch(e){}} milesWatchId=null; milesLast=null; if(_milesPersistT){clearTimeout(_milesPersistT);_milesPersistT=null;} }
 function activeSession(){ return (state.sessions||[]).filter(function(x){return x.repId===state.currentRepId && !x.endTs;}).slice(-1)[0]||null; }
-function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead';}).length; }
+function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead' && k.disp!=='customer';}).length; }
 function fmtDur(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60; return h>0?(h+'h '+m+'m'):(m+'m'); }
 function clockIn(){
   if(activeSession()){toast('A shift is already running');return;}
@@ -3762,7 +3782,7 @@ function revisitSheet(){
 function renderFunnel(){
   var box=$('#funnelBody'); if(!box)return;
   var rid=state.currentRepId, doors=0,contacts=0,booked=0,sold=0;
-  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead')return; doors++; if(CONTACT.indexOf(k.disp)>=0)contacts++; if(k.disp==='appt'||k.disp==='sold')booked++; if(k.disp==='sold')sold++; });
+  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead'||k.disp==='customer')return; doors++; if(CONTACT.indexOf(k.disp)>=0)contacts++; if(k.disp==='appt'||k.disp==='sold')booked++; if(k.disp==='sold')sold++; });
   var head='<div class="card-h">📉 Conversion funnel <span class="ch-r">all your logged doors</span></div>';
   if(doors<5){ box.innerHTML=head+'<div class="q-hint">Log a few doors and your funnel will build here.</div>'; return; }
   function pct(a,b){ return b>0?Math.round(a/b*100):0; }
@@ -3806,7 +3826,7 @@ function payrollCsv(rid){
 function renderBestTime(){
   var box=$('#bestTimeBody'); if(!box)return;
   var rid=state.currentRepId, H={};
-  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead')return; var h=new Date(k.ts).getHours(); var o=H[h]||(H[h]={d:0,c:0}); o.d++; if(CONTACT.indexOf(k.disp)>=0)o.c++; });
+  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead'||k.disp==='customer')return; var h=new Date(k.ts).getHours(); var o=H[h]||(H[h]={d:0,c:0}); o.d++; if(CONTACT.indexOf(k.disp)>=0)o.c++; });
   var hrs=[]; for(var h=7;h<=21;h++){ var o=H[h]||{d:0,c:0}; hrs.push({h:h,d:o.d,c:o.c,r:o.d?o.c/o.d:0}); }
   var total=hrs.reduce(function(t,x){return t+x.d;},0);
   var head='<div class="card-h">\u23f0 Best time to knock <span class="ch-r">your contact rate by hour</span></div>';
@@ -3869,7 +3889,7 @@ function renderSession(){
 }
 function renderStats(){
   var ks=myKnocks();
-  var doors=ks.filter(function(k){return k.disp!=='new';}).length;
+  var doors=ks.filter(function(k){return k.disp!=='new'&&k.disp!=='customer';}).length;
   var contacts=ks.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   var appts=ks.filter(function(k){return k.disp==='appt';}).length;
   var sales=ks.filter(function(k){return k.disp==='sold';}).length;
@@ -4004,7 +4024,7 @@ function renderPlan(){
 
 function planRatios(){
   var ks=myKnocks();
-  var doors=ks.filter(function(k){return k.disp!=='new';}).length;
+  var doors=ks.filter(function(k){return k.disp!=='new'&&k.disp!=='customer';}).length;
   var contacts=ks.filter(function(k){return CONTACT.indexOf(k.disp)>-1;}).length;
   var appts=ks.filter(function(k){return k.disp==='appt';}).length;
   var sales=ks.filter(function(k){return k.disp==='sold';}).length;
@@ -4373,7 +4393,7 @@ function statsFor(repId,range){
     if(range==='week'&&k.ts<sw)return;
     if(range==='30d'&&k.ts<s30)return;
     if(range==='year'&&k.ts<sy)return;
-    if(k.disp==='lead'||k.disp==='new')return;   /* imported leads & un-worked New pins are not knocked doors */
+    if(k.disp==='lead'||k.disp==='new'||k.disp==='customer')return;   /* leads, un-worked New pins & existing customers are not knocked doors */
     o.doors++;
     if(CONTACT.indexOf(k.disp)>-1)o.contacts++;
     if(k.disp==='appt')o.appts++;
