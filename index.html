@@ -1963,6 +1963,7 @@ function afterLog(k){
   toast('<b>'+d.icon+' '+esc(d.label)+'</b> logged'+extra,'Undo',function(){
     deleteKnock(k.id);toast('Removed');
   });
+  if(k.schedule&&(k.disp==='followup'||k.disp==='appt'))setTimeout(function(){calOfferSheet(k.id);},450);
 }
 
 /* Google Places autocomplete on an address input */
@@ -3356,6 +3357,17 @@ function addToCal(id){
     document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);
     toast('\ud83d\udcc5 Calendar event ready');
   }catch(e){ toast('Could not create calendar file'); }
+}
+function calOfferSheet(id){
+  var k=state.knocks.filter(function(x){return x.id===id;})[0]; if(!k||!k.schedule)return;
+  var lbl=(DMAP[k.disp]||{}).label||'Follow up';
+  openSheet(
+    '<div class="sheet-title">📅 Set a reminder?</div>'+
+    '<div class="sheet-desc">'+esc(lbl)+' for <b>'+esc(knockTitle(k))+'</b> on '+esc(relDate(k.schedule)+' \u00b7 '+fmtTime(k.schedule))+'. Add it to your phone calendar and you will be reminded 30 minutes before \u2014 even when this app is closed.</div>'+
+    '<button class="btn" id="calGo">📅 Add to my calendar</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Not now</button>'
+  );
+  var g=$('#calGo'); if(g)g.onclick=function(){ closeSheet(); addToCal(id); };
 }
 function eodTile(num,lbl){return '<div class="eod-tile"><div class="eod-n">'+num+'</div><div class="eod-l">'+lbl+'</div></div>';}
 function eodSheet(){
