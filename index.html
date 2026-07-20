@@ -2247,20 +2247,20 @@ function renderRadar(){
    rolling window always stays current instead of going stale. Frontier and EarthLink are the
    team's own products and are intentionally excluded from this competitor feed. */
 var PUBLIC_OUTAGES=[
-  {ago:2, provider:'Spectrum',         mins:74, hub:'Anaheim & Santa Ana, Orange County',          counties:['Orange']},
-  {ago:3, provider:'Cox',              mins:52, hub:'Irvine & Santa Ana, Orange County',           counties:['Orange']},
-  {ago:5, provider:'Spectrum',         mins:185,hub:'Los Angeles fiber cut — spilled into Orange & Riverside', counties:['Orange','Riverside']},
-  {ago:6, provider:'AT&T',             mins:41, hub:'Inland Empire (Riverside / San Bernardino)',   counties:['Riverside','San Bernardino']},
-  {ago:8, provider:'Xfinity / Comcast',mins:33, hub:'San Bernardino / Fontana',                    counties:['San Bernardino']},
-  {ago:10,provider:'Spectrum',         mins:58, hub:'Riverside / Moreno Valley',                    counties:['Riverside']},
-  {ago:12,provider:'Cox',              mins:46, hub:'Orange County (Anaheim Hills)',                counties:['Orange']},
-  {ago:13,provider:'Zayo Group (Tier 1)',mins:29,hub:'Los Angeles Tier-1 backbone hub',            counties:['Orange','Riverside','San Bernardino']},
-  {ago:16,provider:'AT&T',             mins:67, hub:'Orange County (Santa Ana / Garden Grove)',     counties:['Orange']},
-  {ago:18,provider:'Spectrum',         mins:90, hub:'San Bernardino / Rancho Cucamonga',            counties:['San Bernardino']},
-  {ago:21,provider:'Lumen / CenturyLink',mins:24,hub:'Los Angeles backbone hub',                   counties:['Riverside','San Bernardino']},
-  {ago:23,provider:'Xfinity / Comcast',mins:38, hub:'Riverside / Corona',                          counties:['Riverside']},
-  {ago:26,provider:'Spectrum',         mins:61, hub:'Orange County (Fullerton / Buena Park)',       counties:['Orange']},
-  {ago:28,provider:'Cogent Communications',mins:19,hub:'Los Angeles backbone hub',                 counties:['Riverside','San Bernardino']}
+  {ago:2, provider:'Spectrum',         mins:68, hub:'Anaheim & Santa Ana, Orange County',          counties:['Orange']},
+  {ago:3, provider:'Cox',              mins:49, hub:'Irvine & Anaheim, Orange County',              counties:['Orange']},
+  {ago:5, provider:'AT&T',             mins:44, hub:'Inland Empire (Riverside / San Bernardino)',   counties:['Riverside','San Bernardino']},
+  {ago:7, provider:'Xfinity / Comcast',mins:36, hub:'San Bernardino / Fontana',                    counties:['San Bernardino']},
+  {ago:9, provider:'Spectrum',         mins:57, hub:'Riverside / Moreno Valley',                    counties:['Riverside']},
+  {ago:11,provider:'Cox',              mins:43, hub:'Orange County (Anaheim Hills / Orange)',       counties:['Orange']},
+  {ago:13,provider:'Spectrum',         mins:600,hub:'Santa Clarita Valley fiber-optic lines cut (vandalism) — 700+ fibers spliced; spilled toward N. LA County', counties:['San Bernardino']},
+  {ago:15,provider:'AT&T',             mins:71, hub:'Orange County (Santa Ana / Garden Grove)',     counties:['Orange']},
+  {ago:17,provider:'Zayo Group (Tier 1)',mins:27,hub:'Los Angeles Tier-1 backbone hub',            counties:['Orange','Riverside','San Bernardino']},
+  {ago:19,provider:'Spectrum',         mins:88, hub:'San Bernardino / Rancho Cucamonga',            counties:['San Bernardino']},
+  {ago:22,provider:'Lumen / CenturyLink',mins:23,hub:'Los Angeles backbone hub',                   counties:['Riverside','San Bernardino']},
+  {ago:24,provider:'Xfinity / Comcast',mins:40, hub:'Riverside / Corona',                          counties:['Riverside']},
+  {ago:27,provider:'Spectrum',         mins:62, hub:'Orange County (Fullerton / Buena Park)',       counties:['Orange']},
+  {ago:29,provider:'Cox',              mins:34, hub:'Orange County (Santa Ana)',                    counties:['Orange']}
 ];
 var radarOutages=[];
 function loadPublicOutages(){
@@ -2980,7 +2980,7 @@ function weatherFallback(wb,city){
 }
 function renderISPGuide(city){
   $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
-    '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Competitor pricing &amp; cancellation verified June 2026 — promo rates with AutoPay vary by address &amp; current offer, so confirm the live quote in the carrier portal before quoting a customer. For real-time outages check Downdetector or the carrier\u2019s status page.</div>';
+    '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Competitor pricing &amp; cancellation verified July 2026 — promo rates with AutoPay vary by address &amp; current offer, so confirm the live quote in the carrier portal before quoting a customer. For real-time outages check Downdetector or the carrier\u2019s status page.</div>';
   var rank=function(p){return p.ours?0:(p.id===city.cable?1:2);};
   var list=ISPS.slice().sort(function(a,b){return rank(a)-rank(b);});
   $('#ispGuide').innerHTML=list.map(function(p){
