@@ -1294,7 +1294,8 @@ var DISPOS=[
   {k:'sold',    label:'Sold',         color:'#00C853', icon:'✅', tag:'SD', fields:['firstName','address','datetime','mobile','products','vas','referral'],
                 dateLabel:'Installation date & time', needDate:true, needProduct:true},
   {k:'retained',label:'Retained',     color:'#00d4c0', icon:'🛡️', tag:'RT', fields:['firstName','address']},
-  {k:'lead',    label:'Lead',         color:'#5b8def', icon:'📇', tag:'LD', fields:['firstName','address','phone','notes'], imported:1}
+  {k:'lead',    label:'Lead',         color:'#5b8def', icon:'📇', tag:'LD', fields:['firstName','address','phone','notes'], imported:1},
+  {k:'hot',     label:'New Hot Lead', color:'#FFEB3B', icon:'🔥', tag:'HOT', fields:['firstName','address','phone','notes'], imported:1}
 ];
 var DMAP={}; DISPOS.forEach(function(d){DMAP[d.k]=d;});
 var CONTACT=['conv','appt','sold','retained','followup'];
@@ -1531,6 +1532,12 @@ var SEED_LEADS=[["Navajo Tire Auto Repair","13651 Navajo Rd, Apple Valley, CA 92
       state.seedResiRemoved=drop.length;
     }
     state.seedLeadsV2=1;
+    if(!state.seedHotV1){
+      var conv=0;
+      (state.knocks||[]).forEach(function(k){ if(k&&k.source==='seed'&&k.disp==='lead'){k.disp='hot';k.updatedTs=Date.now();conv++;
+        try{if(typeof leadsPushOne==='function')leadsPushOne(k);}catch(e){}} });
+      state.seedHotV1=1; if(conv){try{persist();}catch(e){}}
+    }
 
     if(state.seedLeadsCommV1){ if(state.seedResiRemoved){try{persist();}catch(e){}} return; }
     var seen={};
@@ -1539,7 +1546,7 @@ var SEED_LEADS=[["Navajo Tire Auto Repair","13651 Navajo Rd, Apple Valley, CA 92
     SEED_LEADS.forEach(function(r){
       var addr=String(r[1]||'').trim(), key=addr.toLowerCase();
       if(!addr||seen[key])return; seen[key]=1;
-      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'lead',
+      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'hot',
         firstName:String(r[0]||''),address:addr,phone:'',notes:String(r[2]||''),schedule:null,
         products:[],vas:[],commission:0,qty:{},
         lat:(typeof r[3]==='number')?r[3]:null,lng:(typeof r[4]==='number')?r[4]:null,source:'seed'};
@@ -2129,7 +2136,7 @@ function openKnockSheet(id){
   var nav=k.lat!=null?'<button class="btn-line" id="ksNav" style="margin-bottom:9px">🧭 Navigate Here</button>':'';
   var calBtn=k.schedule?'<button class="btn-line" id="ksCal" style="margin-bottom:9px">📅 Add to calendar</button>':'';
   var objRow='';
-  if(k.disp!=='sold'&&k.disp!=='lead'&&k.disp!=='retained'){
+  if(k.disp!=='sold'&&k.disp!=='lead'&&k.disp!=='hot'&&k.disp!=='retained'){
     objRow='<div class="obj-pick"><div class="obj-pick-lbl">Objection at the door</div><div class="obj-chips">'+
       OBJECTIONS.map(function(o){return '<button class="obj-chip'+(k.objection===o?' on':'')+'" data-obj="'+esc(o)+'">'+esc(o)+'</button>';}).join('')+
       (k.objection?'<button class="obj-chip clr" data-obj="">clear</button>':'')+'</div></div>';
@@ -3526,7 +3533,7 @@ function normAddr(a){return String(a||'').toLowerCase().replace(/[^a-z0-9]+/g,' 
 function visitHistory(k){
   var na=normAddr(k.address);
   return state.knocks.filter(function(x){
-    if(x.id===k.id||x.disp==='lead')return false;
+    if(x.id===k.id||x.disp==='lead'||x.disp==='hot')return false;
     if(na&&normAddr(x.address)===na)return true;
     if(k.lat!=null&&x.lat!=null&&distM(k.lat,k.lng,x.lat,x.lng)<=20)return true;
     return false;
@@ -3762,7 +3769,7 @@ function fillFromOverpass(d,poly,repId){
 }
 function buildRoute(){
   if(!map){toast('Open the map first');return;}
-  var leads=state.knocks.filter(function(k){return (k.disp==='new'||k.disp==='lead')&&k.lat!=null&&k.repId===state.currentRepId;});
+  var leads=state.knocks.filter(function(k){return (k.disp==='new'||k.disp==='lead'||k.disp==='hot')&&k.lat!=null&&k.repId===state.currentRepId;});
   if(!leads.length){toast('No doors to route — lasso an area to drop New pins, or import leads first');return;}
   clearRoute();
   var ctr=map.getCenter(); var start=curPos||{lat:ctr.lat(),lng:ctr.lng()};
@@ -3816,7 +3823,7 @@ function renderWeekReport(){
   var installed=myKnocks().filter(function(k){return k.disp==='sold'&&(k.stage==='installed'||k.stage==='paid')&&((k.schedule||k.ts)>=ws);}).length;
   var g=state.goals||{};
   var rows=[
-    {k:'doors',l:'Doors knocked',a:cnt(function(k){return k.disp!=='lead'&&k.disp!=='new'&&k.disp!=='customer';}),c:'#00AEEF'},
+    {k:'doors',l:'Doors knocked',a:cnt(function(k){return k.disp!=='lead'&&k.disp!=='hot'&&k.disp!=='new'&&k.disp!=='customer';}),c:'#00AEEF'},
     {k:'conv',l:'Conversations',a:cnt(function(k){return k.disp==='conv';}),c:'#7aa7ff'},
     {k:'followup',l:'Follow-ups',a:cnt(function(k){return k.disp==='followup';}),c:'#b46bff'},
     {k:'lead',l:'Leads collected',a:cnt(function(k){return k.disp==='lead';}),c:'#5b8def'},
@@ -3868,7 +3875,7 @@ function startMileTracking(){
 }
 function stopMileTracking(){ if(milesWatchId!=null){try{navigator.geolocation.clearWatch(milesWatchId);}catch(e){}} milesWatchId=null; milesLast=null; if(_milesPersistT){clearTimeout(_milesPersistT);_milesPersistT=null;} }
 function activeSession(){ return (state.sessions||[]).filter(function(x){return x.repId===state.currentRepId && !x.endTs;}).slice(-1)[0]||null; }
-function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead' && k.disp!=='customer';}).length; }
+function workedDoorsBetween(repId,a,b){ return state.knocks.filter(function(k){return k.repId===repId && k.ts>=a && k.ts<=b && k.disp!=='new' && k.disp!=='lead' && k.disp!=='hot' && k.disp!=='customer';}).length; }
 function fmtDur(ms){ if(ms<0)ms=0; var m=Math.floor(ms/60000), h=Math.floor(m/60); m=m%60; return h>0?(h+'h '+m+'m'):(m+'m'); }
 function clockIn(){
   if(activeSession()){toast('A shift is already running');return;}
@@ -3941,7 +3948,7 @@ function presenceSheet(){
   (state.reps||[]).forEach(function(r){ list.push({id:r.id,name:r.name,color:r.color,last:repLastActive(r.id,false),mine:r.id===state.currentRepId,cloud:false}); });
   Object.keys(cloudReps||{}).forEach(function(id){ if((state.reps||[]).some(function(r){return r.id===id;}))return; if(id===TERR_KEY)return; var c=cloudReps[id]; list.push({id:id,name:c.name||'Rep',color:c.color||'#8aa0b8',last:repLastActive(id,true),cloud:true}); });
   var d0=new Date(); d0.setHours(0,0,0,0); d0=d0.getTime();
-  function doorsToday(x){ if(!x.cloud)return state.knocks.filter(function(k){return k.repId===x.id&&k.ts>=d0&&k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='customer';}).length; var c=cloudReps&&cloudReps[x.id]; return (c&&c.stats&&c.stats.today&&c.stats.today.doors!=null)?c.stats.today.doors:0; }
+  function doorsToday(x){ if(!x.cloud)return state.knocks.filter(function(k){return k.repId===x.id&&k.ts>=d0&&k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='hot'&&k.disp!=='customer';}).length; var c=cloudReps&&cloudReps[x.id]; return (c&&c.stats&&c.stats.today&&c.stats.today.doors!=null)?c.stats.today.doors:0; }
   function ago(t){ if(!t)return 'no activity yet'; var sc=(now-t)/1000; if(sc<90)return 'just now'; if(sc<3600)return Math.round(sc/60)+'m ago'; if(sc<86400)return Math.round(sc/3600)+'h ago'; return Math.round(sc/86400)+'d ago'; }
   list.forEach(function(x){ x.doors=doorsToday(x); x.active=x.last&&(now-x.last<WINDOW); });
   list.sort(function(a,b){ if(a.active!==b.active)return a.active?-1:1; return (b.last||0)-(a.last||0); });
@@ -3975,7 +3982,7 @@ function startAlerts(){ checkDueAlerts(); if(alertTimer)clearInterval(alertTimer
 function renderBadges(){
   var box=$('#badgesBody'); if(!box)return;
   var rid=state.currentRepId, mine=state.knocks.filter(function(k){return k.repId===rid;});
-  var doorK=mine.filter(function(k){return k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='customer';});
+  var doorK=mine.filter(function(k){return k.disp!=='new'&&k.disp!=='lead'&&k.disp!=='hot'&&k.disp!=='customer';});
   var doors=doorK.length, sold=mine.filter(function(k){return k.disp==='sold';}).length;
   var days={}, perDay={};
   doorK.forEach(function(k){ var d=new Date(k.ts); d.setHours(0,0,0,0); var t=d.getTime(); days[t]=1; perDay[t]=(perDay[t]||0)+1; });
@@ -4004,7 +4011,7 @@ function renderBadges(){
 /* ════════ PERFORMANCE METRICS — estimated (target pace) vs actual ════════ */
 var METRIC_DEF={doors:175,conv:44,appt:4,fup:8,sold:5};
 var CONV_DISP=['conv','appt','sold','retained','followup','ni','customer','moving'];
-var NONDOOR=['new','lead'];
+var NONDOOR=['new','lead','hot'];
 var metricRange='week';
 function metricTargets(){
   var t=state.mTarget||{};
@@ -4113,7 +4120,7 @@ function metricTargetSheet(){
 function renderFunnel(){
   var box=$('#funnelBody'); if(!box)return;
   var rid=state.currentRepId, doors=0,contacts=0,booked=0,sold=0;
-  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead'||k.disp==='customer')return; doors++; if(CONTACT.indexOf(k.disp)>=0)contacts++; if(k.disp==='appt'||k.disp==='sold')booked++; if(k.disp==='sold')sold++; });
+  state.knocks.forEach(function(k){ if(k.repId!==rid||k.disp==='new'||k.disp==='lead'||k.disp==='hot'||k.disp==='customer')return; doors++; if(CONTACT.indexOf(k.disp)>=0)contacts++; if(k.disp==='appt'||k.disp==='sold')booked++; if(k.disp==='sold')sold++; });
   var head='<div class="card-h">📉 Conversion funnel <span class="ch-r">all your logged doors</span></div>';
   if(doors<5){ box.innerHTML=head+'<div class="q-hint">Log a few doors and your funnel will build here.</div>'; return; }
   function pct(a,b){ return b>0?Math.round(a/b*100):0; }
