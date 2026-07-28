@@ -212,6 +212,38 @@ input,select,textarea{outline:none}
 .fr-fill{height:100%;border-radius:7px;transition:width .5s ease}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .stat-tile{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:12px;text-align:center}
+.m-tabs{display:flex;gap:6px;margin:2px 0 12px}
+.m-tab{flex:1;background:var(--card2);border:1px solid var(--border2);color:var(--muted);border-radius:10px;padding:8px 4px;font:700 12px/1 'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase}
+.m-tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.m-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border2)}
+.m-row:last-child{border-bottom:none}
+.m-lbl{font-size:13px;color:var(--white)}
+.m-est{text-align:right;font-size:12px;color:var(--muted);min-width:58px}
+.m-est b{display:block;font-size:15px;color:var(--muted);font-weight:700}
+.m-act{text-align:right;min-width:66px}
+.m-act b{display:block;font-size:19px;font-weight:800;line-height:1.1}
+.m-act i{font-style:normal;font-size:11px}
+.m-good b,.m-good i{color:var(--green,#3fbf6f)}
+.m-mid b,.m-mid i{color:var(--gold,#e2b33c)}
+.m-bad b,.m-bad i{color:#e0655f}
+.m-head{display:grid;grid-template-columns:1fr auto auto;gap:8px;font:700 10px/1 'Barlow Condensed',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);padding-bottom:6px;border-bottom:1px solid var(--border2)}
+.m-head span:nth-child(2){text-align:right;min-width:58px}
+.m-head span:nth-child(3){text-align:right;min-width:66px}
+.m-foot{margin-top:10px;font-size:11.5px;color:var(--faint);line-height:1.5}
+.mr-wrap{margin-top:14px;border-top:1px solid var(--border2);padding-top:10px}
+.mr-ttl{font:700 10px/1 'Barlow Condensed',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+.mr-head,.mr-row{display:grid;grid-template-columns:1fr repeat(5,minmax(26px,auto));gap:5px;align-items:center}
+.mr-head{font:700 9.5px/1 'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--faint);padding-bottom:5px;border-bottom:1px solid var(--border2)}
+.mr-head span:not(:first-child){text-align:right}
+.mr-row{padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px;color:var(--white)}
+.mr-row:last-child{border-bottom:none}
+.mr-row span:not(:first-child){text-align:right;font-weight:700}
+.mr-row.me{background:rgba(255,255,255,.03);border-radius:8px;padding-left:6px;padding-right:6px}
+.mr-name{display:flex;align-items:center;gap:6px;min-width:0}
+.mr-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.mr-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.mr-sub{font-size:10px;color:var(--faint);font-weight:400}
+.mr-sold{color:var(--green,#3fbf6f)}
 .st-num{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--white)}
 .st-lbl{font-size:10.5px;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
 .plan-inputs{display:flex;gap:10px;margin-bottom:2px}
@@ -1083,6 +1115,16 @@ a.btn-line{text-decoration:none}
       <div class="cb-sub" id="commSub">Per the 1099 rate card · earned on confirmed install</div>
     </div>
     <button class="btn-line" id="eodBtn" style="margin-bottom:12px">📋 End-of-day report</button>
+    <div class="card" id="metricsCard">
+      <div class="card-h">📈 Performance Metrics <span class="ch-r" id="mRangeLbl">this week</span></div>
+      <div class="m-tabs" id="mTabs">
+        <button class="m-tab on" data-r="week">Week</button>
+        <button class="m-tab" data-r="month">Month</button>
+        <button class="m-tab" data-r="all">All time</button>
+      </div>
+      <div id="metricsBody"></div>
+      <button class="btn-line" id="mTargets" style="margin-top:10px">⚙ Adjust daily targets</button>
+    </div>
     <div class="card" id="sessionCard"><div id="sessionBody"></div></div>
     <div class="card" id="bestTimeCard"><div id="bestTimeBody"></div></div>
     <div class="card" id="funnelCard"><div id="funnelBody"></div></div>
@@ -3958,6 +4000,116 @@ function renderBadges(){
   h+='<div class="bdg-grid">'+badges.map(function(b){ return '<div class="bdg'+(b.got?' got':'')+'"><div class="bdg-ic">'+b.ic+'</div><div class="bdg-nm">'+esc(b.name)+'</div></div>'; }).join('')+'</div>';
   box.innerHTML=h;
 }
+
+/* ════════ PERFORMANCE METRICS — estimated (target pace) vs actual ════════ */
+var METRIC_DEF={doors:175,conv:44,appt:4,fup:8,sold:5};
+var CONV_DISP=['conv','appt','sold','retained','followup','ni','customer','moving'];
+var NONDOOR=['new','lead'];
+var metricRange='week';
+function metricTargets(){
+  var t=state.mTarget||{};
+  return {doors:+t.doors>0?+t.doors:METRIC_DEF.doors, conv:+t.conv>0?+t.conv:METRIC_DEF.conv,
+          appt:+t.appt>0?+t.appt:METRIC_DEF.appt, fup:+t.fup>0?+t.fup:METRIC_DEF.fup,
+          sold:+t.sold>0?+t.sold:METRIC_DEF.sold};
+}
+function monthStartTs(){var d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime();}
+function metricsFor(range,rid){
+  var from = range==='week'?weekStartMon() : (range==='month'?monthStartTs() : 0);
+  var days={}, a={doors:0,conv:0,appt:0,fup:0,sold:0};
+  (state.knocks||[]).forEach(function(k){
+    if(!k||(rid&&k.repId!==rid))return;
+    if(!k.ts||k.ts<from)return;
+    if(NONDOOR.indexOf(k.disp)>=0)return;
+    a.doors++;
+    days[new Date(k.ts).toDateString()]=1;
+    if(CONV_DISP.indexOf(k.disp)>=0)a.conv++;
+    if(k.disp==='appt')a.appt++;
+    if(k.disp==='followup')a.fup++;
+    if(k.disp==='sold')a.sold++;
+  });
+  var dw=Object.keys(days).length, t=metricTargets();
+  return {days:dw, actual:a,
+    est:{doors:dw*t.doors, conv:dw*t.conv, appt:dw*t.appt, fup:dw*t.fup, sold:dw*t.sold}};
+}
+function renderMetrics(){
+  var box=$('#metricsBody'); if(!box)return;
+  var lbl=$('#mRangeLbl');
+  if(lbl)lbl.textContent = metricRange==='week'?'this week':(metricRange==='month'?'this month':'all time');
+  var m=metricsFor(metricRange,state.currentRepId);
+  if(!m.days){ box.innerHTML='<div class="q-hint">No doors logged '+(metricRange==='all'?'yet':'in this period')+'. Log knocks and your numbers build here.</div>'; return; }
+  var rows=[['Doors knocked','doors'],['Conversations','conv'],['Appointments set','appt'],['Follow-ups','fup'],['Sold customers','sold']];
+  var h='<div class="m-head"><span>Metric</span><span>Est.</span><span>Actual</span></div>';
+  rows.forEach(function(r){
+    var est=m.est[r[1]], act=m.actual[r[1]];
+    var pct=est>0?Math.round(act/est*100):0;
+    var cls=pct>=100?'m-good':(pct>=70?'m-mid':'m-bad');
+    h+='<div class="m-row"><div class="m-lbl">'+r[0]+'</div>'+
+       '<div class="m-est"><b>'+est+'</b></div>'+
+       '<div class="m-act '+cls+'"><b>'+act+'</b><i>'+pct+'% of est</i></div></div>';
+  });
+  var a=m.actual;
+  var convClose=a.conv>0?Math.round(a.sold/a.conv*1000)/10:0;
+  var doorClose=a.doors>0?Math.round(a.sold/a.doors*1000)/10:0;
+  h+='<div class="m-foot"><b>Close rate:</b> '+convClose+'% of conversations \u00b7 '+doorClose+'% of doors'+
+     '<br>Estimate = your daily targets \u00d7 <b>'+m.days+'</b> day'+(m.days===1?'':'s')+' worked. '+
+     'Conversations count every answered door, including Not Interested.</div>';
+  /* ── per-rep actuals ── */
+  var ids={}; (state.reps||[]).forEach(function(r){ids[r.id]=1;});
+  (state.knocks||[]).forEach(function(k){ if(k&&k.repId&&NONDOOR.indexOf(k.disp)<0)ids[k.repId]=1; });
+  var list=Object.keys(ids).map(function(id){
+    var mm=metricsFor(metricRange,id), nf=repInfo(id)||{name:'Rep',color:'#888'};
+    return {id:id,name:nf.name,color:nf.color,a:mm.actual,days:mm.days};
+  }).filter(function(x){return x.a.doors>0;})
+    .sort(function(a,b){return b.a.sold-a.a.sold || b.a.doors-a.a.doors;});
+  if(list.length){
+    var t=metricTargets();
+    var rh='<div class="mr-wrap"><div class="mr-ttl">Actual by rep \u00b7 '+
+      (metricRange==='week'?'this week':(metricRange==='month'?'this month':'all time'))+'</div>'+
+      '<div class="mr-head"><span>Rep</span><span>Doors</span><span>Conv</span><span>Appt</span><span>F/U</span><span>Sold</span></div>';
+    list.forEach(function(x){
+      var cr=x.a.conv>0?Math.round(x.a.sold/x.a.conv*100):0;
+      var goal=x.days*t.sold, pace=goal>0?Math.round(x.a.sold/goal*100):0;
+      rh+='<div class="mr-row'+(x.id===state.currentRepId?' me':'')+'">'+
+        '<div class="mr-name"><i class="mr-dot" style="background:'+esc(x.color||'#888')+'"></i>'+
+        '<div style="min-width:0"><div class="mr-nm">'+esc(x.name)+'</div>'+
+        '<div class="mr-sub">'+cr+'% close \u00b7 '+pace+'% of pace \u00b7 '+x.days+'d</div></div></div>'+
+        '<span>'+x.a.doors+'</span><span>'+x.a.conv+'</span><span>'+x.a.appt+'</span>'+
+        '<span>'+x.a.fup+'</span><span class="mr-sold">'+x.a.sold+'</span></div>';
+    });
+    if(list.length>1){
+      var T={doors:0,conv:0,appt:0,fup:0,sold:0};
+      list.forEach(function(x){for(var k in T)T[k]+=x.a[k];});
+      var tcr=T.conv>0?Math.round(T.sold/T.conv*100):0;
+      rh+='<div class="mr-row" style="border-top:1px solid var(--border2);font-weight:800">'+
+        '<div class="mr-name"><div style="min-width:0"><div class="mr-nm">Team total</div>'+
+        '<div class="mr-sub">'+tcr+'% close \u00b7 '+list.length+' reps</div></div></div>'+
+        '<span>'+T.doors+'</span><span>'+T.conv+'</span><span>'+T.appt+'</span>'+
+        '<span>'+T.fup+'</span><span class="mr-sold">'+T.sold+'</span></div>';
+    }
+    h+=rh+'</div>';
+  }
+  box.innerHTML=h;
+}
+function metricTargetSheet(){
+  var t=metricTargets();
+  openSheet('<div class="sheet-title">\u2699 Daily targets</div>'+
+    '<div class="sheet-desc">Per selling day. Estimates multiply these by the number of days you logged doors.</div>'+
+    '<div class="field"><label>Doors knocked</label><input type="number" id="tgD" inputmode="numeric" value="'+t.doors+'"></div>'+
+    '<div class="field"><label>Conversations</label><input type="number" id="tgC" inputmode="numeric" value="'+t.conv+'"></div>'+
+    '<div class="field"><label>Appointments set</label><input type="number" id="tgA" inputmode="numeric" value="'+t.appt+'"></div>'+
+    '<div class="field"><label>Follow-ups</label><input type="number" id="tgF" inputmode="numeric" value="'+t.fup+'"></div>'+
+    '<div class="field"><label>Sold customers</label><input type="number" id="tgS" inputmode="numeric" value="'+t.sold+'"></div>'+
+    '<button class="btn" id="tgSave" style="margin-top:10px">Save targets</button>'+
+    '<button class="btn-line" id="tgReset" style="margin-top:8px">Reset to benchmark</button>'+
+    '<button class="btn-line" style="margin-top:8px" onclick="closeSheet()">Cancel</button>');
+  var sv=$('#tgSave'); if(sv)sv.onclick=function(){
+    state.mTarget={doors:+($('#tgD').value)||METRIC_DEF.doors, conv:+($('#tgC').value)||METRIC_DEF.conv,
+      appt:+($('#tgA').value)||METRIC_DEF.appt, fup:+($('#tgF').value)||METRIC_DEF.fup, sold:+($('#tgS').value)||METRIC_DEF.sold};
+    persist(); closeSheet(); renderMetrics(); toast('\u2713 Targets saved');
+  };
+  var rs=$('#tgReset'); if(rs)rs.onclick=function(){ state.mTarget=null; persist(); closeSheet(); renderMetrics(); toast('Targets reset to benchmark'); };
+}
+
 function renderFunnel(){
   var box=$('#funnelBody'); if(!box)return;
   var rid=state.currentRepId, doors=0,contacts=0,booked=0,sold=0;
@@ -4153,9 +4305,16 @@ function renderStats(){
   renderPlan();
   renderEarnings();
   var _eb=$('#eodBtn'); if(_eb)_eb.onclick=eodSheet;
+  var _mt=$('#mTargets'); if(_mt)_mt.onclick=metricTargetSheet;
+  $$('#mTabs .m-tab').forEach(function(b){ b.onclick=function(){
+    metricRange=b.dataset.r;
+    $$('#mTabs .m-tab').forEach(function(x){x.classList.toggle('on',x===b);});
+    renderMetrics();
+  };});
   renderSession();
   renderBestTime();
   renderFunnel();
+  renderMetrics();
   renderBadges();
   renderWeekReport();
   var _wg=$('#wrGoals'); if(_wg)_wg.onclick=goalsSheet;
