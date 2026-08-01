@@ -2353,32 +2353,33 @@ function renderRadar(){
    rolling window always stays current instead of going stale. Frontier and EarthLink are the
    team's own products and are intentionally excluded from this competitor feed. */
 var PUBLIC_OUTAGES=[
-  {ago:2, provider:'Spectrum',         mins:68, hub:'Anaheim & Santa Ana, Orange County',          counties:['Orange']},
-  {ago:3, provider:'Cox',              mins:49, hub:'Irvine & Anaheim, Orange County',              counties:['Orange']},
-  {ago:5, provider:'AT&T',             mins:44, hub:'Inland Empire (Riverside / San Bernardino)',   counties:['Riverside','San Bernardino']},
-  {ago:7, provider:'Xfinity / Comcast',mins:36, hub:'San Bernardino / Fontana',                    counties:['San Bernardino']},
-  {ago:9, provider:'Spectrum',         mins:57, hub:'Riverside / Moreno Valley',                    counties:['Riverside']},
-  {ago:11,provider:'Cox',              mins:43, hub:'Orange County (Anaheim Hills / Orange)',       counties:['Orange']},
-  {ago:13,provider:'Spectrum',         mins:600,hub:'Santa Clarita Valley fiber-optic lines cut (vandalism) — 700+ fibers spliced; spilled toward N. LA County', counties:['San Bernardino']},
-  {ago:15,provider:'AT&T',             mins:71, hub:'Orange County (Santa Ana / Garden Grove)',     counties:['Orange']},
-  {ago:17,provider:'Zayo Group (Tier 1)',mins:27,hub:'Los Angeles Tier-1 backbone hub',            counties:['Orange','Riverside','San Bernardino']},
-  {ago:19,provider:'Spectrum',         mins:88, hub:'San Bernardino / Rancho Cucamonga',            counties:['San Bernardino']},
-  {ago:22,provider:'Lumen / CenturyLink',mins:23,hub:'Los Angeles backbone hub',                   counties:['Riverside','San Bernardino']},
-  {ago:24,provider:'Xfinity / Comcast',mins:40, hub:'Riverside / Corona',                          counties:['Riverside']},
-  {ago:27,provider:'Spectrum',         mins:62, hub:'Orange County (Fullerton / Buena Park)',       counties:['Orange']},
-  {ago:29,provider:'Cox',              mins:34, hub:'Orange County (Santa Ana)',                    counties:['Orange']}
+  /* Documented, sourced outage events. d:[year, month(0-idx), day]. keep:1 = landmark, always shown. */
+  {d:[2026,6,29], provider:'Spectrum', mins:120, hub:'Central & South LA \u2014 reports from 90011, 90014, 90017, 90022, 90047, 90060, 90063, 91042',
+   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
+  {d:[2026,6,14], provider:'Cox', mins:60, hub:'Anaheim, Orange County \u2014 internet & Wi-Fi reports (92801)',
+   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/cox-communications/5323810-anaheim-orange-county-california-united-states'},
+  {d:[2026,6,7], provider:'Spectrum', mins:600, keep:1,
+   hub:'Santa Clarita Valley \u2014 fiber lines cut in a criminal attack; techs spliced 700+ fibers to restore service',
+   counties:['San Bernardino'], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
+  {d:[2026,5,25], provider:'Spectrum', mins:125, hub:'TV and internet outage \u2014 2 hr 5 min, never officially acknowledged',
+   counties:['Riverside'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
+  {d:[2026,3,9], provider:'Spectrum', mins:122, hub:'Internet and Wi-Fi outage \u2014 2 hr 2 min',
+   counties:['San Bernardino'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
+  {d:[2025,5,15], provider:'Spectrum', mins:1440, keep:1,
+   hub:'Van Nuys fiber cut by vandals on Father\u2019s Day \u2014 25,000+ LA reports, spread to Ventura, Anaheim & Santa Ana; $25,000 reward, full-day bill credit',
+   counties:['Orange'], src:'ABC7 Los Angeles', url:'https://abc7.com/post/spectrum-customers-los-angeles-area-report-internet-outages-fiber-cut-vandalism/16760120/'}
 ];
 var radarOutages=[];
 function loadPublicOutages(){
   var cut=Date.now()-31*864e5, now=Date.now();
   radarOutages=PUBLIC_OUTAGES.map(function(o){
     var ts=(o.ago!=null)?(now-o.ago*864e5):new Date(o.d[0],o.d[1],o.d[2],12,0,0).getTime();
-    return {ts:ts,provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties};
-  }).filter(function(o){return o.ts>=cut;});
+    return {ts:ts,provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties,src:o.src,url:o.url,keep:o.keep};
+  }).filter(function(o){return o.keep||o.ts>=cut;});
   var fb=$('#outageFeed');
-  if(fb)fb.innerHTML='<span class="og-dot live"></span>Recent competitor internet outages across the territory — '+radarOutages.length+
-    ' in the last 30 days, weighted to Southern California (Spectrum, Cox, AT&T, Xfinity and Tier-1 backbone). '+
-    'Representative activity from Downdetector and Cisco ThousandEyes / Network World.';
+  if(fb)fb.innerHTML='<span class="og-dot live"></span>'+radarOutages.length+
+    ' documented competitor outage events \u2014 each links to its published source. '+
+    'Landmark incidents stay pinned; others roll off after 30 days. For live status check Downdetector or the carrier status page.';
   renderCountyStrip();renderOutageGraph();renderPublicOutages();
 }
 function countyCounts(){
@@ -2402,14 +2403,16 @@ function renderPublicOutages(){
   var box=$('#ogEvents');if(!box)return;
   var list=radarOutages.slice().sort(function(a,b){return b.ts-a.ts;});
   if(!list.length){box.innerHTML='';return;}
-  box.innerHTML='<div class="og-evhead">⚡ Competitor outages — last 30 days</div>'+
+  box.innerHTML='<div class="og-evhead">⚡ Documented competitor outages — sourced</div>'+
     list.map(function(o){
       var dt=new Date(o.ts);
       var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
       return '<div class="og-ev"><span class="og-ev-d">'+(dt.getMonth()+1)+'/'+dt.getDate()+'</span>'+
         '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+'</div>'+
         '<div class="og-ev-m">'+esc(o.hub)+' · down ~'+o.mins+' min</div>'+
-        '<div class="og-ev-tags">'+tags+'</div></div></div>';
+        '<div class="og-ev-tags">'+tags+(o.keep?'<span class="og-ev-ca" style="background:rgba(255,215,0,.15);color:#FFD700">PINNED</span>':'')+
+        (o.url?'<a class="og-ev-ca" href="'+esc(o.url)+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none">'+esc(o.src||'source')+' \u2197</a>':'')+
+        '</div></div></div>';
     }).join('');
 }
 function outageDayBuckets(days){
@@ -2630,7 +2633,13 @@ var PRESS=[
      {date:'May 2024', t:'Frontier expanded its secured-debt capacity from $2.5B to $5.5B to keep funding the fiber build through securitizations — after pioneering the first-ever U.S. fiber-backed financing in 2023.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20240523748585/en/Frontier-Announces-Amendment-to-its-Revolving-Credit-Facility'},
      {date:'2024', t:'Frontier closed a $750M fiber securitization to fund its build and lower its overall cost of capital — investors lining up behind fiber as infrastructure.', src:'Light Reading', url:'https://www.lightreading.com/broadband/frontier-taps-into-more-fiber-assets-to-raise-750m'},
      {date:'2026', t:'Alongside the Frontier deal, Investors framed the Frontier deal as Verizon reshaping both its fiber reach and its balance sheet — a long-term bet on fiber as core infrastructure.', src:'Simply Wall St', url:'https://simplywall.st/stocks/us/telecom/nyse-vz/verizon-communications/news/verizon-reshapes-fiber-reach-and-balance-sheet-with-frontier'},
-     {date:'Apr 2026', t:'Verizon Q1 2026: adjusted EPS of $1.28 (up ~8% YoY), a $2.5B share buyback, and a 20th straight annual dividend increase — a financially strong parent behind Frontier fiber.', src:'StockTitan', url:'https://www.stocktitan.net/sec-filings/VZ/10-q-verizon-communications-inc-quarterly-earnings-report-ccd6f5d56ac0.html'}
+     {date:'Apr 2026', t:'Verizon Q1 2026: adjusted EPS of $1.28 (up ~8% YoY), a $2.5B share buyback, and a 20th straight annual dividend increase — a financially strong parent behind Frontier fiber.', src:'StockTitan', url:'https://www.stocktitan.net/sec-filings/VZ/10-q-verizon-communications-inc-quarterly-earnings-report-ccd6f5d56ac0.html'},
+     {date:'Sep 5 2024', t:'Verizon and Frontier announced a definitive agreement for Verizon to acquire Frontier in an all-cash deal valued at $20 billion \u2014 the largest pure-play fiber provider in the U.S., extending reach to 25 million premises across 31 states and DC.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizon-to-acquire-frontier'},
+     {date:'Jan 15 2026', t:'All required regulatory approvals landed \u2014 California\u2019s approval on Jan 15 cleared the path to close. This is the merger your customers have heard about; you can name the date with confidence.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizon-and-frontier-regulatory-approval'},
+     {date:'Jan 20 2026', t:'Deal closed \u2014 Frontier is officially a Verizon company, combining Frontier fiber with Fios to reach roughly 30 million fiber passings. Frontier was delisted from Nasdaq; the turnaround is now backed by Verizon\u2019s balance sheet.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/introducing-frontier-verizon-company'},
+     {date:'Jul 2026', t:'Verizon Forward \u2014 up to $30/mo off Fiber for customers on Lifeline, Pell Grant and other federal assistance programs \u2014 becomes available to Frontier customers in California by end of July 2026. A real answer for price-sensitive doors.', src:'Verizon', url:'https://www.verizon.com/articles/home/verizon-acquires-frontier/'},
+     {date:'Jul 24 2026', t:'Q2 2026: Verizon posted its highest adjusted EBITDA margin in company history and announced a $1B+ dark fiber deal with Google. Fiber added 155,000 net customers in the quarter and management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'},
+     {date:'Jul 2026', t:'Independent offer roundup confirms the stack you sell: $15/mo Mobile + Home on every tier, up to $400 Samsung/Best Buy credit on 2 Gig and higher, Whole-Home Wi-Fi included at 1 Gig+, and a $10 Verizon Perk credit from 1 Gig up.', src:'BroadbandNow', url:'https://broadbandnow.com/Frontier-Communications-deals'}
    ]},
   {group:'🔵 AT&T Fiber in California',
    lead:'AT&T is the other fiber giant in California — and the network EarthLink resells. It\u2019s consistently top-rated for customer satisfaction (ACSI) and is making its largest-ever investment in the state. Useful to know cold: AT&T and Frontier tend to build in different areas, so between them most of the territory has a fiber option.',
