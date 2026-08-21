@@ -1381,11 +1381,20 @@ var CITY_NOTE={
   mountain:'Big Bear is a mountain market — wired fiber is limited, Spectrum is the cable incumbent, and Starlink + 5G home internet are the strongest alternatives.'
 };
 
-/* ── ISP COMPETITIVE INTEL — Frontier (7/31/26, PV v26) & EarthLink (7/30/26, PV v10) offer sheets ── */
+/* ── ISP COMPETITIVE INTEL — Frontier (8/19/26, PV v28) & EarthLink (7/30/26, PV v10) offer sheets ── */
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
-  headline:'myHome 1 Gig $64.99 w/AutoPay · $49.99 w/AutoPay + M+H · NFL Sunday Ticket on us on 1G+ (rev 7/31/26)',
+  headline:'2 Months FREE on 500M & 1 Gig (lead lists, thru 9/30) · 1 Gig $64.99 w/AutoPay, $49.99 +M+H (rev 8/19/26)',
   rateTables:[
+    {cap:'Live promotions — what you can actually offer today',
+     cols:['Offer','Window','Tiers','What they get'], align:'left',
+     rows:[['2 Months “On Us” (D2D)','8/14 – 9/30/26','500M & 1 Gig only','First 2 months free + choice of $400 Samsung credit OR full-season NFL Sunday Ticket'],
+           ['NFL Sunday Ticket','7/30 – 9/22/26','1 Gig+ / 500M & below','On us ($480 value) on 1 Gig+ · $234 instead of $480 on 500M & below'],
+           ['$400 Samsung credit','Ongoing','All tiers','BestBuy.com credit — does not stack with NFL Sunday Ticket'],
+           ['Unbreakable Wi-Fi','Ongoing','All tiers','1st month free']],
+     foot:['<b>2 Months “On Us” is lead-list gated.</b> New-to-Frontier customers at eligible addresses only — if the address is not on a qualifying lead list, the customer cannot get it. Check before you promise it.',
+           'It <b>does</b> stack with Mobile + Home ($15/mo, applied after the two free months) and with Online Digital Pulse Visa Reward Card offers.',
+           'Expired — do not pitch: Visa Reward Cards (6/30) · Fox One Perk 3 Months “On Us” (7/19).']},
     {cap:'myHome fiber — monthly price by discount rung',
      cols:['Speed','List','AutoPay','M+H','Both'], leadCol:4, leadRow:'1 Gig',
      rows:[['200M','$39.99','$29.99','$24.99','$14.99'],
@@ -1414,7 +1423,12 @@ var ISPS=[
            ['Netflix & Pro Wi-Fi','$32','Netflix Premium + WHWF + Wi-Fi Security'],
            ['YouTube TV','$82.99','−$10/mo for 12 mo = $120 yr 1']]}
   ],
-  plans:['NEW — NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
+  plans:['NEW — 2 Months “On Us”, D2D (launched 8/14, runs through 9/30/26). Eligible customers get their first 2 months of Frontier Fiber free. Available ONLY on Fiber 500 Mbps and Fiber 1 Gig.',
+    '2MOU is EXCLUSIVELY LEAD-LIST DRIVEN — new-to-Frontier prospects at eligible addresses sourced from a qualifying lead list. If the address is not on the list, the customer does not get it. Verify before you pitch it.',
+    '2MOU sweetener — the customer picks ONE: a $400 Samsung credit for BestBuy.com OR a full-season NFL Sunday Ticket. Not both.',
+    '2MOU stacks with the Verizon Mobile + Home discount ($15/mo, applied after the two free months) and with Online Digital Pulse Visa Reward Card offers.',
+    '2MOU included benefits per the sheet: 4- or 5-year price lock by tier, no annual contract, no hidden fees, unlimited data, Whole-Home Wi-Fi included, professional router setup, and free installation — note free install even on 500M, which normally carries the $100 pro-install fee.',
+    'NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
     'NFL ST eligibility: new Fiber customers, copper-to-Fiber migrations, and voice customers adding Fiber. Base YouTube TV is NOT required — it streams through YouTube Primetime Channels. Cannot combine with an active NFL Sunday Ticket billed elsewhere. NOT stackable with the $400 Samsung offer.',
     'NFL ST fulfillment: eligibility auto-validates at order entry; redemption email lands 24–48 hrs AFTER install; customer has 30 days to redeem on YouTube. No code at the door — say so up front.',
     'NFL ST clawback: the 1 Gig+ “on us” version carries a $480 chargeback TO THE CUSTOMER if service is disconnected within 365 days of install. The $234 version has no clawback.',
@@ -1425,17 +1439,17 @@ var ISPS=[
     'Unbreakable Wi-Fi — 1st month FREE',
     'YouTube TV needs CUSTOMER ACTION: activation link by email or SMS (text from 70994), expires after 60 days, and a Google account never used for a YouTube TV trial or subscription — otherwise they must make a new one.',
     'Eligible customers receive up to two eero devices based on speed tier — equipment distribution rules are unchanged.',
-    'EXPIRED — do not pitch: 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19)',
+    'EXPIRED — do not pitch: Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19). NOTE: the sheet lists Visa Reward Cards as expired but also lists Online Digital Pulse Visa Reward Card offers as stackable with 2 Months “On Us” — confirm with PV before promising a Visa card.',
     'Verizon myHome Perks: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment.',
     'Perk rules: one perk credit per household · credit covers up to $10/mo and any unused amount is forfeited, it does not roll over · no duplicate subscriptions of the same perk, so check for existing Verizon perks during discovery · register each perk by SmartLink (sent by email AND text) within 90 days or it is removed · perks move with the customer only if Fiber is available at the new address · disconnect ends perk access immediately.',
-    'Offers current as of the 7/31/26 Frontier offer sheet (PerfectVision v26)'],
+    'Offers current as of the 8/19/26 Frontier offer sheet (PerfectVision v28)'],
   facts:['Standard rate: the sheet’s rate card already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
     'Quote the AutoPay price first ($64.99 on 1 Gig). $49.99 only exists WITH a qualifying Verizon postpaid line — quoting it before you qualify them is how a sale falls apart at install',
     'myHome carries no early-termination fee and no restocking fee — this kills the \\"I don\u2019t want to be locked in\\" objection outright',
     'eero Wi-Fi router included · symmetrical upload/download · no data caps',
     'Equipment must be returned on disconnect to avoid a non-return fee'],
-  cancel:'Standard Fiber plans are month-to-month with no early-termination fee (the 2 Months \"On Us\" promo that carried a 12-month ETF has expired). On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
-  pitch:'This is your product. Ask about Verizon mobile in the first 30 seconds — that one question decides whether 1 Gig is $64.99 or $49.99. Through 9/22/26 the closer is NFL Sunday Ticket: on 1 Gig+ it is on us, a $480 value, and on 500M and below it is $234 instead of $480. It does not stack with the $400 Samsung offer, so ask which they want. Be straight about the two catches — no code at the door (redemption email 24–48 hrs after install, 30 days to use it) and a $480 chargeback if they disconnect inside 365 days. Fox One, Visa cards and the 2-month promo have expired — do not promise them.'},
+  cancel:'myHome Fiber carries no early-termination fee and no restocking fee, and the 8/14 relaunch of 2 Months \"On Us\" is explicitly no-annual-contract on the sheet. On disconnect a non-return fee still applies (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned. Separate from all of that: the NFL Sunday Ticket \"on us\" version on 1 Gig+ carries a $480 chargeback to the customer if they disconnect within 365 days of install — that is the one real early-exit cost, so disclose it.',
+  pitch:'This is your product. First: check whether the address is on a qualifying lead list, because 2 Months “On Us” through 9/30/26 is the strongest thing you have — two months free on 500M or 1 Gig, plus their pick of a $400 Samsung credit or a full season of NFL Sunday Ticket, plus free install and Whole-Home Wi-Fi. It is lead-list only, so never promise it off a cold door. Second: ask about Verizon mobile in the first 30 seconds — that one question decides whether 1 Gig is $64.99 or $49.99, and M+H stacks on top of 2MOU after the free months. If the address does not qualify for 2MOU, NFL Sunday Ticket alone still closes through 9/22/26. Be straight about the catches: no redemption code at the door (email lands 24–48 hrs after install, 30 days to use) and a $480 chargeback on the 1 Gig+ “on us” ticket if they disconnect inside 365 days.'},
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
   headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer (rev 7/30/26)',
@@ -1483,23 +1497,47 @@ var ISPS=[
   pitch:'Update the pitch: Xfinity closed the old "doubles after 12 months" gap with a 5-year price lock, so don\u2019t lead with that. Win instead on fiber being symmetrical (Xfinity\u2019s upload is far slower than its download), on no surprise jump until year six, and on the one-visit Frontier + ADT bundle. Note the lock excludes taxes, fees and equipment, and the bill still climbs ~$20–$30 when it ends.'},
 
  {id:'spectrum',name:'Spectrum (Charter)',type:'Cable',color:'#0a6ea8',
-  headline:'Offer-sheet pricing $25\u2013$90/mo \u00b7 1 Gig $60 lead offer (rev 7/13/26)',
-  plans:['Internet Assist \u2014 $25/mo (income-qualified households only)',
-    'Internet Advantage \u2014 $30/mo',
-    'Internet Premier \u2014 $40/mo',
-    'Internet 1 Gig \u2014 $60/mo \u2014 their lead offer',
-    'Internet 2 Gig \u2014 $90/mo',
-    'AutoPay discounts available \u00b7 pricing varies by region',
-    '$20 Service Activation on ALL installations (effective 4/29/26)',
-    'Free self-install on Internet Premier and above (Express Connect Kit)',
-    'Prices above are from the PV Spectrum RES offer sheet, rev 7/13/26'],
-  facts:['$1000 Savings Guarantee (eff 2/24/26): guarantees $1,000 in first-year savings for new Internet + Mobile customers who switch and bring 2+ mobile lines. Customer action required; stackable with the phone buyout.',
+  headline:'1 Gig $60 lead offer · NEW: free Amazon Prime on ANY tier from 8/17/26 (rev 8/14/26)',
+  rateTables:[
+    {cap:'Internet — monthly', cols:['Tier','Price'], leadRow:'1 Gig',
+     rows:[['Internet Assist','$25'],
+           ['Advantage','$30'],
+           ['Premier','$40'],
+           ['1 Gig','$60'],
+           ['2 Gig','$90']],
+     foot:['Region-dependent, and AutoPay discounts are available on top — the sheet’s own note is <b>“always trust the tool”</b>, so treat these as the ask, not the final number.',
+           'Internet Assist is income-qualified households only. Free self-install on Premier and above.',
+           'What the sheet does <b>not</b> say is what the rate becomes after the promo period. Never guess a step-up number — ask to see the bill.']},
+    {cap:'Spectrum Mobile — per line (requires active Spectrum Internet)',
+     cols:['Plan','Per line','Hotspot','Notes'], align:'left',
+     rows:[['Unlimited','$40','5 GB','slows after 30 GB cellular · 2,000 min Canada/Mexico'],
+           ['Unlimited Plus','$50','10 GB','720p video · slows after 50 GB · Anytime Upgrade'],
+           ['Unlimited Plus Premium','$60','50 GB','4K UHD · up to $360 off a new phone · free smartwatch line']],
+     foot:['<b>Unlimited Plus Premium is new (eff 7/22/26)</b> and targets new customers taking Internet Gig — this is the plan their reps are pushing at the door right now.',
+           'The mobile lines are the real switching cost, not the internet price. Qualify for ported phones early.']},
+    {cap:'Live Spectrum promotions', cols:['Offer','Window','Who'], align:'left',
+     rows:[['Free Amazon Prime membership','8/17/26 until further notice','New AND existing at flagged locations, ANY internet tier'],
+           ['Unlimited Plus Premium mobile','eff 7/22/26','New customers taking Internet Gig'],
+           ['$1,000 Savings Guarantee','Ongoing','New Internet + Mobile, 2+ ported lines'],
+           ['Free Internet for Life','Ongoing','4 mobile lines, Advantage-eligible, 2 ported lines'],
+           ['$2,500 Phone Balance Buyout','Ongoing','New and existing, 2 ported lines'],
+           ['Free self-install','Ongoing','Premier and above']],
+     foot:['The New York Specific Internet Offer on their sheet does <b>not</b> apply in California — ignore it.']}
+  ],
+  plans:['NEW — Amazon Prime with Internet, effective 8/17/26 until further notice. A free Amazon Prime membership for NEW AND EXISTING customers at flagged locations on ANY internet tier. Customer activates through Spectrum.net or the My Spectrum App.',
+    'Why that one matters: it reaches their existing base, not just switchers, and it is tier-agnostic — so the $30 Advantage customer you are knocking gets the same Prime hook as the 2 Gig customer. Expect to hear it at the door.',
+    'Prime includes Prime Video, Prime Music, Prime Reading, fuel savings, grocery, pharmacy and Grubhub+ — roughly $139/yr of retail value they will quote at you.',
+    'NEW — Unlimited Plus Premium mobile plan, effective 7/22/26, aimed at new customers taking Internet Gig. Bundling prices live in their Resource Center.',
+    '$20 Service Activation on ALL installations (from the 4/29/26 sheet — not restated on the 8/14/26 revision, so confirm before quoting it against them)',
+    'Prices and offers above are from the PV Spectrum RES offer sheet, rev 8/14/26'],
+  facts:['Free Amazon Prime is a giveaway, not a rate cut — it does not change what they pay for internet in month 13. If a customer raises it, agree that it is a nice perk and move the conversation back to the bill: a Prime membership is about $12/mo of value against a promo step-up that is usually much larger.',
+    '$1000 Savings Guarantee (eff 2/24/26): guarantees $1,000 in first-year savings for new Internet + Mobile customers who switch and bring 2+ mobile lines. Customer action required; stackable with the phone buyout.',
     'Free Internet for Life \u2014 4 Mobile Lines: available to customers eligible for Internet Advantage, requires 2 ported lines. Upgrades cost extra: Premier +$10/mo, 1 Gig +$20/mo, 2 Gig +$40/mo. Credits land on the month-2 bill.',
     '$2,500 Phone Balance Buyout: new AND existing customers, pays off the prior carrier\u2019s phone balance up to $2,500, requires 2 ported lines.',
     'The mobile-bundle offers are the real threat, not the internet price \u2014 they lock the customer\u2019s phones to Spectrum, which is far stickier than the internet alone.',
     'Not on the offer sheet: what the rate becomes after the promotional period. Spectrum promo rates step up, but do not quote a specific step-up number you cannot prove \u2014 ask to see the customer\u2019s bill instead.'],
   cancel:'No term contracts and no early-termination fee on residential internet. Two gotchas worth disclosing: Spectrum does not prorate a final bill (cancel before the next billing date or pay a full extra month), and cancellation cannot be completed online \u2014 phone or store only. Strong retention desk. The mobile-line offers above are the real exit friction: a customer who took Free Internet for Life or the $2,500 buyout has ported phones and a device balance tied to Spectrum.',
-  pitch:'Their lead is 1 Gig at $60 and a stack of mobile-line offers. Do not argue price on the sheet number \u2014 ask to see the actual bill, because the promotional rate is not the ongoing rate and their sheet does not state what it becomes. Frontier\u2019s myHome answer is a multi-year price guarantee in writing, no ETF and no restocking fee. If they have already ported phones to Spectrum Mobile, that is a harder switch \u2014 qualify for it early.'},
+  pitch:'Their lead is 1 Gig at $60 plus a stack of mobile offers, and as of 8/17/26 they are handing out free Amazon Prime on any tier to new AND existing customers — so expect homes that were not shopping to bring it up. Do not argue the giveaway. Agree it is a nice perk, then move to the bill: Prime is roughly $12/mo of value and their sheet still does not say what the rate becomes after the promo. Ask to see the actual bill. Frontier’s myHome answer is a multi-year price guarantee in writing, no ETF and no restocking fee, plus 2 Months “On Us” on qualifying lead-list addresses. If they have already ported phones to Spectrum Mobile, that is the hard switch — qualify for it early.'},
 
  {id:'vzmobile',name:'Verizon Mobile',type:'Mobile (partner)',ours:1,color:'#d52b1e',
   headline:'myPlans $30\u2013$95/line \u00b7 Verizon One $70 all-in \u00b7 Simplicity $45 (rev 7/13/26)',
@@ -2951,6 +2989,7 @@ function quoteSheet(){
     if(svc==='Frontier') pn.push(bigTier
       ? 'NFL Sunday Ticket from YouTube ON US — a $480 value, through 9/22/26. Redemption email 24–48 hrs after install, 30 days to redeem. $480 chargeback if they disconnect within 365 days. Does not stack with the $400 Samsung offer.'
       : 'NFL Sunday Ticket from YouTube at $234 instead of $480 — a $246 discount, through 9/22/26, no clawback. Redemption email 24–48 hrs after install. Does not stack with the $400 Samsung offer.');
+    if(svc==='Frontier' && (pl.id==='500M'||pl.id==='1G')) pn.push('2 Months “On Us” (thru 9/30/26) applies to this tier IF the address came off a qualifying lead list — first 2 months free, free install, plus their choice of the $400 Samsung credit or full-season NFL Sunday Ticket. Lead-list only; verify before promising.');
     if(svc==='Frontier' && !bigTier) pn.push('Heads up on this tier: $100 pro-install fee, and Whole-Home Wi-Fi is $10/mo (both are included at 1 Gig and above).');
     if(svc==='Frontier') pn.push('Unbreakable Wi-Fi: 1st month free.');
     if(svc==='Frontier' && $('#qMh') && !$('#qMh').checked) pn.push('Mobile + Home not applied — with a qualifying Verizon postpaid line this drops another $15/mo. Worth asking before you quote.');
