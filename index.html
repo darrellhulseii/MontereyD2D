@@ -474,6 +474,21 @@ input,select,textarea{outline:none}
 .isp-sec{margin-top:11px}
 .isp-sec-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;
   text-transform:uppercase;color:var(--sky);margin-bottom:5px}
+.rate-wrap{margin:2px 0 10px}
+.rate-cap{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+.rate-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table.rate-tbl{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+table.rate-tbl th,table.rate-tbl td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+table.rate-tbl tr:last-child th,table.rate-tbl tr:last-child td{border-bottom:0}
+table.rate-tbl thead th{font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);background:var(--bg2,rgba(0,0,0,.04))}
+table.rate-tbl th.rate-s,table.rate-tbl td.rate-s{text-align:left;font-weight:700;position:sticky;left:0;background:var(--card);z-index:1}
+table.rate-tbl thead th.rate-s{background:var(--bg2,rgba(0,0,0,.04))}
+table.rate-tbl .rate-lead{background:rgba(0,174,239,.13)}
+table.rate-tbl thead th.rate-lead{background:rgba(0,174,239,.22);color:var(--ink)}
+table.rate-tbl tr.rate-leadrow td{font-weight:700}
+table.rate-tbl td.rate-na{color:var(--faint)}
+.rate-foot{font-size:11px;color:var(--muted);line-height:1.45;margin:6px 2px 0}
+.rate-foot b{color:var(--ink)}
 .isp-plan{font-size:12.5px;color:var(--ink);padding:2px 0 2px 14px;position:relative}
 .isp-plan::before{content:'•';position:absolute;left:2px;color:var(--sky)}
 .isp-cancel{font-size:12.5px;color:var(--muted);line-height:1.55}
@@ -1370,10 +1385,36 @@ var CITY_NOTE={
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
   headline:'myHome 1 Gig $64.99 w/AutoPay · $49.99 w/AutoPay + M+H · NFL Sunday Ticket on us on 1G+ (rev 7/31/26)',
-  plans:['SHEET RATE CARD (all prices include the $10/mo AutoPay discount): 200M $29.99 · 500M $44.99 · 1G $64.99 — lead offer · 2G $79.99 · 5G $104.99 · 7G $124.99',
-    'Add the $15/mo Mobile + Home discount and it becomes: 200M $14.99 · 500M $29.99 · 1G $49.99 · 2G $64.99 · 5G $89.99 · 7G $109.99 (up to $25/mo combined savings)',
-    'The other two rungs: standalone (no AutoPay, no M+H) 200M $39.99 · 500M $54.99 · 1G $74.99 · 2G $89.99 · 5G $114.99 · 7G $134.99 — and M+H only 200M $24.99 · 500M $39.99 · 1G $59.99 · 2G $74.99 · 5G $99.99 · 7G $119.99',
-    'NEW — NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
+  rateTables:[
+    {cap:'myHome fiber — monthly price by discount rung',
+     cols:['Speed','List','AutoPay','M+H','Both'], leadCol:4, leadRow:'1 Gig',
+     rows:[['200M','$39.99','$29.99','$24.99','$14.99'],
+           ['500M','$54.99','$44.99','$39.99','$29.99'],
+           ['1 Gig','$74.99','$64.99','$59.99','$49.99'],
+           ['2 Gig','$89.99','$79.99','$74.99','$64.99'],
+           ['5 Gig','$114.99','$104.99','$99.99','$89.99'],
+           ['7 Gig','$134.99','$124.99','$119.99','$109.99']],
+     foot:['<b>AutoPay</b> = −$10/mo. <b>M+H</b> = −$15/mo with a qualifying Verizon postpaid line. Both together = up to $25/mo off.',
+           'Quote the <b>AutoPay</b> column unless you have already confirmed a qualifying Verizon line — the <b>Both</b> column is the number that falls apart at install.']},
+    {cap:'What each tier includes',
+     cols:['Speed','Price guarantee','Whole-Home Wi-Fi','$10 perk credit','Pro-install'],
+     rows:[['200M','3-Year','+$10/mo','—','$100 fee'],
+           ['500M','4-Year','+$10/mo','—','$100 fee'],
+           ['1 Gig','5-Year','Included','Included','Included'],
+           ['2 Gig','5-Year','Included','Included','Included'],
+           ['5 Gig','5-Year','Included','Included','Included'],
+           ['7 Gig','5-Year','Included','Included','Included']],
+     foot:['The $10 perk credit also requires Mobile + Home enrollment. Extender users see a $10 charge with a matching $10 credit; downgrading below 1 Gig removes it.']},
+    {cap:'Value-added services — monthly',
+     cols:['Service','Price','Notes'], align:'left',
+     rows:[['Unbreakable Wi-Fi','$25','1st month free'],
+           ['Whole-Home Wi-Fi','$10','per extender · $0 on 1 Gig+'],
+           ['Wi-Fi Security','$6','basic protection'],
+           ['Wi-Fi Security Plus','$10','advanced + parental controls'],
+           ['Netflix & Pro Wi-Fi','$32','Netflix Premium + WHWF + Wi-Fi Security'],
+           ['YouTube TV','$82.99','−$10/mo for 12 mo = $120 yr 1']]}
+  ],
+  plans:['NEW — NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
     'NFL ST eligibility: new Fiber customers, copper-to-Fiber migrations, and voice customers adding Fiber. Base YouTube TV is NOT required — it streams through YouTube Primetime Channels. Cannot combine with an active NFL Sunday Ticket billed elsewhere. NOT stackable with the $400 Samsung offer.',
     'NFL ST fulfillment: eligibility auto-validates at order entry; redemption email lands 24–48 hrs AFTER install; customer has 30 days to redeem on YouTube. No code at the door — say so up front.',
     'NFL ST clawback: the 1 Gig+ “on us” version carries a $480 chargeback TO THE CUSTOMER if service is disconnected within 365 days of install. The $234 version has no clawback.',
@@ -1382,13 +1423,9 @@ var ISPS=[
     'M+H timing: Fiber must be ACTIVATED within 30 days of the order to qualify. Started from the Verizon side, the discount shows on the Frontier bill within 60 days.',
     'Verizon Perks (legacy plans): 2G / 5G / 7G (or the highest tier available at the address) + Verizon postpaid + M+H enrollment = up to $10/mo in Perk credits on the Verizon mobile bill.',
     'Unbreakable Wi-Fi — 1st month FREE',
-    'Video: Netflix & Pro Wi-Fi bundle $32/mo (Netflix Premium + Whole-Home Wi-Fi + Wi-Fi Security) · YouTube TV $82.99/mo with $10 off/mo for 12 months = $120 first-year savings',
     'YouTube TV needs CUSTOMER ACTION: activation link by email or SMS (text from 70994), expires after 60 days, and a Google account never used for a YouTube TV trial or subscription — otherwise they must make a new one.',
-    'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender, INCLUDED at $0 on 1 Gig+ · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
-    'Whole-Home Wi-Fi mechanics: included free on myHome 1G+; $10/mo on plans below 1 Gig; downgrading below 1 Gig removes the credit. Customers using extenders see a $10 charge and a matching $10 credit on the bill. Up to two eero devices by speed tier.',
+    'Eligible customers receive up to two eero devices based on speed tier — equipment distribution rules are unchanged.',
     'EXPIRED — do not pitch: 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19)',
-    'myHome price guarantee: 3-Year on 200M · 4-Year on 500M · 5-Year on 1 Gig and above',
-    'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 pro-install fee.',
     'Verizon myHome Perks: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment.',
     'Perk rules: one perk credit per household · credit covers up to $10/mo and any unused amount is forfeited, it does not roll over · no duplicate subscriptions of the same perk, so check for existing Verizon perks during discovery · register each perk by SmartLink (sent by email AND text) within 90 days or it is removed · perks move with the customer only if Fiber is available at the new address · disconnect ends perk access immediately.',
     'Offers current as of the 7/31/26 Frontier offer sheet (PerfectVision v26)'],
@@ -1402,17 +1439,27 @@ var ISPS=[
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
   headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer (rev 7/30/26)',
-  plans:['Fiber 100 Mbps — $39.95/mo','Fiber 300 Mbps — $49.95/mo',
-    'Fiber 500 Mbps — $54.95/mo','Fiber 1 Gig — $74.95/mo — lead offer',
-    'Fiber 2 Gig — $109.95/mo','Fiber 5 Gig — $149.95/mo',
-    'Add $14.95/mo router fee plus a $24.95 one-time install fee',
-    '1G + 500M Promo (new customers): 1 Gig $44.95/mo for months 1-3 then $74.95 · 500M $34.95/mo for months 1-3 then $54.95',
-    '5G Home Internet (Unlimited) — $59.95/mo + $14.95 modem rental · speeds up to 425 Mbps · true unlimited data · no contract · easy self-install',
-    '1G + 500M Fiber Promo — new customers only',
-    'Fiber pricing is region-dependent — verify the tier and rate for the address before quoting',
-    'Always disclose the $79.95 processing & handling fee, due at point of sale',
-    'VAS bundle (Internet Gig lead offer): EarthLink Protect+ $9.95/mo · LifeLock $7.95/mo · EasyTech $9.95/mo',
-    'Offers current as of the 7/30/26 EarthLink offer sheet (PerfectVision v10)'],
+  rateTables:[
+    {cap:'Fiber — monthly price', cols:['Speed','Months 1–3','Ongoing'], leadRow:'1 Gig',
+     rows:[['100M','—','$39.95'],
+           ['300M','—','$49.95'],
+           ['500M','$34.95','$54.95'],
+           ['1 Gig','$44.95','$74.95'],
+           ['2 Gig','—','$109.95'],
+           ['5 Gig','—','$149.95']],
+     foot:['Every tier adds a <b>$14.95/mo router fee</b> and a <b>$24.95 one-time install</b>.',
+           'Intro pricing on 1 Gig and 500M is <b>new customers only</b> and steps up at month 4 — say the step-up number out loud.',
+           'Always disclose the <b>$79.95 processing &amp; handling fee</b>, due at point of sale.',
+           'Fiber pricing is region-dependent — verify the tier and rate for the address before quoting.']},
+    {cap:'5G Home Internet', cols:['Plan','Monthly','Modem','Speed'],
+     rows:[['5G Home (Unlimited)','$59.95','$14.95','up to 425M']],
+     foot:['True unlimited data, no contract, easy self-install. This is now <b>one plan</b> — the old Unlimited (100M) / Max (425M, 1.2 TB cap) split is retired, so do not quote a data cap.']},
+    {cap:'Value-added services — monthly', cols:['Service','Price','Notes'], align:'left',
+     rows:[['EarthLink Protect+','$9.95','network security · VPN · parental controls · password manager'],
+           ['LifeLock','$7.95','credit monitoring · identity restoration'],
+           ['EasyTech','$9.95','24/7 tech support · device setup']]}
+  ],
+  plans:['Offers current as of the 7/30/26 EarthLink offer sheet (PerfectVision v10)'],
   facts:['Standard rate: the 1G + 500M promo steps up after month 3 — 1 Gig $44.95 to $74.95/mo, 500M $34.95 to $54.95/mo',
     '5G Home Internet is now ONE plan: $59.95/mo + $14.95 modem, up to 425 Mbps, true unlimited data, no contract. The old Unlimited (100M) / Max (425M, 1.2 TB cap) split is retired — do not quote a data cap',
     'Router fee $14.95/mo is ongoing and separate from the plan price',
@@ -3207,6 +3254,32 @@ function weatherFallback(wb,city){
   };
   img.src='https://wttr.in/'+name+'.png?uF';
 }
+function rateTablesHTML(p){
+  if(!p.rateTables||!p.rateTables.length)return '';
+  return p.rateTables.map(function(t){
+    var lead=(typeof t.leadCol==='number')?t.leadCol:-1;
+    var h='<div class="rate-wrap">'+(t.cap?'<div class="rate-cap">'+esc(t.cap)+'</div>':'')+
+      '<div class="rate-scroll"><table class="rate-tbl"><thead><tr>';
+    t.cols.forEach(function(c,i){
+      h+='<th class="'+(i===0?'rate-s':'')+(i===lead?' rate-lead':'')+'">'+esc(c)+'</th>';
+    });
+    h+='</tr></thead><tbody>';
+    t.rows.forEach(function(r){
+      var isLead=(t.leadRow&&r[0]===t.leadRow);
+      h+='<tr'+(isLead?' class="rate-leadrow"':'')+'>';
+      r.forEach(function(v,i){
+        var cls=(i===0?'rate-s':(t.align==='left'&&i>0?'rate-l':''));
+        if(i===lead)cls+=' rate-lead';
+        if(v==='\u2014')cls+=' rate-na';
+        h+='<td class="'+cls.trim()+'"'+(t.align==='left'&&i>0?' style="text-align:left"':'')+'>'+esc(v)+'</td>';
+      });
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+    if(t.foot&&t.foot.length)h+='<div class="rate-foot">'+t.foot.map(function(f){return '\u2022 '+f;}).join('<br>')+'</div>';
+    return h+'</div>';
+  }).join('');
+}
 function renderISPGuide(city){
   $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
     '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Competitor pricing &amp; cancellation verified July 2026 — promo rates with AutoPay vary by address &amp; current offer, so confirm the live quote in the carrier portal before quoting a customer. For real-time outages check Downdetector or the carrier\u2019s status page.</div>';
@@ -3223,6 +3296,7 @@ function renderISPGuide(city){
         '<span class="isp-chev">▾</span></div>'+
       '<div class="isp-body">'+
         '<div class="isp-sec"><div class="isp-sec-lbl">Plans & Pricing</div>'+
+          rateTablesHTML(p)+
           p.plans.map(function(pl){return '<div class="isp-plan">'+esc(pl)+'</div>';}).join('')+'</div>'+
         (p.facts?'<div class="isp-sec"><div class="isp-sec-lbl">Broadband Facts — standard rate &amp; fees</div>'+
           p.facts.map(function(f){return '<div class="isp-plan">'+esc(f)+'</div>';}).join('')+'</div>':'')+
