@@ -1366,35 +1366,39 @@ var CITY_NOTE={
   mountain:'Big Bear is a mountain market — wired fiber is limited, Spectrum is the cable incumbent, and Starlink + 5G home internet are the strongest alternatives.'
 };
 
-/* ── ISP COMPETITIVE INTEL — Frontier (7/17/26) & EarthLink (7/30/26) offer sheets ── */
+/* ── ISP COMPETITIVE INTEL — Frontier (7/31/26, PV v26) & EarthLink (7/30/26, PV v10) offer sheets ── */
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
-  headline:'myHome $14.99–$134.99/mo · 1 Gig $49.99 w/ AutoPay + M+H (rev 7/17/26)',
-  plans:['Fiber 200 Mbps — $29.99/mo','Fiber 500 Mbps — $29.99/mo',
-    'Fiber 1 Gig — $49.99/mo — lead offer','Fiber 2 Gig — $64.99/mo',
-    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $109.99/mo',
-    'All prices include the $10/mo AutoPay discount',
-    'Mobile + Home Discount: $15/mo off with a qualifying Verizon postpaid mobile plan',
-    'Verizon Perks: up to $10/mo in credits on 2 Gig and higher — Netflix/HBO Max, Disney+/Hulu/ESPN+, YouTube Premium',
-    '$400 Samsung Promotion — ONGOING per the 7/17/26 sheet',
-    'Unbreakable Wi-Fi — 1 mo FREE',
-    'Video: Netflix & Pro Wi-Fi bundle $32/mo · YouTube TV $82.99/mo ($10 off/mo for 12 months = $120 first-year savings)',
-    'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
+  headline:'myHome 1 Gig $64.99 w/AutoPay · $49.99 w/AutoPay + M+H · NFL Sunday Ticket on us on 1G+ (rev 7/31/26)',
+  plans:['SHEET RATE CARD (all prices include the $10/mo AutoPay discount): 200M $29.99 · 500M $44.99 · 1G $64.99 — lead offer · 2G $79.99 · 5G $104.99 · 7G $124.99',
+    'Add the $15/mo Mobile + Home discount and it becomes: 200M $14.99 · 500M $29.99 · 1G $49.99 · 2G $64.99 · 5G $89.99 · 7G $109.99 (up to $25/mo combined savings)',
+    'The other two rungs: standalone (no AutoPay, no M+H) 200M $39.99 · 500M $54.99 · 1G $74.99 · 2G $89.99 · 5G $114.99 · 7G $134.99 — and M+H only 200M $24.99 · 500M $39.99 · 1G $59.99 · 2G $74.99 · 5G $99.99 · 7G $119.99',
+    'NEW — NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
+    'NFL ST eligibility: new Fiber customers, copper-to-Fiber migrations, and voice customers adding Fiber. Base YouTube TV is NOT required — it streams through YouTube Primetime Channels. Cannot combine with an active NFL Sunday Ticket billed elsewhere. NOT stackable with the $400 Samsung offer.',
+    'NFL ST fulfillment: eligibility auto-validates at order entry; redemption email lands 24–48 hrs AFTER install; customer has 30 days to redeem on YouTube. No code at the door — say so up front.',
+    'NFL ST clawback: the 1 Gig+ “on us” version carries a $480 chargeback TO THE CUSTOMER if service is disconnected within 365 days of install. The $234 version has no clawback.',
+    '$400 Samsung Promotion — ongoing, but it does not stack with NFL Sunday Ticket. Pick one.',
+    'Mobile + Home Discount — $15/mo. Qualifiers: any current Frontier Fiber plan $20/mo or higher AND an active, qualifying Verizon postpaid smartphone or basic phone plan. Business, prepaid and employee accounts do not qualify. One M+H per customer, and not on a mobile line already carrying M+H on a Fios account.',
+    'M+H timing: Fiber must be ACTIVATED within 30 days of the order to qualify. Started from the Verizon side, the discount shows on the Frontier bill within 60 days.',
+    'Verizon Perks (legacy plans): 2G / 5G / 7G (or the highest tier available at the address) + Verizon postpaid + M+H enrollment = up to $10/mo in Perk credits on the Verizon mobile bill.',
+    'Unbreakable Wi-Fi — 1st month FREE',
+    'Video: Netflix & Pro Wi-Fi bundle $32/mo (Netflix Premium + Whole-Home Wi-Fi + Wi-Fi Security) · YouTube TV $82.99/mo with $10 off/mo for 12 months = $120 first-year savings',
+    'YouTube TV needs CUSTOMER ACTION: activation link by email or SMS (text from 70994), expires after 60 days, and a Google account never used for a YouTube TV trial or subscription — otherwise they must make a new one.',
+    'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender, INCLUDED at $0 on 1 Gig+ · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
+    'Whole-Home Wi-Fi mechanics: included free on myHome 1G+; $10/mo on plans below 1 Gig; downgrading below 1 Gig removes the credit. Customers using extenders see a $10 charge and a matching $10 credit on the bill. Up to two eero devices by speed tier.',
     'EXPIRED — do not pitch: 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19)',
-    'myHome Fiber Offer (launched 7/23/26) — four price rungs per tier. Standalone: 200M $39.99 · 500M $54.99 · 1G $74.99 · 2G $89.99 · 5G $114.99 · 7G $134.99',
-    'myHome w/ AutoPay only: 200M $29.99 · 500M $44.99 · 1G $64.99 · 2G $79.99 · 5G $104.99 · 7G $124.99',
-    'myHome w/ Mobile + Home only: 200M $24.99 · 500M $39.99 · 1G $59.99 · 2G $74.99 · 5G $99.99 · 7G $119.99',
-    'myHome w/ AutoPay AND M+H — the lead numbers: 200M $14.99 · 500M $29.99 · 1G $49.99 · 2G $64.99 · 5G $89.99 · 7G $109.99 (up to $25/mo combined savings)',
     'myHome price guarantee: 3-Year on 200M · 4-Year on 500M · 5-Year on 1 Gig and above',
-    'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 install fee.',
-    'Verizon myHome Perks at launch: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment; register each perk by SmartLink within 90 days or it is removed.',
-    'Offers current as of the 7/17/26 Frontier offer sheet'],
-  facts:['Standard rate: the advertised price already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
+    'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 pro-install fee.',
+    'Verizon myHome Perks: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment.',
+    'Perk rules: one perk credit per household · credit covers up to $10/mo and any unused amount is forfeited, it does not roll over · no duplicate subscriptions of the same perk, so check for existing Verizon perks during discovery · register each perk by SmartLink (sent by email AND text) within 90 days or it is removed · perks move with the customer only if Fiber is available at the new address · disconnect ends perk access immediately.',
+    'Offers current as of the 7/31/26 Frontier offer sheet (PerfectVision v26)'],
+  facts:['Standard rate: the sheet’s rate card already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
+    'Quote the AutoPay price first ($64.99 on 1 Gig). $49.99 only exists WITH a qualifying Verizon postpaid line — quoting it before you qualify them is how a sale falls apart at install',
     'myHome carries no early-termination fee and no restocking fee — this kills the \\"I don\u2019t want to be locked in\\" objection outright',
     'eero Wi-Fi router included · symmetrical upload/download · no data caps',
     'Equipment must be returned on disconnect to avoid a non-return fee'],
   cancel:'Standard Fiber plans are month-to-month with no early-termination fee (the 2 Months \"On Us\" promo that carried a 12-month ETF has expired). On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
-  pitch:'This is your product. Lead with myHome 1 Gig at $49.99/mo — but that number requires BOTH AutoPay and the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. Stack the $400 Samsung promotion and the free month of Unbreakable Wi-Fi. Fox One, Visa cards and the 2-month promo have expired — do not promise them.'},
+  pitch:'This is your product. Ask about Verizon mobile in the first 30 seconds — that one question decides whether 1 Gig is $64.99 or $49.99. Through 9/22/26 the closer is NFL Sunday Ticket: on 1 Gig+ it is on us, a $480 value, and on 500M and below it is $234 instead of $480. It does not stack with the $400 Samsung offer, so ask which they want. Be straight about the two catches — no code at the door (redemption email 24–48 hrs after install, 30 days to use it) and a $480 chargeback if they disconnect inside 365 days. Fox One, Visa cards and the 2-month promo have expired — do not promise them.'},
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
   headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer (rev 7/30/26)',
@@ -2778,12 +2782,12 @@ function renderPress(){
 }
 /* ════════ QUOTE / PRICE-COMPARE ════════ */
 var OUR_PLANS=[
-  {co:'Frontier',label:'Fiber 200M',price:29.99},
-  {co:'Frontier',label:'Fiber 500M',price:29.99},
-  {co:'Frontier',label:'Fiber 1 Gig',price:49.99},
-  {co:'Frontier',label:'Fiber 2 Gig',price:64.99},
-  {co:'Frontier',label:'Fiber 5 Gig',price:89.99},
-  {co:'Frontier',label:'Fiber 7 Gig',price:109.99},
+  {co:'Frontier',label:'Fiber 200M',price:29.99,note:'$14.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 500M',price:44.99,note:'$29.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 1 Gig',price:64.99,note:'$49.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 2 Gig',price:79.99,note:'$64.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 5 Gig',price:104.99,note:'$89.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 7 Gig',price:124.99,note:'$109.99 w/ M+H'},
   {co:'EarthLink',label:'Fiber 1 Gig',price:74.95,note:'+ $14.95 router'},
   {co:'EarthLink',label:'5G Home Unlimited (425M)',price:59.95,note:'+ $14.95 modem'}
 ];
@@ -2796,13 +2800,16 @@ var COMP_REF=[
   {co:'Other / not sure',now:0,yr2:0,jumps:false}
 ];
 /* ════════ QUOTE PRICING DATA (from offer sheets) ════════ */
+/* Frontier myHome, w/AutoPay rung (PV sheet rev 7/31/26). This is the base the quote tool
+   uses; the Mobile + Home checkbox subtracts the $15 on top, landing on the sheet's
+   AutoPay + M+H numbers. Do NOT put the $49.99-style prices here or M+H double-counts. */
 var Q_FRONTIER=[
   {id:'200M',label:'200 Mbps',price:29.99},
-  {id:'500M',label:'500 Mbps',price:29.99},
-  {id:'1G',label:'1 Gig',price:49.99},
-  {id:'2G',label:'2 Gig',price:64.99},
-  {id:'5G',label:'5 Gig',price:89.99},
-  {id:'7G',label:'7 Gig',price:109.99}
+  {id:'500M',label:'500 Mbps',price:44.99},
+  {id:'1G',label:'1 Gig',price:64.99},
+  {id:'2G',label:'2 Gig',price:79.99},
+  {id:'5G',label:'5 Gig',price:104.99},
+  {id:'7G',label:'7 Gig',price:124.99}
 ];
 var Q_EARTHLINK=[
   {id:'100M',label:'100 Mbps',price:39.95},
@@ -2812,9 +2819,11 @@ var Q_EARTHLINK=[
   {id:'2G',label:'2 Gig',price:109.95},
   {id:'5G',label:'5 Gig',price:149.95}
 ];
+/* Frontier VAS, PV sheet rev 7/31/26. Whole-Home Wi-Fi is $0 on myHome 1 Gig and above —
+   recalc() zeroes it on those tiers so the quote never overcharges. */
 var Q_FVAS=[
   {id:'fuwf',label:'Unbreakable Wi-Fi',price:25,note:'1st mo free'},
-  {id:'fwhw',label:'Whole Home Wi-Fi (per extender)',price:10},
+  {id:'fwhw',label:'Whole-Home Wi-Fi (per extender)',price:10,note:'$0 on 1 Gig+'},
   {id:'fwfs',label:'Wi-Fi Security',price:6},
   {id:'fwfsp',label:'Wi-Fi Security Plus',price:10},
   {id:'fnflx',label:'Netflix & Pro Wi-Fi bundle',price:32}
@@ -2873,7 +2882,10 @@ function quoteSheet(){
     items.push({k:svc+' '+pl.label+' fiber',v:pl.price}); tot+=pl.price;
     if(svc==='EarthLink'){ items.push({k:'Router / equipment',v:14.95}); tot+=14.95; }
     if(svc==='Frontier' && $('#qYtv') && $('#qYtv').checked){ items.push({k:'YouTube TV',v:82.99,note:'$10/mo off \u00d7 12'}); tot+=82.99; }
-    $$('.qvas',sheetEl).forEach(function(c){ if(c.checked){ var pr=+c.dataset.price; items.push({k:c.dataset.label,v:pr}); tot+=pr; } });
+    var bigTier=(['1G','2G','5G','7G'].indexOf(pl.id)>=0);
+    $$('.qvas',sheetEl).forEach(function(c){ if(c.checked){ var pr=+c.dataset.price, nt='';
+      if(svc==='Frontier' && c.value==='fwhw' && bigTier){ pr=0; nt='included on 1 Gig+'; }
+      items.push({k:c.dataset.label,v:pr,note:nt}); tot+=pr; } });
     if($('#qPhone') && $('#qPhone').checked){ var hp=parseFloat(($('#qPhonePrice')||{}).value)||0; items.push({k:'Home phone',v:hp}); tot+=hp; }
     if(svc==='EarthLink' && $('#qCell') && $('#qCell').checked){ var ln=parseInt(($('#qCellLines')||{}).value,10)||0, pp=parseFloat(($('#qCellPrice')||{}).value)||0, ct=ln*pp; items.push({k:'EarthLink cellular \u00d7 '+ln+(pp?(' @ '+money(pp)):''),v:ct}); tot+=ct; }
     if(svc==='Frontier' && $('#qMh') && $('#qMh').checked){ items.push({k:'Verizon Mobile + Home discount',v:-15}); tot-=15; }
@@ -2889,11 +2901,15 @@ function quoteSheet(){
     items.forEach(function(it){ h+='<div class="q-irow"><span>'+esc(it.k)+(it.note?' <i>'+esc(it.note)+'</i>':'')+'</span><b>'+(it.v<0?('\u2212'+money(Math.abs(it.v))):money(Math.round(it.v*100)/100))+'</b></div>'; });
     h+='<div class="q-irow tot"><span>Monthly total</span><b>'+money(Math.round(tot*100)/100)+'</b></div></div>';
     var pn=[];
-    if(svc==='Frontier') pn.push('Fox One \u2014 3 months \u201con us\u201d (expires 7/19) with Verizon postpaid + Mobile + Home; credit posts on the Verizon bill.');
+    if(svc==='Frontier') pn.push(bigTier
+      ? 'NFL Sunday Ticket from YouTube ON US — a $480 value, through 9/22/26. Redemption email 24–48 hrs after install, 30 days to redeem. $480 chargeback if they disconnect within 365 days. Does not stack with the $400 Samsung offer.'
+      : 'NFL Sunday Ticket from YouTube at $234 instead of $480 — a $246 discount, through 9/22/26, no clawback. Redemption email 24–48 hrs after install. Does not stack with the $400 Samsung offer.');
+    if(svc==='Frontier' && !bigTier) pn.push('Heads up on this tier: $100 pro-install fee, and Whole-Home Wi-Fi is $10/mo (both are included at 1 Gig and above).');
     if(svc==='Frontier') pn.push('Unbreakable Wi-Fi: 1st month free.');
+    if(svc==='Frontier' && $('#qMh') && !$('#qMh').checked) pn.push('Mobile + Home not applied — with a qualifying Verizon postpaid line this drops another $15/mo. Worth asking before you quote.');
     if(svc==='EarthLink' && (pl.id==='1G'||pl.id==='500M')) pn.push('EarthLink intro: '+pl.label+' is '+money(pl.id==='1G'?44.95:34.95)+'/mo for months 1\u20133, then '+money(pl.id==='1G'?74.95:54.95)+'/mo.');
     if(svc==='EarthLink') pn.push('One-time: $24.95 install + $79.95 processing &amp; handling (disclose at point of sale). Router $14.95/mo included above.');
-    if(svc==='Frontier') pn.push('eero Wi-Fi included. Prices include the $10 AutoPay discount.');
+    if(svc==='Frontier') pn.push('eero Wi-Fi included, symmetrical speeds, no data caps, no ETF. Prices shown include the $10 AutoPay discount.');
     if(pn.length) h+='<div class="q-promo">'+pn.map(function(t){return '\u2022 '+t;}).join('<br>')+'</div>';
     out.innerHTML=h; out._items=items; out._tot=tot; out._now=now; out._svc=svc; out._pl=pl; out._pn=pn;
   }
@@ -2997,7 +3013,7 @@ var FIBER_NEWS=[
   ], src:'Charter newsroom, Light Reading, CPUC, Charter Q2 2026 results (Aug 2026)'}
 ];
 var AT_T_COUNTERS=[
-  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $49.99 flat with no wireless required; if they already have Verizon, Mobile + Home takes $15 off without switching carriers.'},
+  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $64.99 flat with AutoPay, no wireless required and no step-up, on a 5-year price guarantee. If they already have Verizon, Mobile + Home takes it to $49.99 without switching carriers.'},
   {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well (~369 Mbps median) \u2014 but that is a national average, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
   {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
   {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
