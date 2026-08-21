@@ -1060,7 +1060,7 @@ a.btn-line{text-decoration:none}
     <div class="section-lbl">📊 ISP Market Intel — IE &amp; South Bay</div>
     <div id="marketIntel"></div>
 
-    <div class="section-lbl">📣 Fiber News — June 2026</div>
+    <div class="section-lbl">📣 Fiber News — August 2026</div>
     <div id="fiberNews"></div>
 
     <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Log an Internet Outage</button>
@@ -2412,25 +2412,35 @@ function renderRadar(){
 }
 
 /* ════════ OUTAGE TREND GRAPH + PUBLIC DATA ════════ */
-/* Recent competitor internet outages across the service territory, on a rolling 30-day
-   window. Representative of reported activity (Downdetector spikes plus Cisco ThousandEyes /
-   Network World backbone events), weighted to the Southern California counties the team works
-   (Riverside, Orange, San Bernardino). Dates are relative ("ago" = days before today) so the
-   rolling window always stays current instead of going stale. Frontier and EarthLink are the
-   team's own products and are intentionally excluded from this competitor feed. */
+/* Documented competitor internet outages across the service territory, on a rolling 30-day
+   window. Every row is a real, published event with a working source link - no modeled or
+   estimated activity. Landmark incidents carry keep:1 and stay pinned; everything else rolls
+   off automatically 30 days after its date, so the feed never shows stale "recent" activity.
+   mins is OPTIONAL: leave it off when no published duration exists rather than guessing.
+   Frontier and EarthLink are the team's own products and are intentionally excluded.
+   Last fact-check against primary sources: 8/20/26. */
 var PUBLIC_OUTAGES=[
   /* Documented, sourced outage events. d:[year, month(0-idx), day]. keep:1 = landmark, always shown. */
+  {d:[2026,7,17], provider:'Spectrum',
+   hub:'Broad U.S. report spike \u2014 2,000+ Downdetector reports by 4:45 p.m. PT, mostly WiFi and broadband; no duration published',
+   counties:[], src:'GV Wire', url:'https://gvwire.com/2026/08/17/spectrum-down-for-thousands-of-users-downdetector-shows/'},
+  {d:[2026,7,16], provider:'AT&T',
+   hub:'Reseda \u2014 vandalized fiber line took out home phone and internet; AT&T confirmed restoration, customer count not disclosed',
+   counties:[], src:'NBC Los Angeles', url:'https://www.nbclosangeles.com/news/local/att-fiber-vandalism-reseda/3930308/'},
+  {d:[2026,7,9], provider:'Verizon', keep:1,
+   hub:'SoCal-wide fiber cuts by vandals \u2014 12,000+ Downdetector reports, phones stuck on SOS from late morning until service was restored about 7:30 p.m.; $25,000 reward posted 8/11/26',
+   counties:[], src:'KTLA', url:'https://ktla.com/news/local-news/verizon-service-restored-after-vandalism-to-fiber-line-caused-widespread-outages-across-southern-california/'},
+  {d:[2026,7,4], provider:'Spectrum', mins:224,
+   hub:'California \u2014 TV and connectivity outage, 3 hr 44 min, never officially acknowledged',
+   counties:[], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
   {d:[2026,6,29], provider:'Spectrum', mins:120, hub:'Central & South LA \u2014 reports from 90011, 90014, 90017, 90022, 90047, 90060, 90063, 91042',
-   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
-  {d:[2026,6,14], provider:'Cox', mins:60, hub:'Anaheim, Orange County \u2014 internet & Wi-Fi reports (92801)',
-   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/cox-communications/5323810-anaheim-orange-county-california-united-states'},
+   counties:[], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
   {d:[2026,6,7], provider:'Spectrum', mins:600, keep:1,
    hub:'Santa Clarita Valley \u2014 fiber lines cut in a criminal attack; techs spliced 700+ fibers to restore service',
-   counties:['San Bernardino'], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
-  {d:[2026,5,25], provider:'Spectrum', mins:125, hub:'TV and internet outage \u2014 2 hr 5 min, never officially acknowledged',
-   counties:['Riverside'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
-  {d:[2026,3,9], provider:'Spectrum', mins:122, hub:'Internet and Wi-Fi outage \u2014 2 hr 2 min',
-   counties:['San Bernardino'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
+   counties:[], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
+  {d:[2025,6,29], provider:'Fiber theft \u2014 Riverside County', keep:1,
+   hub:'Nuevo, Perris and Goodhope \u2014 repeat fiber-cable thefts knocked out internet for residents and multiple public-safety sites; ~$30K damage, suspect arrested 7/30/25',
+   counties:['Riverside'], src:'CBS Los Angeles', url:'https://www.cbsnews.com/losangeles/news/man-arrested-for-stealing-fiber-optic-cables-from-riverside-county-communities-causing-lengthy-internet-outages/'},
   {d:[2025,5,15], provider:'Spectrum', mins:1440, keep:1,
    hub:'Van Nuys fiber cut by vandals on Father\u2019s Day \u2014 25,000+ LA reports, spread to Ventura, Anaheim & Santa Ana; $25,000 reward, full-day bill credit',
    counties:['Orange'], src:'ABC7 Los Angeles', url:'https://abc7.com/post/spectrum-customers-los-angeles-area-report-internet-outages-fiber-cut-vandalism/16760120/'}
@@ -2444,8 +2454,10 @@ function loadPublicOutages(){
   }).filter(function(o){return o.keep||o.ts>=cut;});
   var fb=$('#outageFeed');
   if(fb)fb.innerHTML='<span class="og-dot live"></span>'+radarOutages.length+
-    ' documented competitor outage events \u2014 each links to its published source. '+
-    'Landmark incidents stay pinned; others roll off after 30 days. For live status check Downdetector or the carrier status page.';
+    ' documented competitor outage events \u2014 each links to its published source. Verified 8/20/26. '+
+    'Landmark incidents stay pinned; others roll off after 30 days. '+
+    'Fiber vandalism is the current driver: per NCTA data cited by Verizon (8/11/26), California logged 6,297 attacks on communications networks in 2025 \u2014 1,131 in LA \u2014 and $252.6M in losses, the worst in the nation. '+
+    'For live status check Downdetector or the carrier status page.';
   renderCountyStrip();renderOutageGraph();renderPublicOutages();
 }
 function countyCounts(){
@@ -2475,7 +2487,7 @@ function renderPublicOutages(){
       var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
       return '<div class="og-ev"><span class="og-ev-d">'+(dt.getMonth()+1)+'/'+dt.getDate()+'</span>'+
         '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+'</div>'+
-        '<div class="og-ev-m">'+esc(o.hub)+' · down ~'+o.mins+' min</div>'+
+        '<div class="og-ev-m">'+esc(o.hub)+(o.mins?' · down ~'+o.mins+' min':'')+'</div>'+
         '<div class="og-ev-tags">'+tags+(o.keep?'<span class="og-ev-ca" style="background:rgba(255,215,0,.15);color:#FFD700">PINNED</span>':'')+
         (o.url?'<a class="og-ev-ca" href="'+esc(o.url)+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none">'+esc(o.src||'source')+' \u2197</a>':'')+
         '</div></div></div>';
@@ -2701,7 +2713,8 @@ var PRESS=[
      {date:'Apr 27 2026', t:'Verizon Q1 2026: adjusted EPS $1.28, up 7.6% and the best quarterly growth since 2021; record adjusted EBITDA of $13.4B; $2.5B of buybacks and a 20th straight annual dividend increase. Full-year adjusted EPS growth guidance raised to 5\u20136%.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizons-transformation-actions-deliver-growth-profitability-1q26-company-raises-adjusted-eps'},
      {date:'Apr 27 2026', t:'On the same call: Frontier integration on track for over $1 billion in run-rate cost synergies by 2028, and a goal to exceed 32 million fiber passings by year-end.', src:'Motley Fool transcript', url:'https://www.fool.com/earnings/call-transcripts/2026/04/27/verizon-vz-q1-2026-earnings-transcript/'},
      {date:'Jul 2026', t:'Verizon Forward \u2014 up to $30/mo off Fiber for households on Lifeline, Pell Grant and other federal assistance programs \u2014 becomes available to Frontier customers in California by the end of July 2026. A real answer for price-sensitive doors.', src:'Verizon', url:'https://www.verizon.com/articles/home/verizon-acquires-frontier/'},
-     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'}
+     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'},
+     {date:'Jul 24 2026', t:'The fiber detail worth carrying: those 155,000 net adds took Verizon to 10.9 million fiber broadband connections and 17.1 million total broadband. Fiber net adds have climbed every quarter since the deal closed \u2014 67,000 in Q4 2025, 127,000 in Q1 2026, 155,000 in Q2.', src:'TelecomLead', url:'https://telecomlead.com/5g/verizon-q2-2026-fiber-broadband-reaches-10-9-mn-as-broadband-adds-hit-348000-mobility-revenue-grows-126906'}
    ]},
   {group:'\ud83d\udd35 AT&T Fiber in California',
    lead:'Know the competition\u2019s real numbers. AT&T Fiber is a strong product \u2014 do not attack its reliability. Compete on price, the Mobile + Home stack and the price guarantee.',
@@ -2709,14 +2722,26 @@ var PRESS=[
      {date:'May 20 2026', t:'AT&T committed $19 billion to California fiber and wireless through 2030 \u2014 its largest-ever state infrastructure commitment, reaching $35 billion invested over 2021\u20132030. Includes fiber to 4 million+ more households and businesses and 1,200+ new cell sites.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-makes-ca-commitment.html'},
      {date:'May 20 2026', t:'Same announcement: AT&T begins upgrading customers to fiber and wireless and will discontinue copper-based services in parts of California on or after June 1, 2027 \u2014 useful context for homes still on old copper phone service.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/att-makes-19-billion-commitment-to-bring-high-speed-connectivity-to-california-302778184.html'},
      {date:'May 2025', t:'AT&T agreed to acquire Lumen\u2019s Mass Markets fiber business for $5.75 billion all-cash \u2014 roughly 1 million fiber subscribers and 4 million passings, raising its target to 60 million fiber locations by end of 2030.', src:'AT&T Newsroom', url:'https://about.att.com/story/2025/lumen-mass-markets-fiber-business.html'},
-     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'}
+     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'},
+     {date:'Jun 29 2026', t:'The FCC cleared AT&T to discontinue legacy copper voice in portions of 360 California wire centers \u2014 roughly 184,000 residential and 15,000 business customers \u2014 with discontinuance proposed on or after June 1, 2027. AT&T\u2019s petition to preempt California\u2019s own copper rules is still pending and the CPUC is fighting it in court.', src:'Broadband Breakfast', url:'https://broadbandbreakfast.com/at-t-gets-fcc-approval-for-calif-copper-retirement/'},
+     {date:'Jul 22 2026', t:'AT&T Q2 2026: a record 646,000 combined fiber and fixed-wireless net adds, 367,000 of them fiber \u2014 its best-ever second quarter for fiber. Footprint reached 38.6 million fiber locations after adding over a million in the quarter, still tracking to 40 million+ by year-end. Advanced home internet revenue up more than 27%.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/2q-earnings.html'}
+   ]},
+  {group:'\ud83d\udd34 Spectrum & Cox \u2014 Cable Competitor',
+   lead:'The biggest competitive change of 2026 in this territory. Know the timeline cold \u2014 Cox households are being converted to Spectrum right now, which means they are already opening their bills and comparing providers.',
+   items:[
+     {date:'Aug 13 2026', t:'The CPUC approved the Charter\u2013Cox merger with roughly $310 million in California conditions: about $275 million of network upgrades to DOCSIS 4.0, $30 million into a state broadband adoption fund, and five years of an affordable broadband offering.', src:'TechTimes', url:'https://www.techtimes.com/articles/324569/20260815/charter-cox-merger-cleared-california-mandated-310m-upgrades-fcc-never-required.htm'},
+     {date:'Aug 20 2026', t:'Charter closed the $34.5 billion Cox merger and its acquisition of Liberty Broadband. The combined company serves about 37 million customers across 45 states and passes roughly 70 million homes and businesses \u2014 the largest cable operator in the U.S. The corporate name becomes Cox Communications within a year, but every market sells as Spectrum.', src:'Charter Newsroom', url:'https://corporate.charter.com/newsroom/charter-and-cox-communications-complete-transaction'},
+     {date:'Aug 20 2026', t:'Immediate customer moves: Cox internet customers who do not already have Cox Mobile get one free year of Spectrum Mobile starting now, and Spectrum brand, pricing and packaging launch across all former Cox markets in mid-September 2026.', src:'Light Reading', url:'https://www.lightreading.com/cable-technology/charter-cox-deal-is-a-wrap-with-spectrum-brand-to-take-over-within-a-year'},
+     {date:'Jul 2026', t:'The pressure behind the deal: Charter lost 172,000 internet customers in Q2 2026, falling to 29.4 million, its fourth straight quarter of revenue decline. The company named fixed wireless and fiber expansion as the cause \u2014 that is our side of the street.', src:'Yahoo Finance', url:'https://finance.yahoo.com/media-advertising/articles/charter-closes-34-5-billion-181437217.html'}
    ]},
   {group:'\ud83d\udfe2 EarthLink Fiber',
    lead:'EarthLink is our secondary product. It rides partner networks rather than owning most of its plant, and has grown by acquiring regional fixed-wireless operators.',
    items:[
      {date:'Jul 25 2023', t:'EarthLink acquired One Ring Networks, one of the largest fixed-wireless voice and data providers in the country, with market share across Arizona, California, Georgia, Maryland and Texas. Its president took over EarthLink Business Services.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/earthlink-acquires-one-ring-networks-inc-expanding-its-reach-to-bring-business-customers-best-in-class-products-and-services-301884522.html'},
      {date:'Oct 1 2024', t:'EarthLink acquired Minnesota fixed-wireless provider Nextera Communications \u2014 its fifth business-internet acquisition in a single year, part of a steady roll-up of regional operators.', src:'EarthLink Newsroom', url:'https://www.earthlink.net/media/press-releases/earthlink-acquires-minnesota-based-fixed-wireless-provider-nextera-communications/'},
-     {date:'2023\u201324', t:'The acquisition run also included BroadAspect and QX.net, with EarthLink stating its ambition to build the largest, most reliable fixed-wireless network for small and medium businesses nationwide.', src:'Telecompetitor', url:'https://www.telecompetitor.com/earthlink-stays-true-to-fwa-with-nextera-acquisition/'}
+     {date:'2023\u201324', t:'The acquisition run also included BroadAspect and QX.net, with EarthLink stating its ambition to build the largest, most reliable fixed-wireless network for small and medium businesses nationwide.', src:'Telecompetitor', url:'https://www.telecompetitor.com/earthlink-stays-true-to-fwa-with-nextera-acquisition/'},
+     {date:'Aug 2026', t:'The new-customer promo window now runs through 9/30/2026 (it was 6/30/2026). Public retail shows Fiber 1 Gig near $39.95 for the intro months stepping to about $64.95 plus modem \u2014 useful context, but quote price from the current PV offer sheet, not from the public site.', src:'EarthLink.net', url:'https://www.earthlink.net/internet/fiber-internet/'},
+     {date:'Aug 2026', t:'Coverage check: EarthLink reaches 48 states, and its fiber is available to roughly 44.6 million people \u2014 the third-largest U.S. fiber footprint by coverage \u2014 by riding partner plant from AT&T, Frontier and CenturyLink rather than owning most of its own network.', src:'BroadbandNow', url:'https://broadbandnow.com/EarthLink'}
    ]},
   {group:'\ud83d\udd12 ADT \u2014 Our Security Product',
    lead:'We sell ADT through Direct Protection Security, an ADT Authorized Dealer. Lead with the Google partnership and the Origin AI acquisition \u2014 the pitch is a smarter system, not just an alarm.',
@@ -2937,25 +2962,38 @@ function backupNudge(){
 }
 var FIBER_NEWS=[
   {co:'Frontier \u2014 a Verizon Company', ours:true, color:'#ee1d2e', items:[
-    'Jan 20, 2026: Verizon closed its $20B acquisition \u2014 Frontier now operates as "Frontier, a Verizon Company."',
-    'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
-    'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
-    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.'
-  ], src:'Verizon & Frontier press releases, Broadband Communities, DCD (Jan\u2013May 2026)'},
+    'Jan 20, 2026: Verizon closed the acquisition \u2014 about $9.8B cash plus roughly $12.9B of assumed debt. Frontier now operates as "Frontier, a Verizon Company."',
+    'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC. Verizon is targeting 32M+ passings by the end of 2026 and 40\u201350 million over the medium term.',
+    'Q2 2026 (reported 7/24/26): 155,000 fiber net adds \u2014 up from 127,000 in Q1 and 32,000 a year earlier \u2014 reaching 10.9 million fiber connections and 17.1 million total broadband, on a record 40.1% adjusted EBITDA margin.',
+    'Verizon now prioritizes fiber over 5G Home wherever fiber is built, and about 55% of Verizon mobile customers also take Verizon broadband. That is the Mobile + Home stack you quote at the door.',
+    'Verizon repaid substantially all of Frontier\u2019s debt in the first half of 2026 and says integration is running ahead of plan, on track for $1B+ in run-rate synergies by 2028.',
+    'California (CPUC) conditions still apply: fiber to 75,000 new California locations within five years (lower-income census blocks prioritized), 250 new cell sites, LifeLine and low-income protections, and a Verizon-funded compliance monitor.'
+  ], src:'Verizon 2Q26 release, TelecomLead, Light Reading, CPUC (Jan\u2013Aug 2026)'},
   {co:'EarthLink', ours:true, color:'#f7901e', items:[
     'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
-    'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
-    'Network-rental model gives near-nationwide reach (~48 states) with a customer-service-first focus.',
-    'Keeps topping customer-satisfaction surveys for price and support; new-customer intro pricing runs through 6/30/2026.'
-  ], src:'EarthLink.net, HighSpeedInternet, Allconnect (May\u2013Jun 2026)'},
+    'Fiber tiers run 100 Mbps to 5 Gig with no data caps and no throttling; "real fiber" intro messaging from $24.95 on their fiber page.',
+    'The new-customer promo window now runs through 9/30/2026 (it was 6/30/2026). Public retail shows Fiber 1 Gig near $39.95 for the intro months stepping to about $64.95 plus modem, with $100\u2013$200 reward cards on plans 300 Mbps and up \u2014 quote the PV offer sheet, not these public figures.',
+    'Network-rental model rides AT&T, Frontier, CenturyLink and other partner plant: 48 states, with fiber available to roughly 44.6 million people \u2014 third-largest U.S. fiber footprint by coverage.',
+    'Keeps topping customer-satisfaction surveys for price and support. Privately held (Trive Capital), so it is not chasing a quarterly subscriber number.'
+  ], src:'EarthLink.net, BroadbandNow, Allconnect (Jul\u2013Aug 2026)'},
   {co:'AT&T Fiber', ours:false, color:'#00a8e0', items:[
-    'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
-    'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
-    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
-    'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
-    'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
-    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.'
-  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Jun 2026)'}
+    'Q2 2026 (7/22/26): record 646,000 combined fiber and fixed-wireless net adds, including 367,000 fiber \u2014 their best-ever second quarter for fiber. 12.9 million fiber connections; advanced home internet revenue up more than 27%.',
+    'Footprint hit 38.6 million consumer and business fiber locations after adding 1M+ in Q2, on track to pass 40 million by end of 2026 and 60 million by 2030. 2026 is their largest build year ever \u2014 about 8 million new locations, 4M+ of them acquired from Lumen.',
+    'Feb 2, 2026: closed the $5.75B purchase of Lumen\u2019s consumer fiber (Quantum Fiber) \u2014 Denver, Seattle, Las Vegas and similar markets. Not California.',
+    'California copper: on June 29, 2026 the FCC cleared AT&T to discontinue legacy copper voice in portions of 360 California wire centers \u2014 about 184,000 residential and 15,000 business customers \u2014 with shutoff proposed on or after June 1, 2027. AT&T\u2019s petition to preempt California\u2019s own rules is still pending and the CPUC is fighting it.',
+    'Nationally, AT&T began physically decommissioning copper in roughly 500 wire centers (about 10% of its footprint) in June 2026, targeting the large majority outside California by 2029. Those households are forced to shop \u2014 a real opening.',
+    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line. Lineup is 300M / 500M / 1 Gig / 5 Gig, and 42.5% of their home-internet base now carries AT&T wireless.',
+    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.'
+  ], src:'AT&T 2Q26 release, FCC and CPUC filings, Broadband Breakfast, Light Reading (Feb\u2013Aug 2026)'},
+  {co:'Spectrum & Cox \u2014 Cable', ours:false, color:'#1c4e9c', items:[
+    'Aug 20, 2026: Charter closed its $34.5 billion merger with Cox and its acquisition of Liberty Broadband. The combined company serves about 37 million customers across 45 states and passes roughly 70 million homes and businesses \u2014 the largest cable operator in the country.',
+    'The corporate name becomes Cox Communications within a year, but every market sells under the Spectrum brand. Cox households in Orange County are Spectrum households now.',
+    'Spectrum brand, pricing and packaging launch across all former Cox markets in mid-September 2026. Cox internet customers who do not already have Cox Mobile are being given one free year of Spectrum Mobile.',
+    'Watch the step-up: Spectrum promo pricing has historically risen more steeply after the intro term than Cox pricing did. Ask what their all-in bill looks like in month 13, not month 1.',
+    'The pressure behind the deal: Charter lost 172,000 internet customers in Q2 2026, down to 29.4 million, its fourth straight quarter of revenue decline \u2014 the company blamed fixed wireless and fiber expansion.',
+    'CPUC approval on 8/13/26 carried about $310 million in California conditions: roughly $275 million of network upgrades to DOCSIS 4.0, $30 million into a state broadband adoption fund, and five years of an affordable broadband offering.',
+    'However they brand it, cable is still coax on the last stretch \u2014 asymmetrical upload on a shared node. Frontier and EarthLink are fiber to the door.'
+  ], src:'Charter newsroom, Light Reading, CPUC, Charter Q2 2026 results (Aug 2026)'}
 ];
 var AT_T_COUNTERS=[
   {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $49.99 flat with no wireless required; if they already have Verizon, Mobile + Home takes $15 off without switching carriers.'},
@@ -2963,9 +3001,15 @@ var AT_T_COUNTERS=[
   {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
   {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
 ];
+var CABLE_COUNTERS=[
+  {obj:'"I just got a letter \u2014 my Cox account is turning into Spectrum."', ans:'That is real \u2014 the merger closed August 20 and Spectrum pricing and packaging hit former Cox markets in mid-September. They are handing out a free year of Spectrum Mobile to keep people from shopping. The number to check is month 13: Spectrum promo rates step up harder than Cox rates did. Fiber pricing here is flat and does not require a mobile line.'},
+  {obj:'"Spectrum is the biggest provider in the country now."', ans:'Biggest by subscriber count, yes \u2014 about 37 million customers across 45 states. But they lost 172,000 internet customers last quarter and revenue has fallen four quarters straight, and the reason they give is fiber and fixed wireless taking share. Size is not the same as the line coming into this house.'},
+  {obj:'"Cable is fine, I never have problems."', ans:'Fair \u2014 never argue with a happy customer. Run a speed test and show them the upload number next to the download, then ask what the bill looks like in month 13 versus month 1. If either answer surprises them, that is the conversation.'},
+  {obj:'"Is my Cox price changing?"', ans:'Charter has not made broad pricing promises to Cox residential customers outside California. Existing plans can be kept or migrated to a Spectrum bundle, and the migration offers look good up front. Tell them to write down their all-in price today \u2014 with equipment and fees \u2014 so they can compare it honestly in a year.'}
+];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
-  var h='<div class="mi-note">Verified from public sources, June 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
+  var h='<div class="mi-note">Verified from public sources, August 20, 2026. Frontier &amp; EarthLink are our products; AT&T and Spectrum/Cox are competitors. These are talking points, not a rate card \u2014 quote price from the current PV offer sheet and always confirm local availability before quoting.</div>';
   FIBER_NEWS.forEach(function(nw){
     h+='<div class="fn-card" style="border-left:3px solid '+nw.color+'">'+
        '<div class="fn-h"><span class="fn-co">'+esc(nw.co)+'</span><span class="fn-tag '+(nw.ours?'ours':'comp')+'">'+(nw.ours?'OURS':'COMPETITOR')+'</span></div>'+
@@ -2975,6 +3019,9 @@ function renderFiberNews(){
   h+='<div class="fn-card cp-card"><div class="fn-h"><span class="fn-co">🎯 Answering AT&T at the door</span><span class="fn-tag comp">COUNTER-PITCH</span></div>';
   AT_T_COUNTERS.forEach(function(c){ h+='<div class="cp-row"><div class="cp-obj">'+esc(c.obj)+'</div><div class="cp-ans">'+esc(c.ans)+'</div></div>'; });
   h+='<div class="fn-src">Keep it honest \u2014 AT&T fiber is a strong product. Win on availability, flat pricing, and no wireless lock-in.</div></div>';
+  h+='<div class="fn-card cp-card"><div class="fn-h"><span class="fn-co">\ud83c\udfaf Answering the Cox \u2192 Spectrum switch</span><span class="fn-tag comp">COUNTER-PITCH</span></div>';
+  CABLE_COUNTERS.forEach(function(c){ h+='<div class="cp-row"><div class="cp-obj">'+esc(c.obj)+'</div><div class="cp-ans">'+esc(c.ans)+'</div></div>'; });
+  h+='<div class="fn-src">Cox households are being converted right now, which means they are already opening their bills and comparing. Best window of the year \u2014 lead with upload speed and the month-13 price.</div></div>';
   box.innerHTML=h;
 }
 function renderMarketIntel(){
