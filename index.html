@@ -457,6 +457,21 @@ input,select,textarea{outline:none}
 .isp-note{font-size:12.5px;color:var(--ink);background:rgba(0,174,239,.07);border:1px solid var(--border);
   border-radius:10px;padding:10px 12px;margin-bottom:11px;line-height:1.45}
 .isp-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;margin-bottom:9px;overflow:hidden}
+.rate-wrap{margin:2px 0 10px;border:1px solid var(--border2);border-radius:8px;overflow:hidden;background:#0d1420}
+.rate-ttl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;background:#16202f;border-bottom:1px solid var(--border2)}
+.rate-ttl b{font:800 11px/1 'Barlow Condensed',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--white)}
+.rate-ttl i{font-style:normal;font-size:10px;color:var(--faint)}
+table.rate{width:100%;border-collapse:collapse;font-size:12.5px}
+table.rate th{background:#1d2a3d;color:var(--white);font:700 10px/1.2 'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:7px 8px;text-align:right;border:1px solid var(--border2)}
+table.rate th:first-child{text-align:left}
+table.rate td{padding:7px 8px;border:1px solid var(--border2);color:var(--muted);text-align:right;white-space:nowrap}
+table.rate td:first-child{text-align:left;color:var(--white);font-weight:600}
+table.rate tbody tr:nth-child(even){background:rgba(255,255,255,.022)}
+table.rate tr.lead td{background:rgba(0,200,83,.13);color:var(--white);font-weight:700}
+table.rate tr.lead td:first-child::after{content:' ★';color:#00C853;font-size:10px}
+.rate-bar{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--accent),#6fb7ff);min-width:3px}
+table.rate td.barcell{width:34%;padding:7px 8px}
+.rate-note{padding:6px 10px;font-size:10.5px;color:var(--faint);border-top:1px solid var(--border2);background:#111a27;line-height:1.5}
 .isp-card.ours{border-color:rgba(0,200,83,.4)}
 .isp-head{display:flex;align-items:center;gap:10px;padding:12px 13px}
 .isp-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
@@ -1369,18 +1384,31 @@ var CITY_NOTE={
 /* ── ISP COMPETITIVE INTEL — Frontier (7/17/26) & EarthLink (6/22/26) offer sheets ── */
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
-  headline:'myHome $14.99–$134.99/mo · 1 Gig $49.99 w/ AutoPay + M+H (rev 7/17/26)',
-  plans:['Fiber 200 Mbps — $29.99/mo','Fiber 500 Mbps — $29.99/mo',
-    'Fiber 1 Gig — $49.99/mo — lead offer','Fiber 2 Gig — $64.99/mo',
-    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $109.99/mo',
+  headline:'myHome $14.99–$134.99/mo · 1 Gig $64.99 AutoPay / $49.99 w/ M+H (rev 9/3/26)',
+  rates:{title:'Frontier myHome \u2014 all four price rungs',rev:'9/3/26',speedLbl:'Fiber speed',
+    cols:['Standalone','AutoPay','w/ M+H','AutoPay + M+H','Guarantee'],
+    rows:[
+      {s:'200M',p:29.99,v:['$39.99','$29.99','$24.99','$14.99','3-Year']},
+      {s:'500M',p:44.99,v:['$54.99','$44.99','$39.99','$29.99','4-Year']},
+      {s:'1 Gig',p:64.99,lead:1,v:['$74.99','$64.99','$59.99','$49.99','5-Year']},
+      {s:'2 Gig',p:79.99,v:['$89.99','$79.99','$74.99','$64.99','5-Year']},
+      {s:'5 Gig',p:104.99,v:['$114.99','$104.99','$99.99','$89.99','5-Year']},
+      {s:'7 Gig',p:124.99,v:['$134.99','$124.99','$119.99','$109.99','5-Year']}],
+    note:'Bar shows the AutoPay price. The sheet headline ($64.99 on 1 Gig) is the AutoPay column \u2014 $49.99 needs AutoPay AND the $15/mo Mobile + Home discount. 1 Gig and up include Whole-Home Wi-Fi, the $10 Perk credit and pro-install; below 1 Gig adds $10/mo Wi-Fi and a $100 install fee.'},
+  plans:['Fiber 200 Mbps — $29.99/mo','Fiber 500 Mbps — $44.99/mo',
+    'Fiber 1 Gig — $64.99/mo — lead offer (AutoPay price; $49.99 needs AutoPay AND M+H)','Fiber 2 Gig — $79.99/mo',
+    'Fiber 5 Gig — $104.99/mo','Fiber 7 Gig — $124.99/mo',
     'All prices include the $10/mo AutoPay discount',
     'Mobile + Home Discount: $15/mo off with a qualifying Verizon postpaid mobile plan',
     'Verizon Perks: up to $10/mo in credits on 2 Gig and higher — Netflix/HBO Max, Disney+/Hulu/ESPN+, YouTube Premium',
-    '$400 Samsung Promotion — ONGOING per the 7/17/26 sheet',
+    '2 Months \\"On Us\\" D2D (8/14–9/30/26) — LEAD-LIST DRIVEN: first 2 months free on 500M or 1 Gig, new-to-Frontier, eligible addresses only. Includes full-season NFL Sunday Ticket, Whole-Home Wi-Fi, pro router setup and free install. Stacks with M+H ($15/mo after the free period) and Digital Pulse Visa Reward Card.',
+    'NFL Sunday Ticket Offer (7/30–9/22/26): 1 Gig and above get the full season ON US — $480 value. 500M and below get it discounted at $234 ($246 off), no clawback. Open to new Fiber, copper-to-fiber migrations and voice customers adding Fiber.',
+    'NFL Sunday Ticket fine print: redemption email arrives 24–48 hrs AFTER install — no code at the door. 30 days to redeem on YouTube. Base YouTube TV NOT required. Cannot combine with an active NFL Sunday Ticket billed elsewhere. The 1 Gig+ free version carries a $480 chargeback if the customer disconnects within 365 days.',
+    'Google AI Pro — 6 Months \\"On Us\\": bill credits cover the first 6 months for Fiber customers NEW to the Google AI Pro perk (current/former subscribers excluded). Includes Gemini App, Gemini Notebook, Gemini in Gmail & Docs, Google Home Premium, YouTube Premium Lite, 5 TB storage. Continues after on the standard $10 Perk credit.',
     'Unbreakable Wi-Fi — 1 mo FREE',
     'Video: Netflix & Pro Wi-Fi bundle $32/mo · YouTube TV $82.99/mo ($10 off/mo for 12 months = $120 first-year savings)',
     'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
-    'EXPIRED — do not pitch: 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19)',
+    'EXPIRED — do not pitch: $400 Samsung Promotion (expired 9/1) · Fox One Perk 3 Months \\"On Us\\" (7/19) · old 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30)',
     'myHome Fiber Offer (launched 7/23/26) — four price rungs per tier. Standalone: 200M $39.99 · 500M $54.99 · 1G $74.99 · 2G $89.99 · 5G $114.99 · 7G $134.99',
     'myHome w/ AutoPay only: 200M $29.99 · 500M $44.99 · 1G $64.99 · 2G $79.99 · 5G $104.99 · 7G $124.99',
     'myHome w/ Mobile + Home only: 200M $24.99 · 500M $39.99 · 1G $59.99 · 2G $74.99 · 5G $99.99 · 7G $119.99',
@@ -1388,27 +1416,36 @@ var ISPS=[
     'myHome price guarantee: 3-Year on 200M · 4-Year on 500M · 5-Year on 1 Gig and above',
     'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 install fee.',
     'Verizon myHome Perks at launch: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment; register each perk by SmartLink within 90 days or it is removed.',
-    'Offers current as of the 7/17/26 Frontier offer sheet'],
+    'Offers current as of the 9/3/26 Frontier offer sheet (v30)'],
   facts:['Standard rate: the advertised price already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
     'myHome carries no early-termination fee and no restocking fee — this kills the \\"I don\u2019t want to be locked in\\" objection outright',
     'eero Wi-Fi router included · symmetrical upload/download · no data caps',
     'Equipment must be returned on disconnect to avoid a non-return fee'],
   cancel:'Standard Fiber plans are month-to-month with no early-termination fee (the 2 Months \"On Us\" promo that carried a 12-month ETF has expired). On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
-  pitch:'This is your product. Lead with myHome 1 Gig at $49.99/mo — but that number requires BOTH AutoPay and the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. Stack the $400 Samsung promotion and the free month of Unbreakable Wi-Fi. Fox One, Visa cards and the 2-month promo have expired — do not promise them.'},
+  pitch:'This is your product. The sheet price is now $64.99 on 1 Gig — that is the AutoPay number. $49.99 still exists but needs AutoPay AND the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. Your strongest close right now is the 2 Months \"On Us\" D2D promo through 9/30 — but it is lead-list driven, so check the address is eligible before you promise it. NFL Sunday Ticket is free on 1 Gig and up through 9/22 and is a real closer in football season; set expectations that the code emails 24-48 hrs after install, not at the door. Samsung expired 9/1 — do not promise it.'},
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
   headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer',
+  rates:{title:'EarthLink fiber rate card',rev:'7/30/26',speedLbl:'Fiber speed',
+    cols:['Price','Router/mo','Install'],
+    rows:[
+      {s:'100M',p:39.95,v:['$39.95','$14.95','$24.95']},
+      {s:'300M',p:49.95,v:['$49.95','$14.95','$24.95']},
+      {s:'500M',p:54.95,v:['$54.95','$14.95','$24.95']},
+      {s:'1 Gig',p:74.95,lead:1,v:['$74.95','$14.95','$24.95']},
+      {s:'2 Gig',p:109.95,v:['$109.95','$14.95','$24.95']},
+      {s:'5 Gig',p:149.95,v:['$149.95','$14.95','$24.95']}],
+    note:'Promo for new customers: 1 Gig $44.95 and 500M $34.95 for months 1\u20133, then $74.95 / $54.95. Always disclose the $79.95 processing & handling fee due at point of sale.'},
   plans:['Fiber 100 Mbps — $39.95/mo','Fiber 300 Mbps — $49.95/mo',
     'Fiber 500 Mbps — $54.95/mo','Fiber 1 Gig — $74.95/mo — lead offer',
     'Fiber 2 Gig — $109.95/mo','Fiber 5 Gig — $149.95/mo',
     'Add $14.95/mo router fee plus a $24.95 one-time install fee',
     '1G + 500M Promo (new customers): 1 Gig $44.95/mo for months 1-3 then $74.95 · 500M $34.95/mo for months 1-3 then $54.95',
-    '5G Home Internet (Unlimited) — PerfectVision-exclusive: $59.95/mo + $14.95 modem rental · true unlimited data · up to 100 Mbps · no contract',
-    '5G Home Internet (Max) — PerfectVision-exclusive: $59.95/mo + $14.95 modem rental · up to 425 Mbps · 1.2 TB data cap · no contract',
-    '1G + 500M promo starts May 1, 2026 · new customers only',
+    '5G Home Internet (Unlimited): $59.95/mo + $14.95 modem rental · TRUE unlimited data · speeds up to 425 Mbps · no contract · easy self-installation',
+    '1G + 500M promo · new customers only',
     'Always disclose the $79.95 processing & handling fee, due at point of sale',
     'VAS: EarthLink Protect+ $9.95/mo · LifeLock $7.95/mo · EasyTech $9.95/mo',
-    'Offers current as of the 6/22/26 EarthLink offer sheet'],
+    'Offers current as of the 7/30/26 EarthLink offer sheet (v10)'],
   facts:['Standard rate: the 1G + 500M promo steps up after month 3 — 1 Gig $44.95 to $74.95/mo, 500M $34.95 to $54.95/mo',
     '5G Home Internet (Unlimited) holds a flat $59.95/mo + $14.95 modem — no promo step-up (up to 100M, truly unlimited)',
     '5G Home Internet (Max) is also $59.95/mo + $14.95 modem — faster (up to 425M) but carries a 1.2 TB data cap',
@@ -1434,6 +1471,15 @@ var ISPS=[
 
  {id:'spectrum',name:'Spectrum (Charter)',type:'Cable',color:'#0a6ea8',
   headline:'Offer-sheet pricing $25\u2013$90/mo \u00b7 1 Gig $60 lead offer (rev 7/13/26)',
+  rates:{title:'Spectrum residential rate card',rev:'7/13/26',speedLbl:'Tier',
+    cols:['Price'],
+    rows:[
+      {s:'Internet Assist',p:25,v:['$25.00']},
+      {s:'Advantage',p:30,v:['$30.00']},
+      {s:'Premier',p:40,v:['$40.00']},
+      {s:'1 Gig',p:60,lead:1,v:['$60.00']},
+      {s:'2 Gig',p:90,v:['$90.00']}],
+    note:'Internet Assist is income-qualified only. AutoPay discounts vary by region. $20 service activation on ALL installs (eff 4/29/26). These are promotional rates \u2014 the sheet does not state the step-up, so ask to see the bill rather than quoting a number you cannot prove.'},
   plans:['Internet Assist \u2014 $25/mo (income-qualified households only)',
     'Internet Advantage \u2014 $30/mo',
     'Internet Premier \u2014 $40/mo',
@@ -3143,6 +3189,28 @@ function weatherFallback(wb,city){
   };
   img.src='https://wttr.in/'+name+'.png?uF';
 }
+
+/* ════════ Intel rate table — spreadsheet grid + inline price bars ════════ */
+function rateTable(p){
+  var r=p.rates; if(!r||!r.rows||!r.rows.length)return '';
+  var vals=r.rows.map(function(x){return +x.p||0;});
+  var max=Math.max.apply(null,vals)||1;
+  var cols=r.cols||['Price'];
+  var h='<div class="rate-wrap"><div class="rate-ttl"><b>'+esc(r.title||'Rate card')+'</b>'+
+        (r.rev?'<i>rev '+esc(r.rev)+'</i>':'')+'</div>'+
+        '<table class="rate"><thead><tr><th>'+esc(r.speedLbl||'Speed')+'</th>'+
+        cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+
+        '<th>Relative</th></tr></thead><tbody>';
+  r.rows.forEach(function(x){
+    var pct=Math.max(3,Math.round((+x.p||0)/max*100));
+    h+='<tr'+(x.lead?' class="lead"':'')+'><td>'+esc(x.s)+'</td>';
+    (x.v||[x.p!=null?('$'+(+x.p).toFixed(2)):'—']).forEach(function(v){h+='<td>'+esc(v)+'</td>';});
+    h+='<td class="barcell"><span class="rate-bar" style="width:'+pct+'%"></span></td></tr>';
+  });
+  h+='</tbody></table>'+(r.note?'<div class="rate-note">'+esc(r.note)+'</div>':'')+'</div>';
+  return h;
+}
+
 function renderISPGuide(city){
   $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
     '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Competitor pricing &amp; cancellation verified July 2026 — promo rates with AutoPay vary by address &amp; current offer, so confirm the live quote in the carrier portal before quoting a customer. For real-time outages check Downdetector or the carrier\u2019s status page.</div>';
@@ -3159,6 +3227,7 @@ function renderISPGuide(city){
         '<span class="isp-chev">▾</span></div>'+
       '<div class="isp-body">'+
         '<div class="isp-sec"><div class="isp-sec-lbl">Plans & Pricing</div>'+
+          rateTable(p)+
           p.plans.map(function(pl){return '<div class="isp-plan">'+esc(pl)+'</div>';}).join('')+'</div>'+
         (p.facts?'<div class="isp-sec"><div class="isp-sec-lbl">Broadband Facts — standard rate &amp; fees</div>'+
           p.facts.map(function(f){return '<div class="isp-plan">'+esc(f)+'</div>';}).join('')+'</div>':'')+
