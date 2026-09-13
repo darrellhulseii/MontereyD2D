@@ -474,21 +474,6 @@ input,select,textarea{outline:none}
 .isp-sec{margin-top:11px}
 .isp-sec-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;
   text-transform:uppercase;color:var(--sky);margin-bottom:5px}
-.rate-wrap{margin:2px 0 10px}
-.rate-cap{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
-.rate-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;background:var(--card)}
-table.rate-tbl{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
-table.rate-tbl th,table.rate-tbl td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
-table.rate-tbl tr:last-child th,table.rate-tbl tr:last-child td{border-bottom:0}
-table.rate-tbl thead th{font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);background:var(--bg2,rgba(0,0,0,.04))}
-table.rate-tbl th.rate-s,table.rate-tbl td.rate-s{text-align:left;font-weight:700;position:sticky;left:0;background:var(--card);z-index:1}
-table.rate-tbl thead th.rate-s{background:var(--bg2,rgba(0,0,0,.04))}
-table.rate-tbl .rate-lead{background:rgba(0,174,239,.13)}
-table.rate-tbl thead th.rate-lead{background:rgba(0,174,239,.22);color:var(--ink)}
-table.rate-tbl tr.rate-leadrow td{font-weight:700}
-table.rate-tbl td.rate-na{color:var(--faint)}
-.rate-foot{font-size:11px;color:var(--muted);line-height:1.45;margin:6px 2px 0}
-.rate-foot b{color:var(--ink)}
 .isp-plan{font-size:12.5px;color:var(--ink);padding:2px 0 2px 14px;position:relative}
 .isp-plan::before{content:'•';position:absolute;left:2px;color:var(--sky)}
 .isp-cancel{font-size:12.5px;color:var(--muted);line-height:1.55}
@@ -1075,7 +1060,7 @@ a.btn-line{text-decoration:none}
     <div class="section-lbl">📊 ISP Market Intel — IE &amp; South Bay</div>
     <div id="marketIntel"></div>
 
-    <div class="section-lbl">📣 Fiber News — August 2026</div>
+    <div class="section-lbl">📣 Fiber News — June 2026</div>
     <div id="fiberNews"></div>
 
     <button class="btn orange" id="reportOutageBtn" style="margin:14px 0 12px">⚡ Log an Internet Outage</button>
@@ -1381,105 +1366,56 @@ var CITY_NOTE={
   mountain:'Big Bear is a mountain market — wired fiber is limited, Spectrum is the cable incumbent, and Starlink + 5G home internet are the strongest alternatives.'
 };
 
-/* ── ISP COMPETITIVE INTEL — Frontier (8/19/26, PV v28) & EarthLink (7/30/26, PV v10) offer sheets ── */
+/* ── ISP COMPETITIVE INTEL — Frontier (7/17/26) & EarthLink (6/22/26) offer sheets ── */
 var ISPS=[
  {id:'frontier',name:'Frontier',type:'Fiber',ours:true,color:'#00AEEF',
-  headline:'2 Months FREE on 500M & 1 Gig (lead lists, thru 9/30) · 1 Gig $64.99 w/AutoPay, $49.99 +M+H (rev 8/19/26)',
-  rateTables:[
-    {cap:'Live promotions — what you can actually offer today',
-     cols:['Offer','Window','Tiers','What they get'], align:'left',
-     rows:[['2 Months “On Us” (D2D)','8/14 – 9/30/26','500M & 1 Gig only','First 2 months free + choice of $400 Samsung credit OR full-season NFL Sunday Ticket'],
-           ['NFL Sunday Ticket','7/30 – 9/22/26','1 Gig+ / 500M & below','On us ($480 value) on 1 Gig+ · $234 instead of $480 on 500M & below'],
-           ['$400 Samsung credit','Ongoing','All tiers','BestBuy.com credit — does not stack with NFL Sunday Ticket'],
-           ['Unbreakable Wi-Fi','Ongoing','All tiers','1st month free']],
-     foot:['<b>2 Months “On Us” is lead-list gated.</b> New-to-Frontier customers at eligible addresses only — if the address is not on a qualifying lead list, the customer cannot get it. Check before you promise it.',
-           'It <b>does</b> stack with Mobile + Home ($15/mo, applied after the two free months) and with Online Digital Pulse Visa Reward Card offers.',
-           'Expired — do not pitch: Visa Reward Cards (6/30) · Fox One Perk 3 Months “On Us” (7/19).']},
-    {cap:'myHome fiber — monthly price by discount rung',
-     cols:['Speed','List','AutoPay','M+H','Both'], leadCol:4, leadRow:'1 Gig',
-     rows:[['200M','$39.99','$29.99','$24.99','$14.99'],
-           ['500M','$54.99','$44.99','$39.99','$29.99'],
-           ['1 Gig','$74.99','$64.99','$59.99','$49.99'],
-           ['2 Gig','$89.99','$79.99','$74.99','$64.99'],
-           ['5 Gig','$114.99','$104.99','$99.99','$89.99'],
-           ['7 Gig','$134.99','$124.99','$119.99','$109.99']],
-     foot:['<b>AutoPay</b> = −$10/mo. <b>M+H</b> = −$15/mo with a qualifying Verizon postpaid line. Both together = up to $25/mo off.',
-           'Quote the <b>AutoPay</b> column unless you have already confirmed a qualifying Verizon line — the <b>Both</b> column is the number that falls apart at install.']},
-    {cap:'What each tier includes',
-     cols:['Speed','Price guarantee','Whole-Home Wi-Fi','$10 perk credit','Pro-install'],
-     rows:[['200M','3-Year','+$10/mo','—','$100 fee'],
-           ['500M','4-Year','+$10/mo','—','$100 fee'],
-           ['1 Gig','5-Year','Included','Included','Included'],
-           ['2 Gig','5-Year','Included','Included','Included'],
-           ['5 Gig','5-Year','Included','Included','Included'],
-           ['7 Gig','5-Year','Included','Included','Included']],
-     foot:['The $10 perk credit also requires Mobile + Home enrollment. Extender users see a $10 charge with a matching $10 credit; downgrading below 1 Gig removes it.']},
-    {cap:'Value-added services — monthly',
-     cols:['Service','Price','Notes'], align:'left',
-     rows:[['Unbreakable Wi-Fi','$25','1st month free'],
-           ['Whole-Home Wi-Fi','$10','per extender · $0 on 1 Gig+'],
-           ['Wi-Fi Security','$6','basic protection'],
-           ['Wi-Fi Security Plus','$10','advanced + parental controls'],
-           ['Netflix & Pro Wi-Fi','$32','Netflix Premium + WHWF + Wi-Fi Security'],
-           ['YouTube TV','$82.99','−$10/mo for 12 mo = $120 yr 1']]}
-  ],
-  plans:['NEW — 2 Months “On Us”, D2D (launched 8/14, runs through 9/30/26). Eligible customers get their first 2 months of Frontier Fiber free. Available ONLY on Fiber 500 Mbps and Fiber 1 Gig.',
-    '2MOU is EXCLUSIVELY LEAD-LIST DRIVEN — new-to-Frontier prospects at eligible addresses sourced from a qualifying lead list. If the address is not on the list, the customer does not get it. Verify before you pitch it.',
-    '2MOU sweetener — the customer picks ONE: a $400 Samsung credit for BestBuy.com OR a full-season NFL Sunday Ticket. Not both.',
-    '2MOU stacks with the Verizon Mobile + Home discount ($15/mo, applied after the two free months) and with Online Digital Pulse Visa Reward Card offers.',
-    '2MOU included benefits per the sheet: 4- or 5-year price lock by tier, no annual contract, no hidden fees, unlimited data, Whole-Home Wi-Fi included, professional router setup, and free installation — note free install even on 500M, which normally carries the $100 pro-install fee.',
-    'NFL Sunday Ticket Offer (launched 7/30, runs through 9/22/26). Fiber 1 Gig+: NFL Sunday Ticket from YouTube ON US, $480 value, 100% discount. Fiber 500M and below: customer pays $234, a $246 discount off retail, no clawback.',
-    'NFL ST eligibility: new Fiber customers, copper-to-Fiber migrations, and voice customers adding Fiber. Base YouTube TV is NOT required — it streams through YouTube Primetime Channels. Cannot combine with an active NFL Sunday Ticket billed elsewhere. NOT stackable with the $400 Samsung offer.',
-    'NFL ST fulfillment: eligibility auto-validates at order entry; redemption email lands 24–48 hrs AFTER install; customer has 30 days to redeem on YouTube. No code at the door — say so up front.',
-    'NFL ST clawback: the 1 Gig+ “on us” version carries a $480 chargeback TO THE CUSTOMER if service is disconnected within 365 days of install. The $234 version has no clawback.',
-    '$400 Samsung Promotion — ongoing, but it does not stack with NFL Sunday Ticket. Pick one.',
-    'Mobile + Home Discount — $15/mo. Qualifiers: any current Frontier Fiber plan $20/mo or higher AND an active, qualifying Verizon postpaid smartphone or basic phone plan. Business, prepaid and employee accounts do not qualify. One M+H per customer, and not on a mobile line already carrying M+H on a Fios account.',
-    'M+H timing: Fiber must be ACTIVATED within 30 days of the order to qualify. Started from the Verizon side, the discount shows on the Frontier bill within 60 days.',
-    'Verizon Perks (legacy plans): 2G / 5G / 7G (or the highest tier available at the address) + Verizon postpaid + M+H enrollment = up to $10/mo in Perk credits on the Verizon mobile bill.',
-    'Unbreakable Wi-Fi — 1st month FREE',
-    'YouTube TV needs CUSTOMER ACTION: activation link by email or SMS (text from 70994), expires after 60 days, and a Google account never used for a YouTube TV trial or subscription — otherwise they must make a new one.',
-    'Eligible customers receive up to two eero devices based on speed tier — equipment distribution rules are unchanged.',
-    'EXPIRED — do not pitch: Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19). NOTE: the sheet lists Visa Reward Cards as expired but also lists Online Digital Pulse Visa Reward Card offers as stackable with 2 Months “On Us” — confirm with PV before promising a Visa card.',
-    'Verizon myHome Perks: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment.',
-    'Perk rules: one perk credit per household · credit covers up to $10/mo and any unused amount is forfeited, it does not roll over · no duplicate subscriptions of the same perk, so check for existing Verizon perks during discovery · register each perk by SmartLink (sent by email AND text) within 90 days or it is removed · perks move with the customer only if Fiber is available at the new address · disconnect ends perk access immediately.',
-    'Offers current as of the 8/19/26 Frontier offer sheet (PerfectVision v28)'],
-  facts:['Standard rate: the sheet’s rate card already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
-    'Quote the AutoPay price first ($64.99 on 1 Gig). $49.99 only exists WITH a qualifying Verizon postpaid line — quoting it before you qualify them is how a sale falls apart at install',
+  headline:'myHome $14.99–$134.99/mo · 1 Gig $49.99 w/ AutoPay + M+H (rev 7/17/26)',
+  plans:['Fiber 200 Mbps — $29.99/mo','Fiber 500 Mbps — $29.99/mo',
+    'Fiber 1 Gig — $49.99/mo — lead offer','Fiber 2 Gig — $64.99/mo',
+    'Fiber 5 Gig — $89.99/mo','Fiber 7 Gig — $109.99/mo',
+    'All prices include the $10/mo AutoPay discount',
+    'Mobile + Home Discount: $15/mo off with a qualifying Verizon postpaid mobile plan',
+    'Verizon Perks: up to $10/mo in credits on 2 Gig and higher — Netflix/HBO Max, Disney+/Hulu/ESPN+, YouTube Premium',
+    '$400 Samsung Promotion — ONGOING per the 7/17/26 sheet',
+    'Unbreakable Wi-Fi — 1 mo FREE',
+    'Video: Netflix & Pro Wi-Fi bundle $32/mo · YouTube TV $82.99/mo ($10 off/mo for 12 months = $120 first-year savings)',
+    'VAS: Unbreakable Wi-Fi $25/mo (1st mo free) · Whole-Home Wi-Fi $10/mo per extender · Wi-Fi Security $6/mo · Wi-Fi Security Plus $10/mo',
+    'EXPIRED — do not pitch: 2 Months \\"On Us\\" (6/30) · Visa Reward Cards (6/30) · Fox One Perk 3 Months \\"On Us\\" (7/19)',
+    'myHome Fiber Offer (launched 7/23/26) — four price rungs per tier. Standalone: 200M $39.99 · 500M $54.99 · 1G $74.99 · 2G $89.99 · 5G $114.99 · 7G $134.99',
+    'myHome w/ AutoPay only: 200M $29.99 · 500M $44.99 · 1G $64.99 · 2G $79.99 · 5G $104.99 · 7G $124.99',
+    'myHome w/ Mobile + Home only: 200M $24.99 · 500M $39.99 · 1G $59.99 · 2G $74.99 · 5G $99.99 · 7G $119.99',
+    'myHome w/ AutoPay AND M+H — the lead numbers: 200M $14.99 · 500M $29.99 · 1G $49.99 · 2G $64.99 · 5G $89.99 · 7G $109.99 (up to $25/mo combined savings)',
+    'myHome price guarantee: 3-Year on 200M · 4-Year on 500M · 5-Year on 1 Gig and above',
+    'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 install fee.',
+    'Verizon myHome Perks at launch: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment; register each perk by SmartLink within 90 days or it is removed.',
+    'Offers current as of the 7/17/26 Frontier offer sheet'],
+  facts:['Standard rate: the advertised price already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
     'myHome carries no early-termination fee and no restocking fee — this kills the \\"I don\u2019t want to be locked in\\" objection outright',
     'eero Wi-Fi router included · symmetrical upload/download · no data caps',
     'Equipment must be returned on disconnect to avoid a non-return fee'],
-  cancel:'myHome Fiber carries no early-termination fee and no restocking fee, and the 8/14 relaunch of 2 Months \"On Us\" is explicitly no-annual-contract on the sheet. On disconnect a non-return fee still applies (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned. Separate from all of that: the NFL Sunday Ticket \"on us\" version on 1 Gig+ carries a $480 chargeback to the customer if they disconnect within 365 days of install — that is the one real early-exit cost, so disclose it.',
-  pitch:'This is your product. First: check whether the address is on a qualifying lead list, because 2 Months “On Us” through 9/30/26 is the strongest thing you have — two months free on 500M or 1 Gig, plus their pick of a $400 Samsung credit or a full season of NFL Sunday Ticket, plus free install and Whole-Home Wi-Fi. It is lead-list only, so never promise it off a cold door. Second: ask about Verizon mobile in the first 30 seconds — that one question decides whether 1 Gig is $64.99 or $49.99, and M+H stacks on top of 2MOU after the free months. If the address does not qualify for 2MOU, NFL Sunday Ticket alone still closes through 9/22/26. Be straight about the catches: no redemption code at the door (email lands 24–48 hrs after install, 30 days to use) and a $480 chargeback on the 1 Gig+ “on us” ticket if they disconnect inside 365 days.'},
+  cancel:'Standard Fiber plans are month-to-month with no early-termination fee (the 2 Months \"On Us\" promo that carried a 12-month ETF has expired). On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
+  pitch:'This is your product. Lead with myHome 1 Gig at $49.99/mo — but that number requires BOTH AutoPay and the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. Stack the $400 Samsung promotion and the free month of Unbreakable Wi-Fi. Fox One, Visa cards and the 2-month promo have expired — do not promise them.'},
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
-  headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer (rev 7/30/26)',
-  rateTables:[
-    {cap:'Fiber — monthly price', cols:['Speed','Months 1–3','Ongoing'], leadRow:'1 Gig',
-     rows:[['100M','—','$39.95'],
-           ['300M','—','$49.95'],
-           ['500M','$34.95','$54.95'],
-           ['1 Gig','$44.95','$74.95'],
-           ['2 Gig','—','$109.95'],
-           ['5 Gig','—','$149.95']],
-     foot:['Every tier adds a <b>$14.95/mo router fee</b> and a <b>$24.95 one-time install</b>.',
-           'Intro pricing on 1 Gig and 500M is <b>new customers only</b> and steps up at month 4 — say the step-up number out loud.',
-           'Always disclose the <b>$79.95 processing &amp; handling fee</b>, due at point of sale.',
-           'Fiber pricing is region-dependent — verify the tier and rate for the address before quoting.']},
-    {cap:'5G Home Internet', cols:['Plan','Monthly','Modem','Speed'],
-     rows:[['5G Home (Unlimited)','$59.95','$14.95','up to 425M']],
-     foot:['True unlimited data, no contract, easy self-install. This is now <b>one plan</b> — the old Unlimited (100M) / Max (425M, 1.2 TB cap) split is retired, so do not quote a data cap.']},
-    {cap:'Value-added services — monthly', cols:['Service','Price','Notes'], align:'left',
-     rows:[['EarthLink Protect+','$9.95','network security · VPN · parental controls · password manager'],
-           ['LifeLock','$7.95','credit monitoring · identity restoration'],
-           ['EasyTech','$9.95','24/7 tech support · device setup']]}
-  ],
-  plans:['Offers current as of the 7/30/26 EarthLink offer sheet (PerfectVision v10)'],
+  headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer',
+  plans:['Fiber 100 Mbps — $39.95/mo','Fiber 300 Mbps — $49.95/mo',
+    'Fiber 500 Mbps — $54.95/mo','Fiber 1 Gig — $74.95/mo — lead offer',
+    'Fiber 2 Gig — $109.95/mo','Fiber 5 Gig — $149.95/mo',
+    'Add $14.95/mo router fee plus a $24.95 one-time install fee',
+    '1G + 500M Promo (new customers): 1 Gig $44.95/mo for months 1-3 then $74.95 · 500M $34.95/mo for months 1-3 then $54.95',
+    '5G Home Internet (Unlimited) — PerfectVision-exclusive: $59.95/mo + $14.95 modem rental · true unlimited data · up to 100 Mbps · no contract',
+    '5G Home Internet (Max) — PerfectVision-exclusive: $59.95/mo + $14.95 modem rental · up to 425 Mbps · 1.2 TB data cap · no contract',
+    '1G + 500M promo starts May 1, 2026 · new customers only',
+    'Always disclose the $79.95 processing & handling fee, due at point of sale',
+    'VAS: EarthLink Protect+ $9.95/mo · LifeLock $7.95/mo · EasyTech $9.95/mo',
+    'Offers current as of the 6/22/26 EarthLink offer sheet'],
   facts:['Standard rate: the 1G + 500M promo steps up after month 3 — 1 Gig $44.95 to $74.95/mo, 500M $34.95 to $54.95/mo',
-    '5G Home Internet is now ONE plan: $59.95/mo + $14.95 modem, up to 425 Mbps, true unlimited data, no contract. The old Unlimited (100M) / Max (425M, 1.2 TB cap) split is retired — do not quote a data cap',
+    '5G Home Internet (Unlimited) holds a flat $59.95/mo + $14.95 modem — no promo step-up (up to 100M, truly unlimited)',
+    '5G Home Internet (Max) is also $59.95/mo + $14.95 modem — faster (up to 425M) but carries a 1.2 TB data cap',
     'Router fee $14.95/mo is ongoing and separate from the plan price',
     'One-time fees: $24.95 install and a $79.95 processing & handling fee at point of sale'],
   cancel:'EarthLink Fiber is typically sold on a term agreement (commonly 12 months) with an early-termination fee — confirm the current term and ETF with the customer before close. The 5G Home Internet (Unlimited) plan requires no contract. Value-added services must stay active to qualify and are subject to chargebacks.',
-  pitch:'Your secondary product — strong where Frontier Fiber is not built. Lead with Fiber 1 Gig at $74.95/mo, the highlighted lead offer, or the $44.95 intro rate for months 1-3. Where fiber will not qualify, pitch 5G Home Internet: $59.95/mo + $14.95 modem, up to 425 Mbps, truly unlimited, no contract, self-install. Fiber rates vary by region — verify the address. Always disclose the $14.95 router fee, the $24.95 install and the $79.95 processing &amp; handling fee up front.'},
+  pitch:'Your secondary product — strong where Frontier Fiber is not built. Lead with Fiber 1 Gig at $74.95/mo (or the $44.95 intro rate for months 1-3), and pitch the PerfectVision-exclusive 5G Home options — Unlimited (100M, no cap) or Max (425M, 1.2 TB cap), both $59.95 + modem, no contract. Always disclose the $14.95 router fee and the $79.95 processing & handling fee up front.'},
 
  {id:'xfinity',name:'Xfinity (Comcast)',type:'Cable',color:'#ff8a3c',
   headline:'5-Year Price Lock $40–$70/mo · Gateway + unlimited data included',
@@ -1497,47 +1433,23 @@ var ISPS=[
   pitch:'Update the pitch: Xfinity closed the old "doubles after 12 months" gap with a 5-year price lock, so don\u2019t lead with that. Win instead on fiber being symmetrical (Xfinity\u2019s upload is far slower than its download), on no surprise jump until year six, and on the one-visit Frontier + ADT bundle. Note the lock excludes taxes, fees and equipment, and the bill still climbs ~$20–$30 when it ends.'},
 
  {id:'spectrum',name:'Spectrum (Charter)',type:'Cable',color:'#0a6ea8',
-  headline:'1 Gig $60 lead offer · NEW: free Amazon Prime on ANY tier from 8/17/26 (rev 8/14/26)',
-  rateTables:[
-    {cap:'Internet — monthly', cols:['Tier','Price'], leadRow:'1 Gig',
-     rows:[['Internet Assist','$25'],
-           ['Advantage','$30'],
-           ['Premier','$40'],
-           ['1 Gig','$60'],
-           ['2 Gig','$90']],
-     foot:['Region-dependent, and AutoPay discounts are available on top — the sheet’s own note is <b>“always trust the tool”</b>, so treat these as the ask, not the final number.',
-           'Internet Assist is income-qualified households only. Free self-install on Premier and above.',
-           'What the sheet does <b>not</b> say is what the rate becomes after the promo period. Never guess a step-up number — ask to see the bill.']},
-    {cap:'Spectrum Mobile — per line (requires active Spectrum Internet)',
-     cols:['Plan','Per line','Hotspot','Notes'], align:'left',
-     rows:[['Unlimited','$40','5 GB','slows after 30 GB cellular · 2,000 min Canada/Mexico'],
-           ['Unlimited Plus','$50','10 GB','720p video · slows after 50 GB · Anytime Upgrade'],
-           ['Unlimited Plus Premium','$60','50 GB','4K UHD · up to $360 off a new phone · free smartwatch line']],
-     foot:['<b>Unlimited Plus Premium is new (eff 7/22/26)</b> and targets new customers taking Internet Gig — this is the plan their reps are pushing at the door right now.',
-           'The mobile lines are the real switching cost, not the internet price. Qualify for ported phones early.']},
-    {cap:'Live Spectrum promotions', cols:['Offer','Window','Who'], align:'left',
-     rows:[['Free Amazon Prime membership','8/17/26 until further notice','New AND existing at flagged locations, ANY internet tier'],
-           ['Unlimited Plus Premium mobile','eff 7/22/26','New customers taking Internet Gig'],
-           ['$1,000 Savings Guarantee','Ongoing','New Internet + Mobile, 2+ ported lines'],
-           ['Free Internet for Life','Ongoing','4 mobile lines, Advantage-eligible, 2 ported lines'],
-           ['$2,500 Phone Balance Buyout','Ongoing','New and existing, 2 ported lines'],
-           ['Free self-install','Ongoing','Premier and above']],
-     foot:['The New York Specific Internet Offer on their sheet does <b>not</b> apply in California — ignore it.']}
-  ],
-  plans:['NEW — Amazon Prime with Internet, effective 8/17/26 until further notice. A free Amazon Prime membership for NEW AND EXISTING customers at flagged locations on ANY internet tier. Customer activates through Spectrum.net or the My Spectrum App.',
-    'Why that one matters: it reaches their existing base, not just switchers, and it is tier-agnostic — so the $30 Advantage customer you are knocking gets the same Prime hook as the 2 Gig customer. Expect to hear it at the door.',
-    'Prime includes Prime Video, Prime Music, Prime Reading, fuel savings, grocery, pharmacy and Grubhub+ — roughly $139/yr of retail value they will quote at you.',
-    'NEW — Unlimited Plus Premium mobile plan, effective 7/22/26, aimed at new customers taking Internet Gig. Bundling prices live in their Resource Center.',
-    '$20 Service Activation on ALL installations (from the 4/29/26 sheet — not restated on the 8/14/26 revision, so confirm before quoting it against them)',
-    'Prices and offers above are from the PV Spectrum RES offer sheet, rev 8/14/26'],
-  facts:['Free Amazon Prime is a giveaway, not a rate cut — it does not change what they pay for internet in month 13. If a customer raises it, agree that it is a nice perk and move the conversation back to the bill: a Prime membership is about $12/mo of value against a promo step-up that is usually much larger.',
-    '$1000 Savings Guarantee (eff 2/24/26): guarantees $1,000 in first-year savings for new Internet + Mobile customers who switch and bring 2+ mobile lines. Customer action required; stackable with the phone buyout.',
+  headline:'Offer-sheet pricing $25\u2013$90/mo \u00b7 1 Gig $60 lead offer (rev 7/13/26)',
+  plans:['Internet Assist \u2014 $25/mo (income-qualified households only)',
+    'Internet Advantage \u2014 $30/mo',
+    'Internet Premier \u2014 $40/mo',
+    'Internet 1 Gig \u2014 $60/mo \u2014 their lead offer',
+    'Internet 2 Gig \u2014 $90/mo',
+    'AutoPay discounts available \u00b7 pricing varies by region',
+    '$20 Service Activation on ALL installations (effective 4/29/26)',
+    'Free self-install on Internet Premier and above (Express Connect Kit)',
+    'Prices above are from the PV Spectrum RES offer sheet, rev 7/13/26'],
+  facts:['$1000 Savings Guarantee (eff 2/24/26): guarantees $1,000 in first-year savings for new Internet + Mobile customers who switch and bring 2+ mobile lines. Customer action required; stackable with the phone buyout.',
     'Free Internet for Life \u2014 4 Mobile Lines: available to customers eligible for Internet Advantage, requires 2 ported lines. Upgrades cost extra: Premier +$10/mo, 1 Gig +$20/mo, 2 Gig +$40/mo. Credits land on the month-2 bill.',
     '$2,500 Phone Balance Buyout: new AND existing customers, pays off the prior carrier\u2019s phone balance up to $2,500, requires 2 ported lines.',
     'The mobile-bundle offers are the real threat, not the internet price \u2014 they lock the customer\u2019s phones to Spectrum, which is far stickier than the internet alone.',
     'Not on the offer sheet: what the rate becomes after the promotional period. Spectrum promo rates step up, but do not quote a specific step-up number you cannot prove \u2014 ask to see the customer\u2019s bill instead.'],
   cancel:'No term contracts and no early-termination fee on residential internet. Two gotchas worth disclosing: Spectrum does not prorate a final bill (cancel before the next billing date or pay a full extra month), and cancellation cannot be completed online \u2014 phone or store only. Strong retention desk. The mobile-line offers above are the real exit friction: a customer who took Free Internet for Life or the $2,500 buyout has ported phones and a device balance tied to Spectrum.',
-  pitch:'Their lead is 1 Gig at $60 plus a stack of mobile offers, and as of 8/17/26 they are handing out free Amazon Prime on any tier to new AND existing customers — so expect homes that were not shopping to bring it up. Do not argue the giveaway. Agree it is a nice perk, then move to the bill: Prime is roughly $12/mo of value and their sheet still does not say what the rate becomes after the promo. Ask to see the actual bill. Frontier’s myHome answer is a multi-year price guarantee in writing, no ETF and no restocking fee, plus 2 Months “On Us” on qualifying lead-list addresses. If they have already ported phones to Spectrum Mobile, that is the hard switch — qualify for it early.'},
+  pitch:'Their lead is 1 Gig at $60 and a stack of mobile-line offers. Do not argue price on the sheet number \u2014 ask to see the actual bill, because the promotional rate is not the ongoing rate and their sheet does not state what it becomes. Frontier\u2019s myHome answer is a multi-year price guarantee in writing, no ETF and no restocking fee. If they have already ported phones to Spectrum Mobile, that is a harder switch \u2014 qualify for it early.'},
 
  {id:'vzmobile',name:'Verizon Mobile',type:'Mobile (partner)',ours:1,color:'#d52b1e',
   headline:'myPlans $30\u2013$95/line \u00b7 Verizon One $70 all-in \u00b7 Simplicity $45 (rev 7/13/26)',
@@ -2500,35 +2412,25 @@ function renderRadar(){
 }
 
 /* ════════ OUTAGE TREND GRAPH + PUBLIC DATA ════════ */
-/* Documented competitor internet outages across the service territory, on a rolling 30-day
-   window. Every row is a real, published event with a working source link - no modeled or
-   estimated activity. Landmark incidents carry keep:1 and stay pinned; everything else rolls
-   off automatically 30 days after its date, so the feed never shows stale "recent" activity.
-   mins is OPTIONAL: leave it off when no published duration exists rather than guessing.
-   Frontier and EarthLink are the team's own products and are intentionally excluded.
-   Last fact-check against primary sources: 8/20/26. */
+/* Recent competitor internet outages across the service territory, on a rolling 30-day
+   window. Representative of reported activity (Downdetector spikes plus Cisco ThousandEyes /
+   Network World backbone events), weighted to the Southern California counties the team works
+   (Riverside, Orange, San Bernardino). Dates are relative ("ago" = days before today) so the
+   rolling window always stays current instead of going stale. Frontier and EarthLink are the
+   team's own products and are intentionally excluded from this competitor feed. */
 var PUBLIC_OUTAGES=[
   /* Documented, sourced outage events. d:[year, month(0-idx), day]. keep:1 = landmark, always shown. */
-  {d:[2026,7,17], provider:'Spectrum',
-   hub:'Broad U.S. report spike \u2014 2,000+ Downdetector reports by 4:45 p.m. PT, mostly WiFi and broadband; no duration published',
-   counties:[], src:'GV Wire', url:'https://gvwire.com/2026/08/17/spectrum-down-for-thousands-of-users-downdetector-shows/'},
-  {d:[2026,7,16], provider:'AT&T',
-   hub:'Reseda \u2014 vandalized fiber line took out home phone and internet; AT&T confirmed restoration, customer count not disclosed',
-   counties:[], src:'NBC Los Angeles', url:'https://www.nbclosangeles.com/news/local/att-fiber-vandalism-reseda/3930308/'},
-  {d:[2026,7,9], provider:'Verizon', keep:1,
-   hub:'SoCal-wide fiber cuts by vandals \u2014 12,000+ Downdetector reports, phones stuck on SOS from late morning until service was restored about 7:30 p.m.; $25,000 reward posted 8/11/26',
-   counties:[], src:'KTLA', url:'https://ktla.com/news/local-news/verizon-service-restored-after-vandalism-to-fiber-line-caused-widespread-outages-across-southern-california/'},
-  {d:[2026,7,4], provider:'Spectrum', mins:224,
-   hub:'California \u2014 TV and connectivity outage, 3 hr 44 min, never officially acknowledged',
-   counties:[], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
   {d:[2026,6,29], provider:'Spectrum', mins:120, hub:'Central & South LA \u2014 reports from 90011, 90014, 90017, 90022, 90047, 90060, 90063, 91042',
-   counties:[], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
+   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
+  {d:[2026,6,14], provider:'Cox', mins:60, hub:'Anaheim, Orange County \u2014 internet & Wi-Fi reports (92801)',
+   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/cox-communications/5323810-anaheim-orange-county-california-united-states'},
   {d:[2026,6,7], provider:'Spectrum', mins:600, keep:1,
    hub:'Santa Clarita Valley \u2014 fiber lines cut in a criminal attack; techs spliced 700+ fibers to restore service',
-   counties:[], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
-  {d:[2025,6,29], provider:'Fiber theft \u2014 Riverside County', keep:1,
-   hub:'Nuevo, Perris and Goodhope \u2014 repeat fiber-cable thefts knocked out internet for residents and multiple public-safety sites; ~$30K damage, suspect arrested 7/30/25',
-   counties:['Riverside'], src:'CBS Los Angeles', url:'https://www.cbsnews.com/losangeles/news/man-arrested-for-stealing-fiber-optic-cables-from-riverside-county-communities-causing-lengthy-internet-outages/'},
+   counties:['San Bernardino'], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
+  {d:[2026,5,25], provider:'Spectrum', mins:125, hub:'TV and internet outage \u2014 2 hr 5 min, never officially acknowledged',
+   counties:['Riverside'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
+  {d:[2026,3,9], provider:'Spectrum', mins:122, hub:'Internet and Wi-Fi outage \u2014 2 hr 2 min',
+   counties:['San Bernardino'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
   {d:[2025,5,15], provider:'Spectrum', mins:1440, keep:1,
    hub:'Van Nuys fiber cut by vandals on Father\u2019s Day \u2014 25,000+ LA reports, spread to Ventura, Anaheim & Santa Ana; $25,000 reward, full-day bill credit',
    counties:['Orange'], src:'ABC7 Los Angeles', url:'https://abc7.com/post/spectrum-customers-los-angeles-area-report-internet-outages-fiber-cut-vandalism/16760120/'}
@@ -2542,10 +2444,8 @@ function loadPublicOutages(){
   }).filter(function(o){return o.keep||o.ts>=cut;});
   var fb=$('#outageFeed');
   if(fb)fb.innerHTML='<span class="og-dot live"></span>'+radarOutages.length+
-    ' documented competitor outage events \u2014 each links to its published source. Verified 8/20/26. '+
-    'Landmark incidents stay pinned; others roll off after 30 days. '+
-    'Fiber vandalism is the current driver: per NCTA data cited by Verizon (8/11/26), California logged 6,297 attacks on communications networks in 2025 \u2014 1,131 in LA \u2014 and $252.6M in losses, the worst in the nation. '+
-    'For live status check Downdetector or the carrier status page.';
+    ' documented competitor outage events \u2014 each links to its published source. '+
+    'Landmark incidents stay pinned; others roll off after 30 days. For live status check Downdetector or the carrier status page.';
   renderCountyStrip();renderOutageGraph();renderPublicOutages();
 }
 function countyCounts(){
@@ -2575,7 +2475,7 @@ function renderPublicOutages(){
       var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
       return '<div class="og-ev"><span class="og-ev-d">'+(dt.getMonth()+1)+'/'+dt.getDate()+'</span>'+
         '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+'</div>'+
-        '<div class="og-ev-m">'+esc(o.hub)+(o.mins?' · down ~'+o.mins+' min':'')+'</div>'+
+        '<div class="og-ev-m">'+esc(o.hub)+' · down ~'+o.mins+' min</div>'+
         '<div class="og-ev-tags">'+tags+(o.keep?'<span class="og-ev-ca" style="background:rgba(255,215,0,.15);color:#FFD700">PINNED</span>':'')+
         (o.url?'<a class="og-ev-ca" href="'+esc(o.url)+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none">'+esc(o.src||'source')+' \u2197</a>':'')+
         '</div></div></div>';
@@ -2794,15 +2694,14 @@ var PRESS=[
      {date:'Jul 2024', t:'Frontier completed a $750 million fiber securitization backed by North Texas fiber assets, qualifying as green bonds, and refinanced its term loan \u2014 the CFO called it a cost-efficient way to fund the build and lower cost of capital.', src:'Frontier Newsroom', url:'https://newsroom.frontier.com/press-release/frontier-completes-750-million-fiber-securitization-offering-and-term-loan-refinancing/'},
      {date:'2025', t:'Frontier kept building at scale: 321,000 new fiber passings in Q1 2025 to reach 8.1 million total, with fiber broadband customers up 19.3% year over year. CEO Nick Jeffery held to the plan of building fiber to 1.3 million locations in 2025.', src:'Frontier Newsroom', url:'https://investor.frontier.com/news/news-details/2025/Frontier-Reports-First-Quarter-2025-Results/default.aspx'},
      {date:'Oct 28 2025', t:'Q3 2025 was a record: 133,000 fiber broadband net adds (20.2% YoY growth), 326,000 new passings to reach 8.8 million, and fiber broadband revenue up 25%. Jeffery: \u201cthe team absolutely crushed it \u2014 once again delivering our best quarter ever.\u201d', src:'Frontier Newsroom', url:'https://newsroom.frontier.com/press-release/frontier-reports-third-quarter-2025-results/'},
-     {date:'Jan 15 2026', t:'The CPUC unanimously approved the Verizon\u2013Frontier deal after a year-long review, requiring fiber to 75,000 new California locations within five years (prioritizing census blocks at or below 90% of county median income) and 250 new cell sites, backed by a $150 million bond and a compliance monitor hired by the CPUC but paid for by Verizon.', src:'Light Reading', url:'https://www.lightreading.com/broadband/california-approves-verizon-frontier-deal-with-conditions'},
-     {date:'Jan 15 2026', t:'The affordability condition worth knowing at the door: Verizon agreed to hold Verizon Forward at $20/mo or lower for low-income California households for ten years, and to spend $300,000 a year advertising the program so eligible customers know it exists.', src:'Light Reading', url:'https://www.lightreading.com/broadband/california-approves-verizon-frontier-deal-with-conditions'},
+     {date:'Jan 15 2026', t:'The CPUC approved the Verizon\u2013Frontier deal 5\u20130 after a year-long review, requiring fiber to 75,000 new California locations within five years (prioritizing lower-income census blocks) and 250 new cell sites, with a compliance monitor paid for by Verizon.', src:'Light Reading', url:'https://www.lightreading.com/broadband/california-approves-verizon-frontier-deal-with-conditions'},
      {date:'Jan 15 2026', t:'With California\u2019s approval in hand, Verizon and Frontier confirmed all required regulatory approvals were received, clearing the path to close on January 20, 2026.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizon-and-frontier-regulatory-approval'},
      {date:'Jan 20 2026', t:'Deal closed \u2014 Frontier is officially a Verizon company, combining Frontier fiber with Fios to reach roughly 30 million fiber passings across 31 states and DC. Frontier was delisted from Nasdaq.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/introducing-frontier-verizon-company'},
-     {date:'Apr 27 2026', t:'Verizon Q1 2026: adjusted EPS of $1.28, up 7.6% \u2014 the highest quarterly adjusted EPS growth since 2021 \u2014 with consolidated adjusted EBITDA up 6.7% to $13.4 billion and full-year adjusted EPS growth guidance raised to 5\u20136%. Also the first positive first-quarter postpaid phone net adds since 2013.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizons-transformation-actions-deliver-growth-profitability-1q26-company-raises-adjusted-eps'},
+     {date:'Jan 2026', t:'The bundle offer at launch: existing Frontier fiber customers can get four mobile lines at $20 per line/month (or one at $40) on Unlimited Welcome with Auto Pay, with an iPhone 17 on us per new line and up to $800 toward paying off a current phone.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/new-chapter-frontier-and-verizon-together'},
+     {date:'Apr 27 2026', t:'Verizon Q1 2026: adjusted EPS $1.28, up 7.6% and the best quarterly growth since 2021; record adjusted EBITDA of $13.4B; $2.5B of buybacks and a 20th straight annual dividend increase. Full-year adjusted EPS growth guidance raised to 5\u20136%.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizons-transformation-actions-deliver-growth-profitability-1q26-company-raises-adjusted-eps'},
      {date:'Apr 27 2026', t:'On the same call: Frontier integration on track for over $1 billion in run-rate cost synergies by 2028, and a goal to exceed 32 million fiber passings by year-end.', src:'Motley Fool transcript', url:'https://www.fool.com/earnings/call-transcripts/2026/04/27/verizon-vz-q1-2026-earnings-transcript/'},
      {date:'Jul 2026', t:'Verizon Forward \u2014 up to $30/mo off Fiber for households on Lifeline, Pell Grant and other federal assistance programs \u2014 becomes available to Frontier customers in California by the end of July 2026. A real answer for price-sensitive doors.', src:'Verizon', url:'https://www.verizon.com/articles/home/verizon-acquires-frontier/'},
-     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'},
-     {date:'Jul 24 2026', t:'The fiber detail worth carrying: those 155,000 net adds took Verizon to 10.9 million fiber broadband connections and 17.1 million total broadband. Fiber net adds have climbed every quarter since the deal closed \u2014 67,000 in Q4 2025, 127,000 in Q1 2026, 155,000 in Q2.', src:'TelecomLead', url:'https://telecomlead.com/5g/verizon-q2-2026-fiber-broadband-reaches-10-9-mn-as-broadband-adds-hit-348000-mobility-revenue-grows-126906'}
+     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'}
    ]},
   {group:'\ud83d\udd35 AT&T Fiber in California',
    lead:'Know the competition\u2019s real numbers. AT&T Fiber is a strong product \u2014 do not attack its reliability. Compete on price, the Mobile + Home stack and the price guarantee.',
@@ -2810,27 +2709,14 @@ var PRESS=[
      {date:'May 20 2026', t:'AT&T committed $19 billion to California fiber and wireless through 2030 \u2014 its largest-ever state infrastructure commitment, reaching $35 billion invested over 2021\u20132030. Includes fiber to 4 million+ more households and businesses and 1,200+ new cell sites.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-makes-ca-commitment.html'},
      {date:'May 20 2026', t:'Same announcement: AT&T begins upgrading customers to fiber and wireless and will discontinue copper-based services in parts of California on or after June 1, 2027 \u2014 useful context for homes still on old copper phone service.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/att-makes-19-billion-commitment-to-bring-high-speed-connectivity-to-california-302778184.html'},
      {date:'May 2025', t:'AT&T agreed to acquire Lumen\u2019s Mass Markets fiber business for $5.75 billion all-cash \u2014 roughly 1 million fiber subscribers and 4 million passings, raising its target to 60 million fiber locations by end of 2030.', src:'AT&T Newsroom', url:'https://about.att.com/story/2025/lumen-mass-markets-fiber-business.html'},
-     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'},
-     {date:'Jun 29 2026', t:'The FCC cleared AT&T to discontinue legacy copper voice in portions of 360 California wire centers \u2014 roughly 184,000 residential and 15,000 business customers \u2014 with discontinuance proposed on or after June 1, 2027. AT&T\u2019s petition to preempt California\u2019s own copper rules is still pending and the CPUC is fighting it in court.', src:'Broadband Breakfast', url:'https://broadbandbreakfast.com/at-t-gets-fcc-approval-for-calif-copper-retirement/'},
-     {date:'Jul 22 2026', t:'AT&T Q2 2026, straight from the release: 646,000 total Advanced Connectivity internet net adds \u2014 367,000 fiber and 279,000 fixed wireless \u2014 a record quarter for the two combined. Added over a million fiber locations to reach 38.6 million total, still on track for 40 million+ by end of 2026 and 60 million+ by end of 2030. 42.5% of AT&T home-internet households also carry AT&T wireless.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/2q-earnings.html'}
-   ]},
-  {group:'\ud83d\udd34 Spectrum & Cox \u2014 Cable Competitor',
-   lead:'The biggest competitive change of 2026 in this territory. Know the timeline cold \u2014 Cox households are being converted to Spectrum right now, which means they are already opening their bills and comparing providers.',
-   items:[
-     {date:'Aug 13 2026', t:'The CPUC approved the Charter\u2013Cox merger with roughly $310 million in California conditions: about $275 million of network upgrades to DOCSIS 4.0, $30 million into a state broadband adoption fund, and five years of an affordable broadband offering.', src:'TechTimes', url:'https://www.techtimes.com/articles/324569/20260815/charter-cox-merger-cleared-california-mandated-310m-upgrades-fcc-never-required.htm'},
-     {date:'Aug 20 2026', t:'Charter completed its transaction with Cox and its acquisition of Liberty Broadband. Per Charter\u2019s own release: services available to more than 70 million homes and businesses across 45 states; Cox Enterprises now holds roughly 26% of the combined entity; the parent company name changes to Cox Communications within a year while all markets continue to operate as Spectrum.', src:'Charter Newsroom', url:'https://corporate.charter.com/newsroom/charter-and-cox-communications-complete-transaction'},
-     {date:'Aug 20 2026', t:'The deal value and subscriber count come from press coverage rather than the release: the merger is valued at about $34.5 billion, and the combined company is reported at roughly 37 million customers \u2014 the largest U.S. cable operator by subscribers. Use the 70 million passings figure if you need a number you can point to in a company document.', src:'Light Reading', url:'https://www.lightreading.com/cable-technology/charter-cox-deal-is-a-wrap-with-spectrum-brand-to-take-over-within-a-year'},
-     {date:'Aug 20 2026', t:'Immediate customer moves: Cox internet customers who do not already have Cox Mobile get one free year of Spectrum Mobile starting now, and Spectrum brand, pricing and packaging launch across all former Cox markets in mid-September 2026.', src:'Light Reading', url:'https://www.lightreading.com/cable-technology/charter-cox-deal-is-a-wrap-with-spectrum-brand-to-take-over-within-a-year'},
-     {date:'Jul 2026', t:'The pressure behind the deal: Charter lost 172,000 internet customers in Q2 2026, falling to 29.4 million, its fourth straight quarter of revenue decline. The company named fixed wireless and fiber expansion as the cause \u2014 that is our side of the street.', src:'Yahoo Finance', url:'https://finance.yahoo.com/media-advertising/articles/charter-closes-34-5-billion-181437217.html'}
+     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'}
    ]},
   {group:'\ud83d\udfe2 EarthLink Fiber',
    lead:'EarthLink is our secondary product. It rides partner networks rather than owning most of its plant, and has grown by acquiring regional fixed-wireless operators.',
    items:[
      {date:'Jul 25 2023', t:'EarthLink acquired One Ring Networks, one of the largest fixed-wireless voice and data providers in the country, with market share across Arizona, California, Georgia, Maryland and Texas. Its president took over EarthLink Business Services.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/earthlink-acquires-one-ring-networks-inc-expanding-its-reach-to-bring-business-customers-best-in-class-products-and-services-301884522.html'},
      {date:'Oct 1 2024', t:'EarthLink acquired Minnesota fixed-wireless provider Nextera Communications \u2014 its fifth business-internet acquisition in a single year, part of a steady roll-up of regional operators.', src:'EarthLink Newsroom', url:'https://www.earthlink.net/media/press-releases/earthlink-acquires-minnesota-based-fixed-wireless-provider-nextera-communications/'},
-     {date:'2023\u201324', t:'The acquisition run also included BroadAspect and QX.net, with EarthLink stating its ambition to build the largest, most reliable fixed-wireless network for small and medium businesses nationwide.', src:'Telecompetitor', url:'https://www.telecompetitor.com/earthlink-stays-true-to-fwa-with-nextera-acquisition/'},
-     {date:'Aug 2026', t:'EarthLink\u2019s public retail promo window now runs through 9/30/2026 (it was 6/30/2026). Those consumer-site prices do not match our PerfectVision rate card \u2014 useful to know a customer may have seen them, but quote from the PV offer sheet (rev 7/30/26), not the public site.', src:'EarthLink.net', url:'https://www.earthlink.net/internet/fiber-internet/'},
-     {date:'Aug 2026', t:'Coverage check: EarthLink reaches 48 states, and its fiber is available to roughly 44.6 million people \u2014 the third-largest U.S. fiber footprint by coverage \u2014 by riding partner plant from AT&T, Frontier and CenturyLink rather than owning most of its own network.', src:'BroadbandNow', url:'https://broadbandnow.com/EarthLink'}
+     {date:'2023\u201324', t:'The acquisition run also included BroadAspect and QX.net, with EarthLink stating its ambition to build the largest, most reliable fixed-wireless network for small and medium businesses nationwide.', src:'Telecompetitor', url:'https://www.telecompetitor.com/earthlink-stays-true-to-fwa-with-nextera-acquisition/'}
    ]},
   {group:'\ud83d\udd12 ADT \u2014 Our Security Product',
    lead:'We sell ADT through Direct Protection Security, an ADT Authorized Dealer. Lead with the Google partnership and the Origin AI acquisition \u2014 the pitch is a smarter system, not just an alarm.',
@@ -2847,7 +2733,7 @@ var PRESS=[
      {date:'Mar 10 2023', t:'NRG Energy completed its $2.8 billion all-cash acquisition of Vivint Smart Home, folding the company into a large U.S. energy retailer and creating an energy + home services platform.', src:'NRG Investors', url:'https://investors.nrg.com/news-releases/news-release-details/nrg-completes-acquisition-vivint-smart-home-inc-creating-leading'},
      {date:'Feb 2026', t:'Vivint launched \u201cVivint for Builders,\u201d an end-to-end smart home security solution built around the builder workflow. In new-construction tracts, assume homes may already have Vivint hardware installed.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20260213907964/en/Vivint-Launches-Vivint-for-Builders-The-Complete-Solution-Redefining-How-Builders-Deliver-Smart-Homes-by-Managing-and-Executing-Every-Step-of-The-Process'},
      {date:'Apr 20 2026', t:'Newsweek named Vivint one of the Most Trustworthy Companies in America on its 2026 list \u2014 they will quote this at the door, so be ready with ADT\u2019s own record rather than an argument.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20260420103447/en/Newsweek-Names-Vivint-One-of-the-Most-Trustworthy-Companies-in-America'},
-     {date:'Jun 3 2026', t:'Vivint launched Smart Hub Pro 2 \u2014 its fastest hub yet, with an always-on display, built-in cellular and battery backup, a 100dB siren and up to 4x the processing power of the previous hub. Priced at $599.99 for the panel. Strong hardware, but a large upfront or financed number.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20260603159198/en/Vivint-Smart-Hub-Pro-2-The-Industrys-Most-Advanced-Smart-Home-Touchscreen'},
+     {date:'Jun 3 2026', t:'Vivint launched Smart Hub Pro 2 \u2014 its fastest hub yet, with an always-on display, cellular and 24-hour battery backup \u2014 available at $599.99 for the panel. Strong hardware, but a large upfront or financed number.', src:'Business Wire', url:'https://www.businesswire.com/news/home/20260603159198/en/Vivint-Smart-Hub-Pro-2-The-Industrys-Most-Advanced-Smart-Home-Touchscreen'},
      {date:'Apr 2021', t:'Know cold: Vivint paid $20 million to settle FTC charges that it misused consumer credit reports \u2014 door reps used unrelated people\u2019s credit to qualify unqualified buyers. Never bash at the door, but this is the context if a homeowner raises bad security-sales experiences.', src:'FTC.gov', url:'https://www.ftc.gov/news-events/news/press-releases/2021/04/smart-home-monitoring-company-vivint-will-pay-20-million-settle-ftc-charges-it-misused-consumer'}
    ]}
 ];
@@ -2867,14 +2753,14 @@ function renderPress(){
 }
 /* ════════ QUOTE / PRICE-COMPARE ════════ */
 var OUR_PLANS=[
-  {co:'Frontier',label:'Fiber 200M',price:29.99,note:'$14.99 w/ M+H'},
-  {co:'Frontier',label:'Fiber 500M',price:44.99,note:'$29.99 w/ M+H'},
-  {co:'Frontier',label:'Fiber 1 Gig',price:64.99,note:'$49.99 w/ M+H'},
-  {co:'Frontier',label:'Fiber 2 Gig',price:79.99,note:'$64.99 w/ M+H'},
-  {co:'Frontier',label:'Fiber 5 Gig',price:104.99,note:'$89.99 w/ M+H'},
-  {co:'Frontier',label:'Fiber 7 Gig',price:124.99,note:'$109.99 w/ M+H'},
+  {co:'Frontier',label:'Fiber 200M',price:29.99},
+  {co:'Frontier',label:'Fiber 500M',price:29.99},
+  {co:'Frontier',label:'Fiber 1 Gig',price:49.99},
+  {co:'Frontier',label:'Fiber 2 Gig',price:64.99},
+  {co:'Frontier',label:'Fiber 5 Gig',price:89.99},
+  {co:'Frontier',label:'Fiber 7 Gig',price:109.99},
   {co:'EarthLink',label:'Fiber 1 Gig',price:74.95,note:'+ $14.95 router'},
-  {co:'EarthLink',label:'5G Home Unlimited (425M)',price:59.95,note:'+ $14.95 modem'}
+  {co:'EarthLink',label:'5G Home Unlimited',price:74.95,note:'incl. ~$15 modem'}
 ];
 var COMP_REF=[
   {co:'Spectrum',now:80,yr2:120,jumps:true},
@@ -2885,16 +2771,13 @@ var COMP_REF=[
   {co:'Other / not sure',now:0,yr2:0,jumps:false}
 ];
 /* ════════ QUOTE PRICING DATA (from offer sheets) ════════ */
-/* Frontier myHome, w/AutoPay rung (PV sheet rev 7/31/26). This is the base the quote tool
-   uses; the Mobile + Home checkbox subtracts the $15 on top, landing on the sheet's
-   AutoPay + M+H numbers. Do NOT put the $49.99-style prices here or M+H double-counts. */
 var Q_FRONTIER=[
   {id:'200M',label:'200 Mbps',price:29.99},
-  {id:'500M',label:'500 Mbps',price:44.99},
-  {id:'1G',label:'1 Gig',price:64.99},
-  {id:'2G',label:'2 Gig',price:79.99},
-  {id:'5G',label:'5 Gig',price:104.99},
-  {id:'7G',label:'7 Gig',price:124.99}
+  {id:'500M',label:'500 Mbps',price:29.99},
+  {id:'1G',label:'1 Gig',price:49.99},
+  {id:'2G',label:'2 Gig',price:64.99},
+  {id:'5G',label:'5 Gig',price:89.99},
+  {id:'7G',label:'7 Gig',price:109.99}
 ];
 var Q_EARTHLINK=[
   {id:'100M',label:'100 Mbps',price:39.95},
@@ -2904,11 +2787,9 @@ var Q_EARTHLINK=[
   {id:'2G',label:'2 Gig',price:109.95},
   {id:'5G',label:'5 Gig',price:149.95}
 ];
-/* Frontier VAS, PV sheet rev 7/31/26. Whole-Home Wi-Fi is $0 on myHome 1 Gig and above —
-   recalc() zeroes it on those tiers so the quote never overcharges. */
 var Q_FVAS=[
   {id:'fuwf',label:'Unbreakable Wi-Fi',price:25,note:'1st mo free'},
-  {id:'fwhw',label:'Whole-Home Wi-Fi (per extender)',price:10,note:'$0 on 1 Gig+'},
+  {id:'fwhw',label:'Whole Home Wi-Fi (per extender)',price:10},
   {id:'fwfs',label:'Wi-Fi Security',price:6},
   {id:'fwfsp',label:'Wi-Fi Security Plus',price:10},
   {id:'fnflx',label:'Netflix & Pro Wi-Fi bundle',price:32}
@@ -2967,10 +2848,7 @@ function quoteSheet(){
     items.push({k:svc+' '+pl.label+' fiber',v:pl.price}); tot+=pl.price;
     if(svc==='EarthLink'){ items.push({k:'Router / equipment',v:14.95}); tot+=14.95; }
     if(svc==='Frontier' && $('#qYtv') && $('#qYtv').checked){ items.push({k:'YouTube TV',v:82.99,note:'$10/mo off \u00d7 12'}); tot+=82.99; }
-    var bigTier=(['1G','2G','5G','7G'].indexOf(pl.id)>=0);
-    $$('.qvas',sheetEl).forEach(function(c){ if(c.checked){ var pr=+c.dataset.price, nt='';
-      if(svc==='Frontier' && c.value==='fwhw' && bigTier){ pr=0; nt='included on 1 Gig+'; }
-      items.push({k:c.dataset.label,v:pr,note:nt}); tot+=pr; } });
+    $$('.qvas',sheetEl).forEach(function(c){ if(c.checked){ var pr=+c.dataset.price; items.push({k:c.dataset.label,v:pr}); tot+=pr; } });
     if($('#qPhone') && $('#qPhone').checked){ var hp=parseFloat(($('#qPhonePrice')||{}).value)||0; items.push({k:'Home phone',v:hp}); tot+=hp; }
     if(svc==='EarthLink' && $('#qCell') && $('#qCell').checked){ var ln=parseInt(($('#qCellLines')||{}).value,10)||0, pp=parseFloat(($('#qCellPrice')||{}).value)||0, ct=ln*pp; items.push({k:'EarthLink cellular \u00d7 '+ln+(pp?(' @ '+money(pp)):''),v:ct}); tot+=ct; }
     if(svc==='Frontier' && $('#qMh') && $('#qMh').checked){ items.push({k:'Verizon Mobile + Home discount',v:-15}); tot-=15; }
@@ -2986,16 +2864,11 @@ function quoteSheet(){
     items.forEach(function(it){ h+='<div class="q-irow"><span>'+esc(it.k)+(it.note?' <i>'+esc(it.note)+'</i>':'')+'</span><b>'+(it.v<0?('\u2212'+money(Math.abs(it.v))):money(Math.round(it.v*100)/100))+'</b></div>'; });
     h+='<div class="q-irow tot"><span>Monthly total</span><b>'+money(Math.round(tot*100)/100)+'</b></div></div>';
     var pn=[];
-    if(svc==='Frontier') pn.push(bigTier
-      ? 'NFL Sunday Ticket from YouTube ON US — a $480 value, through 9/22/26. Redemption email 24–48 hrs after install, 30 days to redeem. $480 chargeback if they disconnect within 365 days. Does not stack with the $400 Samsung offer.'
-      : 'NFL Sunday Ticket from YouTube at $234 instead of $480 — a $246 discount, through 9/22/26, no clawback. Redemption email 24–48 hrs after install. Does not stack with the $400 Samsung offer.');
-    if(svc==='Frontier' && (pl.id==='500M'||pl.id==='1G')) pn.push('2 Months “On Us” (thru 9/30/26) applies to this tier IF the address came off a qualifying lead list — first 2 months free, free install, plus their choice of the $400 Samsung credit or full-season NFL Sunday Ticket. Lead-list only; verify before promising.');
-    if(svc==='Frontier' && !bigTier) pn.push('Heads up on this tier: $100 pro-install fee, and Whole-Home Wi-Fi is $10/mo (both are included at 1 Gig and above).');
+    if(svc==='Frontier') pn.push('Fox One \u2014 3 months \u201con us\u201d (expires 7/19) with Verizon postpaid + Mobile + Home; credit posts on the Verizon bill.');
     if(svc==='Frontier') pn.push('Unbreakable Wi-Fi: 1st month free.');
-    if(svc==='Frontier' && $('#qMh') && !$('#qMh').checked) pn.push('Mobile + Home not applied — with a qualifying Verizon postpaid line this drops another $15/mo. Worth asking before you quote.');
     if(svc==='EarthLink' && (pl.id==='1G'||pl.id==='500M')) pn.push('EarthLink intro: '+pl.label+' is '+money(pl.id==='1G'?44.95:34.95)+'/mo for months 1\u20133, then '+money(pl.id==='1G'?74.95:54.95)+'/mo.');
     if(svc==='EarthLink') pn.push('One-time: $24.95 install + $79.95 processing &amp; handling (disclose at point of sale). Router $14.95/mo included above.');
-    if(svc==='Frontier') pn.push('eero Wi-Fi included, symmetrical speeds, no data caps, no ETF. Prices shown include the $10 AutoPay discount.');
+    if(svc==='Frontier') pn.push('eero Wi-Fi included. Prices include the $10 AutoPay discount.');
     if(pn.length) h+='<div class="q-promo">'+pn.map(function(t){return '\u2022 '+t;}).join('<br>')+'</div>';
     out.innerHTML=h; out._items=items; out._tot=tot; out._now=now; out._svc=svc; out._pl=pl; out._pn=pn;
   }
@@ -3064,55 +2937,35 @@ function backupNudge(){
 }
 var FIBER_NEWS=[
   {co:'Frontier \u2014 a Verizon Company', ours:true, color:'#ee1d2e', items:[
-    'Jan 20, 2026: Verizon closed the acquisition \u2014 about $9.8B cash plus roughly $12.9B of assumed debt. Frontier now operates as "Frontier, a Verizon Company."',
-    'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC. Verizon is targeting 32M+ passings by the end of 2026 and 40\u201350 million over the medium term.',
-    'Q2 2026 (reported 7/24/26): 155,000 fiber net adds \u2014 up from 127,000 in Q1 and 32,000 a year earlier \u2014 reaching 10.9 million fiber connections and about 17.1 million total broadband. Verizon\u2019s release calls it the highest adjusted EBITDA margin in company history; the 40.1% figure comes from the earnings call.',
-    'Verizon now prioritizes fiber over 5G Home wherever fiber is built, and about 55% of Verizon mobile customers also take Verizon broadband. That is the Mobile + Home stack you quote at the door.',
-    'Verizon repaid substantially all of Frontier\u2019s debt in the first half of 2026 and says integration is running ahead of plan, on track for $1B+ in run-rate synergies by 2028.',
-    'California (CPUC) conditions still apply: fiber to 75,000 new California locations within five years (lower-income census blocks prioritized), 250 new cell sites, LifeLine and low-income protections, and a Verizon-funded compliance monitor.'
-  ], src:'Verizon 2Q26 release, TelecomLead, Light Reading, CPUC (Jan\u2013Aug 2026)'},
+    'Jan 20, 2026: Verizon closed its $20B acquisition \u2014 Frontier now operates as "Frontier, a Verizon Company."',
+    'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
+    'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
+    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.'
+  ], src:'Verizon & Frontier press releases, Broadband Communities, DCD (Jan\u2013May 2026)'},
   {co:'EarthLink', ours:true, color:'#f7901e', items:[
     'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
-    'Fiber tiers run 100 Mbps to 5 Gig with no data caps and no throttling; "real fiber" intro messaging from $24.95 on their fiber page.',
-    'What we actually sell (PV sheet rev 7/30/26): Fiber runs $39.95 (100M) to $149.95 (5 Gig) plus a $14.95 router fee and $24.95 install, with 1 Gig at $74.95 as the lead offer. The 1G + 500M new-customer promo is $44.95 and $34.95 for months 1-3. EarthLink\u2019s own retail site runs a separate consumer promo through 9/30/2026 \u2014 different numbers, so quote the PV sheet.',
-    '5G Home Internet is now one plan on the PV sheet: $59.95/mo + $14.95 modem, up to 425 Mbps, true unlimited data, no contract, self-install. The old Unlimited (100M) / Max (425M with a 1.2 TB cap) split is gone.',
-    'Network-rental model rides AT&T, Frontier, CenturyLink and other partner plant: 48 states, with fiber available to roughly 44.6 million people \u2014 third-largest U.S. fiber footprint by coverage.',
-    'Keeps topping customer-satisfaction surveys for price and support. Privately held (Trive Capital), so it is not chasing a quarterly subscriber number.'
-  ], src:'EarthLink.net, BroadbandNow, Allconnect (Jul\u2013Aug 2026)'},
+    'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
+    'Network-rental model gives near-nationwide reach (~48 states) with a customer-service-first focus.',
+    'Keeps topping customer-satisfaction surveys for price and support; new-customer intro pricing runs through 6/30/2026.'
+  ], src:'EarthLink.net, HighSpeedInternet, Allconnect (May\u2013Jun 2026)'},
   {co:'AT&T Fiber', ours:false, color:'#00a8e0', items:[
-    'Q2 2026 (release dated 7/22/26): 646,000 total Advanced Connectivity internet net adds \u2014 367,000 fiber and 279,000 fixed wireless \u2014 which AT&T calls a record quarter for the two combined. Advanced Connectivity service revenue $23.5B, up 5.1%. The \u201cadvanced home internet revenue up 27%+\u201d figure came from the earnings call, not the release.',
-    'Footprint hit 38.6 million consumer and business fiber locations after adding 1M+ in Q2, on track to pass 40 million by end of 2026 and 60 million by 2030. 2026 is their largest build year ever \u2014 about 8 million new locations, 4M+ of them acquired from Lumen.',
-    'Feb 2, 2026: closed the $5.75B purchase of Lumen\u2019s consumer fiber (Quantum Fiber) \u2014 Denver, Seattle, Las Vegas and similar markets. Not California.',
-    'California copper: on June 29, 2026 the FCC cleared AT&T to discontinue legacy copper voice in portions of 360 California wire centers \u2014 about 184,000 residential and 15,000 business customers \u2014 with shutoff proposed on or after June 1, 2027. AT&T\u2019s petition to preempt California\u2019s own rules is still pending and the CPUC is fighting it.',
-    'Nationally, AT&T began physically decommissioning copper in roughly 500 wire centers (about 10% of its footprint) in June 2026, targeting the large majority outside California by 2029. Those households are forced to shop \u2014 a real opening.',
-    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line. Lineup is 300M / 500M / 1 Gig / 5 Gig, and 42.5% of their home-internet base now carries AT&T wireless.',
-    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.'
-  ], src:'AT&T 2Q26 release and earnings call, FCC and CPUC filings, Broadband Breakfast, Light Reading, TelecomLead (Feb\u2013Aug 2026)'},
-  {co:'Spectrum & Cox \u2014 Cable', ours:false, color:'#1c4e9c', items:[
-    'Aug 20, 2026: Charter closed its $34.5 billion merger with Cox and its acquisition of Liberty Broadband. The combined company serves about 37 million customers across 45 states and passes roughly 70 million homes and businesses \u2014 the largest cable operator in the country.',
-    'The corporate name becomes Cox Communications within a year, but every market sells under the Spectrum brand. Cox households in Orange County are Spectrum households now.',
-    'Spectrum brand, pricing and packaging launch across all former Cox markets in mid-September 2026. Cox internet customers who do not already have Cox Mobile are being given one free year of Spectrum Mobile.',
-    'Watch the step-up: Spectrum promo pricing has historically risen more steeply after the intro term than Cox pricing did. Ask what their all-in bill looks like in month 13, not month 1.',
-    'The pressure behind the deal: Charter lost 172,000 internet customers in Q2 2026, down to 29.4 million, its fourth straight quarter of revenue decline \u2014 the company blamed fixed wireless and fiber expansion.',
-    'CPUC approval on 8/13/26 carried about $310 million in California conditions: roughly $275 million of network upgrades to DOCSIS 4.0, $30 million into a state broadband adoption fund, and five years of an affordable broadband offering.',
-    'However they brand it, cable is still coax on the last stretch \u2014 asymmetrical upload on a shared node. Frontier and EarthLink are fiber to the door.'
-  ], src:'Charter newsroom, Light Reading, CPUC, Charter Q2 2026 results (Aug 2026)'}
+    'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
+    'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
+    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
+    'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
+    'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
+    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.'
+  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Jun 2026)'}
 ];
 var AT_T_COUNTERS=[
-  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $64.99 flat with AutoPay, no wireless required and no step-up, on a 5-year price guarantee. If they already have Verizon, Mobile + Home takes it to $49.99 without switching carriers.'},
+  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $49.99 flat with no wireless required; if they already have Verizon, Mobile + Home takes $15 off without switching carriers.'},
   {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well (~369 Mbps median) \u2014 but that is a national average, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
   {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
   {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
 ];
-var CABLE_COUNTERS=[
-  {obj:'"I just got a letter \u2014 my Cox account is turning into Spectrum."', ans:'That is real \u2014 the merger closed August 20 and Spectrum pricing and packaging hit former Cox markets in mid-September. They are handing out a free year of Spectrum Mobile to keep people from shopping. The number to check is month 13: Spectrum promo rates step up harder than Cox rates did. Fiber pricing here is flat and does not require a mobile line.'},
-  {obj:'"Spectrum is the biggest provider in the country now."', ans:'Biggest by subscriber count, yes \u2014 about 37 million customers across 45 states. But they lost 172,000 internet customers last quarter and revenue has fallen four quarters straight, and the reason they give is fiber and fixed wireless taking share. Size is not the same as the line coming into this house.'},
-  {obj:'"Cable is fine, I never have problems."', ans:'Fair \u2014 never argue with a happy customer. Run a speed test and show them the upload number next to the download, then ask what the bill looks like in month 13 versus month 1. If either answer surprises them, that is the conversation.'},
-  {obj:'"Is my Cox price changing?"', ans:'Charter has not made broad pricing promises to Cox residential customers outside California. Existing plans can be kept or migrated to a Spectrum bundle, and the migration offers look good up front. Tell them to write down their all-in price today \u2014 with equipment and fees \u2014 so they can compare it honestly in a year.'}
-];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
-  var h='<div class="mi-note">Verified from public sources, August 20, 2026. Frontier &amp; EarthLink are our products; AT&T and Spectrum/Cox are competitors. These are talking points, not a rate card \u2014 quote price from the current PV offer sheet and always confirm local availability before quoting.</div>';
+  var h='<div class="mi-note">Verified from public sources, June 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
   FIBER_NEWS.forEach(function(nw){
     h+='<div class="fn-card" style="border-left:3px solid '+nw.color+'">'+
        '<div class="fn-h"><span class="fn-co">'+esc(nw.co)+'</span><span class="fn-tag '+(nw.ours?'ours':'comp')+'">'+(nw.ours?'OURS':'COMPETITOR')+'</span></div>'+
@@ -3122,9 +2975,6 @@ function renderFiberNews(){
   h+='<div class="fn-card cp-card"><div class="fn-h"><span class="fn-co">🎯 Answering AT&T at the door</span><span class="fn-tag comp">COUNTER-PITCH</span></div>';
   AT_T_COUNTERS.forEach(function(c){ h+='<div class="cp-row"><div class="cp-obj">'+esc(c.obj)+'</div><div class="cp-ans">'+esc(c.ans)+'</div></div>'; });
   h+='<div class="fn-src">Keep it honest \u2014 AT&T fiber is a strong product. Win on availability, flat pricing, and no wireless lock-in.</div></div>';
-  h+='<div class="fn-card cp-card"><div class="fn-h"><span class="fn-co">\ud83c\udfaf Answering the Cox \u2192 Spectrum switch</span><span class="fn-tag comp">COUNTER-PITCH</span></div>';
-  CABLE_COUNTERS.forEach(function(c){ h+='<div class="cp-row"><div class="cp-obj">'+esc(c.obj)+'</div><div class="cp-ans">'+esc(c.ans)+'</div></div>'; });
-  h+='<div class="fn-src">Cox households are being converted right now, which means they are already opening their bills and comparing. Best window of the year \u2014 lead with upload speed and the month-13 price.</div></div>';
   box.innerHTML=h;
 }
 function renderMarketIntel(){
@@ -3293,32 +3143,6 @@ function weatherFallback(wb,city){
   };
   img.src='https://wttr.in/'+name+'.png?uF';
 }
-function rateTablesHTML(p){
-  if(!p.rateTables||!p.rateTables.length)return '';
-  return p.rateTables.map(function(t){
-    var lead=(typeof t.leadCol==='number')?t.leadCol:-1;
-    var h='<div class="rate-wrap">'+(t.cap?'<div class="rate-cap">'+esc(t.cap)+'</div>':'')+
-      '<div class="rate-scroll"><table class="rate-tbl"><thead><tr>';
-    t.cols.forEach(function(c,i){
-      h+='<th class="'+(i===0?'rate-s':'')+(i===lead?' rate-lead':'')+'">'+esc(c)+'</th>';
-    });
-    h+='</tr></thead><tbody>';
-    t.rows.forEach(function(r){
-      var isLead=(t.leadRow&&r[0]===t.leadRow);
-      h+='<tr'+(isLead?' class="rate-leadrow"':'')+'>';
-      r.forEach(function(v,i){
-        var cls=(i===0?'rate-s':(t.align==='left'&&i>0?'rate-l':''));
-        if(i===lead)cls+=' rate-lead';
-        if(v==='\u2014')cls+=' rate-na';
-        h+='<td class="'+cls.trim()+'"'+(t.align==='left'&&i>0?' style="text-align:left"':'')+'>'+esc(v)+'</td>';
-      });
-      h+='</tr>';
-    });
-    h+='</tbody></table></div>';
-    if(t.foot&&t.foot.length)h+='<div class="rate-foot">'+t.foot.map(function(f){return '\u2022 '+f;}).join('<br>')+'</div>';
-    return h+'</div>';
-  }).join('');
-}
 function renderISPGuide(city){
   $('#ispNote').innerHTML=esc(CITY_NOTE[city.region]||'')+
     '<div style="margin-top:6px;color:var(--faint);font-size:11.5px">Competitor pricing &amp; cancellation verified July 2026 — promo rates with AutoPay vary by address &amp; current offer, so confirm the live quote in the carrier portal before quoting a customer. For real-time outages check Downdetector or the carrier\u2019s status page.</div>';
@@ -3335,7 +3159,6 @@ function renderISPGuide(city){
         '<span class="isp-chev">▾</span></div>'+
       '<div class="isp-body">'+
         '<div class="isp-sec"><div class="isp-sec-lbl">Plans & Pricing</div>'+
-          rateTablesHTML(p)+
           p.plans.map(function(pl){return '<div class="isp-plan">'+esc(pl)+'</div>';}).join('')+'</div>'+
         (p.facts?'<div class="isp-sec"><div class="isp-sec-lbl">Broadband Facts — standard rate &amp; fees</div>'+
           p.facts.map(function(f){return '<div class="isp-plan">'+esc(f)+'</div>';}).join('')+'</div>':'')+
