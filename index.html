@@ -1657,6 +1657,12 @@ var SEED_LEADS=[["Navajo Tire Auto Repair","13651 Navajo Rd, Apple Valley, CA 92
         try{if(typeof leadsPushOne==='function')leadsPushOne(k);}catch(e){}} });
       state.seedHotV1=1; if(conv){try{persist();}catch(e){}}
     }
+    if(!state.seedBizNewV1){
+      var bn=0;
+      (state.knocks||[]).forEach(function(k){ if(k&&k.source==='seed'&&k.disp==='hot'&&String(k.firstName||'').trim()){k.disp='new';k.updatedTs=Date.now();bn++;
+        try{if(typeof leadsPushOne==='function')leadsPushOne(k);}catch(e){}} });
+      state.seedBizNewV1=1; if(bn){try{persist();}catch(e){}}
+    }
 
     if(state.seedLeadsCommV1){ if(state.seedResiRemoved){try{persist();}catch(e){}} return; }
     var seen={};
@@ -1665,7 +1671,7 @@ var SEED_LEADS=[["Navajo Tire Auto Repair","13651 Navajo Rd, Apple Valley, CA 92
     SEED_LEADS.forEach(function(r){
       var addr=String(r[1]||'').trim(), key=addr.toLowerCase();
       if(!addr||seen[key])return; seen[key]=1;
-      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'hot',
+      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'new',
         firstName:String(r[0]||''),address:addr,phone:'',notes:String(r[2]||''),schedule:null,
         products:[],vas:[],commission:0,qty:{},
         lat:(typeof r[3]==='number')?r[3]:null,lng:(typeof r[4]==='number')?r[4]:null,source:'seed'};
