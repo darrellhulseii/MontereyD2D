@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://*.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.open-meteo.com https://wttr.in https://speed.cloudflare.com https://overpass-api.de https://overpass.kumi.systems https://maps.googleapis.com https://*.supabase.co https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.ggpht.com; worker-src 'self' blob: https://*.googleapis.com; child-src 'self' blob: https://*.google.com; frame-src 'self' https://*.google.com https://*.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://*.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.open-meteo.com https://wttr.in https://speed.cloudflare.com https://overpass-api.de https://overpass.kumi.systems https://maps.googleapis.com https://*.supabase.co https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.ggpht.com; worker-src 'self' blob: https://*.googleapis.com; child-src 'self' blob: https://*.google.com; frame-src 'self' https://*.google.com https://*.googleapis.com https://spotcrime.com https://*.spotcrime.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(), microphone=(), payment=()">
@@ -978,6 +978,72 @@ a.btn-line{text-decoration:none}
 </style>
 </head>
 <body>
+<style>
+#krLock{position:fixed;inset:0;z-index:2147483000;background:#07111f;display:flex;align-items:center;justify-content:center;color:#e8f1fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:16px}
+#krLock .lk{width:min(320px,100%);text-align:center}
+#krLock input{width:100%;box-sizing:border-box;font-size:26px;letter-spacing:10px;text-align:center;padding:12px;border-radius:12px;border:1px solid #2a3d55;background:#0d1b2e;color:#fff;margin:16px 0 10px}
+#krLock button{width:100%;padding:13px;border-radius:12px;border:0;background:#00AEEF;color:#fff;font-weight:800;font-size:16px}
+#krLock .lk-msg{min-height:18px;font-size:13px;color:#ff8a8a;margin-top:10px}
+</style>
+<script>
+/* ════════ APP LOCK — PIN gate (PBKDF2-SHA256, 150k rounds), auto-lock when idle or backgrounded ════════ */
+(function(){
+  var LK='kr_lock_v1', ov=null, last=Date.now(), hiddenAt=0;
+  function cfg(){try{return JSON.parse(localStorage.getItem(LK)||'null');}catch(e){return null;}}
+  function save(c){try{localStorage.setItem(LK,JSON.stringify(c));}catch(e){}}
+  function hex(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');}
+  function unhex(h){var a=new Uint8Array(h.length/2);for(var i=0;i<a.length;i++)a[i]=parseInt(h.substr(i*2,2),16);return a;}
+  function derive(pin,salt){
+    if(!(window.crypto&&crypto.subtle))return Promise.reject('nocrypto');
+    return crypto.subtle.importKey('raw',new TextEncoder().encode(String(pin)),'PBKDF2',false,['deriveBits'])
+      .then(function(k){return crypto.subtle.deriveBits({name:'PBKDF2',salt:unhex(salt),iterations:150000,hash:'SHA-256'},k,256);}).then(hex);
+  }
+  function verify(pin){var c=cfg(); if(!c)return Promise.resolve(true); return derive(pin,c.salt).then(function(h){return h===c.hash;});}
+  function hide(){ if(ov){ov.parentNode&&ov.parentNode.removeChild(ov);ov=null;} KL.locked=false; last=Date.now(); }
+  function show(){
+    if(ov||!cfg())return; KL.locked=true;
+    ov=document.createElement('div'); ov.id='krLock'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.innerHTML='<div class="lk"><div style="font-size:42px">🔒</div><div style="font-size:19px;font-weight:800;margin-top:6px">Complete Home App</div>'+
+      '<div style="font-size:13px;opacity:.75;margin-top:4px">Enter your PIN to unlock</div>'+
+      '<input id="krLockPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" aria-label="PIN">'+
+      '<button id="krLockGo">Unlock</button><div class="lk-msg" id="krLockMsg"></div>'+
+      '<a href="#" id="krLockForgot" style="display:inline-block;margin-top:16px;font-size:12px;color:#7fb8e6">Forgot PIN?</a></div>';
+    (document.body||document.documentElement).appendChild(ov);
+    var inp=ov.querySelector('#krLockPin'), msg=ov.querySelector('#krLockMsg');
+    function go(){
+      var c=cfg(); if(!c){hide();return;}
+      var wait=(c.until||0)-Date.now(); if(wait>0){msg.textContent='Too many tries — wait '+Math.ceil(wait/1000)+'s';return;}
+      verify(inp.value||'').then(function(ok){
+        var c2=cfg()||c;
+        if(ok){c2.fails=0;c2.until=0;save(c2);hide();return;}
+        c2.fails=(c2.fails||0)+1;
+        if(c2.fails>=5)c2.until=Date.now()+Math.min(900000,30000*Math.pow(2,c2.fails-5));
+        save(c2); inp.value='';
+        msg.textContent='Wrong PIN'+(c2.fails>=5?' — locked for '+Math.round((c2.until-Date.now())/1000)+'s':' ('+(5-c2.fails)+' tries before a timeout)');
+      }).catch(function(){msg.textContent='This browser cannot check the PIN (needs https)';});
+    }
+    ov.querySelector('#krLockGo').onclick=go;
+    inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go();}};
+    ov.querySelector('#krLockForgot').onclick=function(e){e.preventDefault();
+      if(confirm('Reset the PIN? To protect customer info this ERASES everything saved on this phone. Leads synced to the team cloud come back after you sign in again. Continue?')){
+        try{['knockradar_v3','knockradar_v2','knockradar_v1',LK].forEach(function(k){localStorage.removeItem(k);});}catch(err){}
+        location.reload();
+      }};
+    setTimeout(function(){try{inp.focus();}catch(e){}},60);
+  }
+  function bump(){last=Date.now();}
+  var KL=window.KRLock={cfg:cfg,verify:verify,locked:false,lock:show,
+    set:function(pin,mins){var sb=new Uint8Array(16);crypto.getRandomValues(sb);var salt=hex(sb);
+      return derive(pin,salt).then(function(h){save({salt:salt,hash:h,mins:mins||5,fails:0,until:0});bump();});},
+    clear:function(){try{localStorage.removeItem(LK);}catch(e){}},
+    setMins:function(m){var c=cfg();if(c){c.mins=m;save(c);}}};
+  if(cfg())show();
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){document.addEventListener(ev,bump,{passive:true,capture:true});});
+  document.addEventListener('visibilitychange',function(){var c=cfg(); if(!c)return;
+    if(document.hidden)hiddenAt=Date.now(); else if(hiddenAt&&Date.now()-hiddenAt>=(c.mins||5)*60000)show();});
+  setInterval(function(){var c=cfg(); if(c&&!ov&&Date.now()-last>=(c.mins||5)*60000)show();},15000);
+})();
+</script>
 
 <div class="appbar">
   <div class="brand">KNOCK<span>RADAR</span></div>
@@ -1295,7 +1361,33 @@ var $=function(s,c){return (c||document).querySelector(s);};
 var $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s));};
 var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function money(n){return '$'+(n||0).toLocaleString();}
+function money(n){n=Number(n);return '$'+(isFinite(n)?n:0).toLocaleString();}
+/* ════════ DATA HYGIENE — every record from the cloud or a backup file is cleaned before it is stored or rendered ════════ */
+var SAFE_ID=/^[A-Za-z0-9_.:-]{1,80}$/;
+function safeColor(c){c=String(c||'');return /^#[0-9a-fA-F]{3,8}$/.test(c)?c:'#8aa0b8';}
+function safeStr(v,max){return v==null?'':String(v).slice(0,max||2000);}
+function sanitizeKnock(k){
+  if(!k||typeof k!=='object'||!SAFE_ID.test(String(k.id||'')))return null;
+  var o={};
+  Object.keys(k).forEach(function(key){ if(key!=='__proto__'&&key!=='constructor'&&key!=='prototype')o[key]=k[key]; });
+  ['firstName','address','phone','notes','notes2','source','claimedBy','repId','disp'].forEach(function(f){ if(o[f]!=null)o[f]=safeStr(o[f],/notes/.test(f)?4000:300); });
+  if(o.repId&&!SAFE_ID.test(o.repId))o.repId='';
+  if(o.claimedBy&&!SAFE_ID.test(o.claimedBy))o.claimedBy='';
+  if(typeof DMAP!=='undefined'&&!DMAP[o.disp])o.disp='lead';
+  ['ts','updatedTs','commission'].forEach(function(f){ if(o[f]!=null){var n=Number(o[f]);o[f]=isFinite(n)?n:0;} });
+  ['lat','lng'].forEach(function(f){ if(o[f]!=null){var n=Number(o[f]);o[f]=isFinite(n)?n:null;} });
+  if(o.schedule!=null&&typeof o.schedule!=='number'){var sc=typeof o.schedule==='string'?Date.parse(o.schedule):NaN;o.schedule=isFinite(sc)?sc:null;}
+  ['products','vas'].forEach(function(f){ o[f]=Array.isArray(o[f])?o[f].slice(0,50).map(function(x){return safeStr(x,120);}):[]; });
+  if(o.qty&&typeof o.qty==='object'){var q={};Object.keys(o.qty).slice(0,50).forEach(function(n){var v=Number(o.qty[n]);if(isFinite(v))q[safeStr(n,120)]=v;});o.qty=q;}else o.qty={};
+  return o;
+}
+function csvSafe(c){c=String(c==null?'':c);return (/^[=+\-@\t\r]/.test(c)&&!/^-?\d+(\.\d+)?$/.test(c))?"'"+c:c;}
+function backupSafeState(){
+  var o=JSON.parse(JSON.stringify(state));
+  if(o.cloud){delete o.cloud.auth;}
+  return o;
+}
+
 
 /* ── disposition config + the data each one collects ── */
 var DISPOS=[
@@ -1401,9 +1493,11 @@ var ISPS=[
     'All prices include the $10/mo AutoPay discount',
     'Mobile + Home Discount: $15/mo off with a qualifying Verizon postpaid mobile plan',
     'Verizon Perks: up to $10/mo in credits on 2 Gig and higher — Netflix/HBO Max, Disney+/Hulu/ESPN+, YouTube Premium',
-    '2 Months \\"On Us\\" D2D (8/14–9/30/26) — LEAD-LIST DRIVEN: first 2 months free on 500M or 1 Gig, new-to-Frontier, eligible addresses only. Includes full-season NFL Sunday Ticket, Whole-Home Wi-Fi, pro router setup and free install. Stacks with M+H ($15/mo after the free period) and Digital Pulse Visa Reward Card.',
-    'NFL Sunday Ticket Offer (7/30–9/22/26): 1 Gig and above get the full season ON US — $480 value. 500M and below get it discounted at $234 ($246 off), no clawback. Open to new Fiber, copper-to-fiber migrations and voice customers adding Fiber.',
-    'NFL Sunday Ticket fine print: redemption email arrives 24–48 hrs AFTER install — no code at the door. 30 days to redeem on YouTube. Base YouTube TV NOT required. Cannot combine with an active NFL Sunday Ticket billed elsewhere. The 1 Gig+ free version carries a $480 chargeback if the customer disconnects within 365 days.',
+    'EXPIRED 9/30/26 — 2 Months On Us D2D (8/14–9/30/26) has ended. Do not promise free months unless a new PV sheet relaunches it.',
+    'EXPIRED 9/22/26 — NFL Sunday Ticket offer (7/30–9/22/26) has ended for new orders. Customers who already redeemed keep it, and the 1 Gig+ free version still carries the $480 chargeback if they disconnect within 365 days.',
+    'Frontier.com retail (seen 10/2/26, confirm on the PV sheet before quoting): Fiber 500 — $0 for the first month, then $44.99 with a 4-year price guarantee and free install; ends 10/5/26.',
+    'Frontier.com retail (seen 10/2/26): Ring Battery Doorbell 2K + Spotlight Cam Battery 2K ($269 value) on Fiber 2 Gig, 5 Gig or 7 Gig — service active 65 days, 365-day chargeback, through 5/8/27. Pairs naturally with the ADT conversation.',
+    'Frontier.com retail (seen 10/2/26): YouTube TV $10/mo off for 12 months for new internet customers · Refer-a-friend up to a $150 gift card for each side after 45 days.',
     'Google AI Pro — 6 Months \\"On Us\\": bill credits cover the first 6 months for Fiber customers NEW to the Google AI Pro perk (current/former subscribers excluded). Includes Gemini App, Gemini Notebook, Gemini in Gmail & Docs, Google Home Premium, YouTube Premium Lite, 5 TB storage. Continues after on the standard $10 Perk credit.',
     'Unbreakable Wi-Fi — 1 mo FREE',
     'Video: Netflix & Pro Wi-Fi bundle $32/mo · YouTube TV $82.99/mo ($10 off/mo for 12 months = $120 first-year savings)',
@@ -1416,13 +1510,13 @@ var ISPS=[
     'myHome price guarantee: 3-Year on 200M · 4-Year on 500M · 5-Year on 1 Gig and above',
     'At 1 Gig and above: Whole-Home Wi-Fi included, $10 Perk credit included, pro-install included. Below 1 Gig: Wi-Fi $10/mo and a $100 install fee.',
     'Verizon myHome Perks at launch: Netflix & HBO Max (ads) · Disney+/Hulu/ESPN+ (ads) · YouTube Premium · FOX One · Google AI Pro. The $10 perk credit needs myHome 1G+ (or Legacy 2G+) AND Mobile + Home enrollment; register each perk by SmartLink within 90 days or it is removed.',
-    'Offers current as of the 9/3/26 Frontier offer sheet (v30)'],
+    'Offers current as of the 9/3/26 Frontier offer sheet (v30) \u00b7 promo dates re-checked 10/2/26'],
   facts:['Standard rate: the advertised price already includes the $10/mo AutoPay discount and is the ongoing rate — no 12-month promo cliff',
     'myHome carries no early-termination fee and no restocking fee — this kills the \\"I don\u2019t want to be locked in\\" objection outright',
     'eero Wi-Fi router included · symmetrical upload/download · no data caps',
     'Equipment must be returned on disconnect to avoid a non-return fee'],
   cancel:'Standard Fiber plans are month-to-month with no early-termination fee (the 2 Months \"On Us\" promo that carried a 12-month ETF has expired). On disconnect there is an equipment restocking fee, plus a non-return fee (substantially higher for 5 Gig / 7 Gig gear) if equipment is not returned.',
-  pitch:'This is your product. The sheet price is now $64.99 on 1 Gig — that is the AutoPay number. $49.99 still exists but needs AutoPay AND the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. Your strongest close right now is the 2 Months \"On Us\" D2D promo through 9/30 — but it is lead-list driven, so check the address is eligible before you promise it. NFL Sunday Ticket is free on 1 Gig and up through 9/22 and is a real closer in football season; set expectations that the code emails 24-48 hrs after install, not at the door. Samsung expired 9/1 — do not promise it.'},
+  pitch:'This is your product. The sheet price is now $64.99 on 1 Gig — that is the AutoPay number. $49.99 still exists but needs AutoPay AND the $15/mo Mobile + Home discount, so qualify for a Verizon postpaid line early or you are quoting a price the customer will not get. The 2 Months On Us D2D promo (9/30) and NFL Sunday Ticket (9/22) have both ended, so close on the price guarantee in writing, no ETF and no restocking fee. Frontier.com is showing a first month free on Fiber 500 through 10/5 and a Ring doorbell + camera bundle on 2 Gig and up \u2014 confirm either on the PV sheet before you promise it. Samsung expired 9/1 \u2014 do not promise it.'},
 
  {id:'earthlink',name:'EarthLink',type:'Fiber / 5G Home',ours:true,color:'#00C853',
   headline:'Fiber $39.95–$149.95/mo + $14.95 router · 1 Gig $74.95 lead offer',
@@ -1445,20 +1539,20 @@ var ISPS=[
     '1G + 500M promo · new customers only',
     'Always disclose the $79.95 processing & handling fee, due at point of sale',
     'VAS: EarthLink Protect+ $9.95/mo · LifeLock $7.95/mo · EasyTech $9.95/mo',
-    'Offers current as of the 7/30/26 EarthLink offer sheet (v10)'],
+    'EXPIRED 9/30/26 — EarthLink.com retail intro promo has ended \u2014 quote only the PV sheet numbers above.',
+    'Offers current as of the 7/30/26 EarthLink offer sheet (v10) \u00b7 re-checked 10/2/26'],
   facts:['Standard rate: the 1G + 500M promo steps up after month 3 — 1 Gig $44.95 to $74.95/mo, 500M $34.95 to $54.95/mo',
-    '5G Home Internet (Unlimited) holds a flat $59.95/mo + $14.95 modem — no promo step-up (up to 100M, truly unlimited)',
-    '5G Home Internet (Max) is also $59.95/mo + $14.95 modem — faster (up to 425M) but carries a 1.2 TB data cap',
+    '5G Home Internet holds a flat $59.95/mo + $14.95 modem \u2014 up to 425 Mbps with unlimited data and no promo step-up (the old Unlimited / Max split was retired on the 7/30/26 sheet)',
     'Router fee $14.95/mo is ongoing and separate from the plan price',
     'One-time fees: $24.95 install and a $79.95 processing & handling fee at point of sale'],
   cancel:'EarthLink Fiber is typically sold on a term agreement (commonly 12 months) with an early-termination fee — confirm the current term and ETF with the customer before close. The 5G Home Internet (Unlimited) plan requires no contract. Value-added services must stay active to qualify and are subject to chargebacks.',
-  pitch:'Your secondary product — strong where Frontier Fiber is not built. Lead with Fiber 1 Gig at $74.95/mo (or the $44.95 intro rate for months 1-3), and pitch the PerfectVision-exclusive 5G Home options — Unlimited (100M, no cap) or Max (425M, 1.2 TB cap), both $59.95 + modem, no contract. Always disclose the $14.95 router fee and the $79.95 processing & handling fee up front.'},
+  pitch:'Your secondary product — strong where Frontier Fiber is not built. Lead with Fiber 1 Gig at $74.95/mo (or the $44.95 intro rate for months 1-3), and pitch 5G Home where fiber is not built \u2014 $59.95 + $14.95 modem, up to 425 Mbps, unlimited data, no contract. Always disclose the $14.95 router fee and the $79.95 processing & handling fee up front.'},
 
  {id:'xfinity',name:'Xfinity (Comcast)',type:'Cable',color:'#ff8a3c',
   headline:'5-Year Price Lock $40–$70/mo · Gateway + unlimited data included',
   plans:['300 Mbps — from ~$40–$55/mo, locked 5 years','500 Mbps — mid-tier 5-year lock',
     'Gigabit 1 Gig — ~$70/mo, locked 5 years (often bundles Peacock + a free Xfinity Mobile line for 1 yr)',
-    'NOW prepaid — ~$45/mo for 50 Mbps, taxes included, no credit check',
+    'NOW prepaid — $30/mo for 100 Mbps or $45/mo for 200 Mbps, taxes included, no credit check',
     'Internet Essentials — under $15/mo for qualifying low-income households',
     'Wi-Fi Gateway and unlimited data now included · ~$100 pro install (self-install to avoid)',
     'Rates as of June 2026 — verify the live quote by ZIP'],
@@ -1493,6 +1587,9 @@ var ISPS=[
     'Free Internet for Life \u2014 4 Mobile Lines: available to customers eligible for Internet Advantage, requires 2 ported lines. Upgrades cost extra: Premier +$10/mo, 1 Gig +$20/mo, 2 Gig +$40/mo. Credits land on the month-2 bill.',
     '$2,500 Phone Balance Buyout: new AND existing customers, pays off the prior carrier\u2019s phone balance up to $2,500, requires 2 ported lines.',
     'The mobile-bundle offers are the real threat, not the internet price \u2014 they lock the customer\u2019s phones to Spectrum, which is far stickier than the internet alone.',
+    'Free Amazon Prime with Internet (eff 8/17/26, until further notice): new AND existing customers at flagged locations, any internet tier, activated in the My Spectrum app. It is a giveaway worth about $12/mo, not a lower rate \u2014 agree it is a nice perk, then go back to the bill. Expect homes that were not shopping to bring it up.',
+    'Cox is now Spectrum: the rebrand went live 9/16/26 after the 8/20/26 close. Former Cox plans became Spectrum Internet 100 ($30), 500 ($40) and 1 Gig ($60) for 1 year; Cox TV moved to the app-based Spectrum Stream TV; Cox internet customers get a free year of Spectrum Mobile. Ex-Cox homes (Orange County) are confused right now \u2014 ask what their new bill says.',
+    'Spectrum Mobile per line (needs Spectrum Internet): Unlimited $40 \u00b7 Unlimited Plus $50 \u00b7 Unlimited Plus Premium $60 (eff 7/22/26, aimed at new Internet Gig customers).',
     'Not on the offer sheet: what the rate becomes after the promotional period. Spectrum promo rates step up, but do not quote a specific step-up number you cannot prove \u2014 ask to see the customer\u2019s bill instead.'],
   cancel:'No term contracts and no early-termination fee on residential internet. Two gotchas worth disclosing: Spectrum does not prorate a final bill (cancel before the next billing date or pay a full extra month), and cancellation cannot be completed online \u2014 phone or store only. Strong retention desk. The mobile-line offers above are the real exit friction: a customer who took Free Internet for Life or the $2,500 buyout has ported phones and a device balance tied to Spectrum.',
   pitch:'Their lead is 1 Gig at $60 and a stack of mobile-line offers. Do not argue price on the sheet number \u2014 ask to see the actual bill, because the promotional rate is not the ongoing rate and their sheet does not state what it becomes. Frontier\u2019s myHome answer is a multi-year price guarantee in writing, no ETF and no restocking fee. If they have already ported phones to Spectrum Mobile, that is a harder switch \u2014 qualify for it early.'},
@@ -1507,7 +1604,7 @@ var ISPS=[
     'Verizon One internet options: Fios 500M standard (1 Gig +$15, 2 Gig +$25, upgrades only at signup) \u00b7 5G Home Plus up to 150 Mbps \u00b7 VHI Lite Extra up to 25 Mbps',
     'The Simplicity Plan (launched 6/16/26) \u2014 $45/mo per line w/ AutoPay, or $30/mo with the Bring a Number discount. Flat rate regardless of line count.',
     'Simplicity add-ons: Plus $35/mo (devices under $830) \u00b7 Pro $50/mo (devices $830.01\u2013$1,200)',
-    'National Growth Pricing (extended thru 7/29/26): $10 off 1 line, $15 off 2, $20 off 3+ \u2014 36 months, new mobile accounts, must be applied at point of sale',
+    'EXPIRED 7/29/26 — National Growth Pricing (extended thru 7/29/26): $10 off 1 line, $15 off 2, $20 off 3+ \u2014 36 months, new mobile accounts, must be applied at point of sale',
     'Switch & Save on Simplicity: $15/mo off per eligible line for customers bringing a competitor bill',
     'VAS: Identity Secure $5/mo line level or $10/mo account level \u00b7 Verizon Family Plus $10/mo'],
   facts:['Mobile + Home Discount is $15/mo off the Frontier Fiber plan and requires a qualifying Verizon postpaid line \u2014 this is the discount that makes the myHome bottom-row pricing real.',
@@ -1521,14 +1618,15 @@ var ISPS=[
  {id:'att',name:'AT&T Fiber',type:'Fiber',color:'#00a8e0',
   headline:'$50–$95/mo · no contract · flat rate · bundle from $35',
   plans:['Fiber 300 Mbps — $50/mo (or ~$35 bundled with AT&T wireless)','Fiber 500 Mbps — ~$65/mo',
-    'Fiber 1 Gig — $80/mo (or ~$60 bundled) · $200 Visa reward card','Fiber 5 Gig — top tier, recently price-cut · includes All-Fi Pro · $200 Visa card',
-    'Lineup simplified to 4 tiers on 6/7/26 (100 Mbps retired) · Wi-Fi gateway included, no equipment fee',
+    'Fiber 1 Gig — $80/mo (or ~$60 bundled) · $200 Visa reward card','Fiber 5 Gig — ~$180/mo, top tier · includes All-Fi Pro · $200 Visa card',
+    'Lineup simplified to 4 tiers on 6/7/26 (2 Gig retired) · Wi-Fi gateway included, no equipment fee',
     'New-customer 12-mo discount: $15/mo off 300/500, $30/mo off 1 Gig+ · prices after $10/mo AutoPay + Paperless',
     'AT&T Internet Air — 5G fixed wireless (~$60/mo) where fiber is not built'],
   facts:['Standard rate: flat fiber pricing with no 12–24 month promo cliff — only legacy DSL / IPBB plans still step up',
     'Wi-Fi gateway included with no separate router lease fee · up to $99 one-time install',
     'Now the largest US fiber provider after absorbing Lumen / Quantum Fiber; ranked #1 in ACSI for home internet four years running',
-    '1 Gig moved up to $80/mo and 300 Mbps down to $50 in the 6/7/26 remix; AT&T pledged a $19B California fiber build (May 2026) — re-check availability'],
+    '1 Gig moved up to $80/mo and 300 Mbps down to $50 in the 6/7/26 remix; AT&T pledged a $19B California fiber build (May 2026) — re-check availability',
+    '9/29/26: AT&T rolled out simplified fiber plans priced to reward households that also take AT&T wireless, plus an expanded build-a-plan for wireless \u2014 expect bigger bundle numbers at the door. Still targeting 40M+ fiber locations by year-end.'],
   cancel:'AT&T Fiber is month-to-month with no annual contract and no early-termination fee — this covers standalone fiber plans since October 2020; legacy DSL or U-verse bundles can still carry a $15-per-month ETF up to $180. Any reward card earned at sign-up may be clawed back if service is cancelled within roughly the first 90 days. Cancellation is by phone or app chat only, and leased equipment must be returned within 21 days or a non-return fee up to $150 applies. AT&T also offers reward cards that can offset a competitor\u2019s switching costs.',
   pitch:'The toughest competitor — genuinely no-contract, flat-rate, #1 in satisfaction and expanding fast in California. Win where AT&T fiber is not built, on the one-visit Frontier + ADT bundle (one rep: internet + security), and on Frontier\u2019s Verizon mobile + perks stack.'},
 
@@ -1567,6 +1665,21 @@ var ISPS=[
   cancel:'No contract and no early-termination fee — cancel, pause, or change plans anytime, with billing stopping immediately and paid fees refunded pro-rata. All account management is done in the Starlink app or website (no phone support). Purchased hardware can be returned for a full refund within 30 days; after that it is final. A $5/month Standby Mode can keep the account active instead of fully cancelling. If the kit was rented rather than purchased, it must be returned on cancellation or the full hardware cost is charged.',
   pitch:'Mainly a rural / mountain play — a real competitor in Big Bear. Costs more than fiber, has higher latency and a big upfront hardware bill. Wherever fiber reaches, fiber wins on price and latency.'}
 ];
+/* Promo expiry guard: any plan/fact line whose latest end date ("…–9/30/26", "thru 7/29/26", "ends 10/5/26") has passed
+   is auto-tagged EXPIRED so reps never pitch a dead offer, even if the offer sheet is not refreshed in time. */
+(function(){
+  try{
+    var today=new Date(); today.setHours(0,0,0,0);
+    var re=/(?:–|-|thru|through|ends|until|to)\s*(\d{1,2})\/(\d{1,2})\/(\d{2,4})/gi;
+    function guard(t){
+      if(typeof t!=='string'||/^\s*(?:⛔\s*)?expired/i.test(t))return t;
+      var m,max=null; re.lastIndex=0;
+      while((m=re.exec(t))){var y=+m[3]; if(y<100)y+=2000; var d=new Date(y,+m[1]-1,+m[2]); if(!max||d>max)max=d;}
+      return (max&&max<today)?'⛔ EXPIRED '+(max.getMonth()+1)+'/'+max.getDate()+' — do not pitch: '+t:t;
+    }
+    ISPS.forEach(function(p){ ['plans','facts'].forEach(function(f){ if(Array.isArray(p[f]))p[f]=p[f].map(guard); }); });
+  }catch(e){}
+})();
 
 /* ════════ STORAGE — multi-user ════════ */
 var KEY='knockradar_v3';
@@ -1657,6 +1770,36 @@ var SEED_SOLD_BB=[["", "926 Robinhood Blvd, Big Bear City, CA 92314", "Recently 
         try{if(typeof refreshMarkers==='function')refreshMarkers();}catch(e){}
         try{if(typeof toast==='function')toast('<b>'+added.length+' new-mover leads loaded</b> \u00b7 Big Bear Valley \u00b7 geocoding now',null,null,5000);}catch(e){}
       },3200);
+    }
+  }catch(e){}
+})();
+
+/* ════════ SEEDED SOLD-HOME LEADS — Big Bear Valley new movers, sold 9/23–10/1/26 (hot leads) ════════ */
+var SEED_SOLD_BB_20261002=[["", "805 W Big Bear Blvd, Big Bear City, CA 92314", "Recently sold 9/30/26 · $350,000 · NEW MOVER — needs internet", null, null], ["", "436 Eton Ln, Big Bear City, CA 92314", "Recently sold 9/30/26 · $610,000 · NEW MOVER — needs internet", null, null], ["", "1414 Klamath Rd, Big Bear City, CA 92314", "Recently sold 9/30/26 · $449,900 · NEW MOVER — needs internet", null, null], ["", "520 W Aeroplane Blvd, Big Bear City, CA 92314", "Recently sold 9/28/26 · $218,000 · NEW MOVER — needs internet", null, null], ["", "2013 Cedar Ln, Big Bear City, CA 92314", "Recently sold 9/25/26 · $379,000 · NEW MOVER — needs internet", null, null], ["", "927 W Fairway Blvd, Big Bear City, CA 92314", "Recently sold 9/24/26 · $270,000 · NEW MOVER — needs internet", null, null], ["", "43866 Mendocino Dr, Big Bear Lake, CA 92315", "Recently sold 9/30/26 · $739,000 · NEW MOVER — needs internet", null, null], ["", "649 St Moritz Dr, Big Bear Lake, CA 92315", "Recently sold 9/30/26 · $719,000 · NEW MOVER — needs internet", null, null], ["", "41735 Comstock Ln, Big Bear Lake, CA 92315", "Recently sold 9/29/26 · $780,000 · NEW MOVER — needs internet", null, null], ["", "39697 Lake Dr, Big Bear Lake, CA 92315", "Recently sold 9/28/26 · $675,000 · NEW MOVER — needs internet", null, null], ["", "154 Lodgepole Pl, Big Bear Lake, CA 92315", "Recently sold 9/28/26 · $910,000 · NEW MOVER — needs internet", null, null], ["", "777 Medicine Mans Pl, Big Bear Lake, CA 92315", "Recently sold 9/28/26 · $517,000 · NEW MOVER — needs internet", null, null], ["", "369 S Eureka Dr, Big Bear Lake, CA 92315", "Recently sold 9/28/26 · $600,000 · NEW MOVER — needs internet", null, null], ["", "841 Menlo Dr, Big Bear Lake, CA 92315", "Recently sold 9/25/26 · $425,000 · NEW MOVER — needs internet", null, null], ["", "793 Rueda Ln, Big Bear Lake, CA 92315", "Recently sold 9/24/26 · $720,000 · NEW MOVER — needs internet", null, null], ["", "41620 Thrush Ct, Big Bear Lake, CA 92315", "Recently sold 9/23/26 · $600,000 · NEW MOVER — needs internet", null, null], ["", "39222 Arapahoe Rd, Fawnskin, CA 92333", "Recently sold 9/30/26 · $430,000 · NEW MOVER — needs internet", null, null], ["", "338 N Shore Dr, Fawnskin, CA 92333", "Recently sold 9/29/26 · $375,000 · NEW MOVER — needs internet", null, null]];
+(function(){
+  try{
+    if(state.seedSoldBB_20261002){return;}
+    var seen={};
+    state.knocks.forEach(function(k){var a=String(k.address||'').toLowerCase().trim();if(a)seen[a]=1;});
+    var added=[];
+    SEED_SOLD_BB_20261002.forEach(function(r){
+      var addr=String(r[1]||'').trim(), key=addr.toLowerCase();
+      if(!addr||seen[key])return; seen[key]=1;
+      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'hot',
+        firstName:'',address:addr,phone:'',notes:String(r[2]||''),schedule:null,
+        products:[],vas:[],commission:0,qty:{},lat:null,lng:null,source:'seed'};
+      state.knocks.push(rec); added.push(rec);
+    });
+    state.seedSoldBB_20261002=1;
+    try{persist();}catch(e){}
+    if(added.length){
+      setTimeout(function(){
+        try{if(typeof leadsPushRows==='function')leadsPushRows(added);}catch(e){}
+        try{if(typeof geocodeLeads==='function')geocodeLeads(added);}catch(e){}
+        try{if(typeof renderAll==='function')renderAll();}catch(e){}
+        try{if(typeof refreshMarkers==='function')refreshMarkers();}catch(e){}
+        try{if(typeof toast==='function')toast('<b>'+added.length+' new-mover leads loaded</b> \u00b7 Big Bear Valley \u00b7 geocoding now',null,null,5000);}catch(e){}
+      },3400);
     }
   }catch(e){}
 })();
@@ -3052,32 +3195,41 @@ var FIBER_NEWS=[
     'Jan 20, 2026: Verizon closed its $20B acquisition \u2014 Frontier now operates as "Frontier, a Verizon Company."',
     'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
     'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
-    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.'
+    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.',
+    'Oct 2026 on Frontier.com: Fiber 500 first month free through 10/5/26, and a Ring doorbell + camera bundle on 2 Gig and up through 5/8/27. NFL Sunday Ticket (9/22) and the D2D 2 Months On Us (9/30) have ended.'
   ], src:'Verizon & Frontier press releases, Broadband Communities, DCD (Jan\u2013May 2026)'},
   {co:'EarthLink', ours:true, color:'#f7901e', items:[
     'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
     'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
     'Network-rental model gives near-nationwide reach (~48 states) with a customer-service-first focus.',
-    'Keeps topping customer-satisfaction surveys for price and support; new-customer intro pricing runs through 6/30/2026.'
-  ], src:'EarthLink.net, HighSpeedInternet, Allconnect (May\u2013Jun 2026)'},
+    'Keeps topping customer-satisfaction surveys for price and support. The retail-site intro promo (extended to 9/30/26) has ended \u2014 quote the PV sheet, not the website.'
+  ], src:'EarthLink.net, HighSpeedInternet, Allconnect, BroadbandNow (May\u2013Oct 2026)'},
   {co:'AT&T Fiber', ours:false, color:'#00a8e0', items:[
     'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
     'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
     'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
     'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
     'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
-    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.'
-  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Jun 2026)'}
+    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.',
+    'May 2026: $19B California connectivity commitment through 2030. 9/29/26: simplified fiber plans priced to reward AT&T wireless households, plus an expanded build-a-plan for wireless.'
+  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless, Kalkine (Jan\u2013Sep 2026)'},
+  {co:'Spectrum & Cox (cable)', ours:false, color:'#0a6ea8', items:[
+    'Aug 20, 2026: Charter closed its Cox merger; on 9/16/26 Cox service switched to the Spectrum brand. Equipment and service carried over \u2014 nothing required from customers on day one.',
+    'Former Cox plans renamed: Spectrum Internet 100 $30, 500 $40, 1 Gig $60 \u2014 each for 1 year, then a step-up. Cox TV moved to app-based Spectrum Stream TV ($75\u2013$145 promo packages).',
+    'Cox internet customers are being offered a free year of Spectrum Mobile \u2014 the hook that pulls phones onto the cable bill.',
+    'Free Amazon Prime with Spectrum Internet (since 8/17/26) at flagged addresses, for new and existing customers.',
+    'Door angle: ex-Cox households are getting new bills, new app and new TV. Ask what changed on theirs \u2014 a fiber price guarantee in writing beats a one-year promo.'
+  ], src:'Charter newsroom, AZFamily, WAVY, Homelinkd (Aug\u2013Sep 2026)'}
 ];
 var AT_T_COUNTERS=[
-  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $49.99 flat with no wireless required; if they already have Verizon, Mobile + Home takes $15 off without switching carriers.'},
+  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $64.99 flat with AutoPay and no wireless required, and drops to $49.99 if they already have a Verizon postpaid line (Mobile + Home) \u2014 no carrier switch needed.'},
   {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well (~369 Mbps median) \u2014 but that is a national average, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
   {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
   {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
 ];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
-  var h='<div class="mi-note">Verified from public sources, June 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
+  var h='<div class="mi-note">Re-checked against public sources Oct 2, 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
   FIBER_NEWS.forEach(function(nw){
     h+='<div class="fn-card" style="border-left:3px solid '+nw.color+'">'+
        '<div class="fn-h"><span class="fn-co">'+esc(nw.co)+'</span><span class="fn-tag '+(nw.ours?'ours':'comp')+'">'+(nw.ours?'OURS':'COMPETITOR')+'</span></div>'+
@@ -4351,7 +4503,7 @@ function payrollCsv(rid){
   state.knocks.filter(function(k){return k.disp==='sold' && (!rid||k.repId===rid);}).sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
     out.push([ reps[k.repId]||k.repId||'', new Date(k.ts).toLocaleDateString(), k.firstName||'', k.address||'', (k.products||[]).join('; '), (k.vas||[]).join('; '), (k.commission||0), (k.paid?'Paid':'Pending'), new Date(k.ts+90*86400000).toLocaleDateString() ]);
   });
-  var csv=out.map(function(r){return r.map(function(c){c=(''+c).replace(/"/g,'""'); return /[",\n]/.test(c)?'"'+c+'"':c;}).join(',');}).join('\n');
+  var csv=out.map(function(r){return r.map(function(c){c=csvSafe(c).replace(/"/g,'""'); return /[",\n]/.test(c)?'"'+c+'"':c;}).join(',');}).join('\n');
   download('payroll-'+todayKey()+'.csv',csv,'text/csv');
   toast('\u2713 Payroll CSV exported');
 }
@@ -4835,7 +4987,7 @@ function requireAdmin(cb,msg,action){
   function go(){
     var v=($('#admPw')||{}).value||'';
     sha256hex(v).then(function(h){
-      if(h===ADMIN_HASH){adminUnlocked=true;closeSheet();cb();}
+      if(h===ADMIN_HASH){adminUnlocked=true;clearTimeout(window._admRelock);window._admRelock=setTimeout(function(){adminUnlocked=false;},10*60000);closeSheet();cb();}
       else{toast('Wrong password');var i=$('#admPw');if(i){i.value='';i.focus();}}
     });
   }
@@ -5267,6 +5419,7 @@ function cloudPull(){
     .then(function(r){if(!r.ok)throw 0;return r.json();})
     .then(function(arr){
       var m={},feed=[];teamLocs={};teamPts=[];(arr||[]).forEach(function(row){
+        if(!row||!SAFE_ID.test(String(row.rep_id||'')))return; row.name=safeStr(row.name,60); row.color=safeColor(row.color);
         if(row.rep_id===TERR_KEY){ if(row.stats&&row.stats.terr){state.territories=row.stats.terr;persist();drawTerritories();} return; }
         m[row.rep_id]={name:row.name,color:row.color,stats:row.stats};
         if(!state.reps.some(function(rr){return rr.id===row.rep_id;})&&row.stats){
@@ -5274,7 +5427,7 @@ function cloudPull(){
           if(row.stats.pts&&row.stats.pts.length)row.stats.pts.forEach(function(pp){teamPts.push(pp);});
         }
         if(row.stats&&row.stats.wins&&row.stats.wins.length){
-          row.stats.wins.forEach(function(w){ if(Date.now()-w.ts<7*86400000)feed.push({rep:row.name,color:row.color,d:w.d,w:w.w,c:w.c,ts:w.ts,id:w.id}); });
+          row.stats.wins.forEach(function(w){ if(Date.now()-w.ts<7*86400000)feed.push({rep:row.name,color:row.color,d:safeStr(w.d,20),w:safeStr(w.w,200),c:Number(w.c)||0,ts:Number(w.ts)||0,id:safeStr(w.id,80)}); });
         }
       });
       cloudReps=m;
@@ -5332,13 +5485,14 @@ function applyLeads(arr){
   var byId={}; state.knocks.forEach(function(k){byId[k.id]=k;});
   var changed=false;
   (arr||[]).forEach(function(row){
-    if(!row||!row.id)return;
+    if(!row||!row.id||!SAFE_ID.test(String(row.id)))return;
     var local=byId[row.id], rts=Number(row.updated_ts)||0;
     if(row.deleted){
       if(local&&(local.updatedTs||local.ts||0)<=rts){ state.knocks=state.knocks.filter(function(k){return k.id!==row.id;}); changed=true; }
     }else if(row.data&&typeof row.data==='object'){
-      if(!local){ state.knocks.push(row.data); byId[row.id]=row.data; changed=true; }
-      else if((local.updatedTs||local.ts||0)<rts){ state.knocks[state.knocks.indexOf(local)]=row.data; byId[row.id]=row.data; changed=true; }
+      var dd=sanitizeKnock(row.data); if(!dd||dd.id!==row.id)return;
+      if(!local){ state.knocks.push(dd); byId[row.id]=dd; changed=true; }
+      else if((local.updatedTs||local.ts||0)<rts){ state.knocks[state.knocks.indexOf(local)]=dd; byId[row.id]=dd; changed=true; }
     }
   });
   if(changed){ persist({fromSync:true}); renderAll(); refreshMarkers(); }
@@ -5356,7 +5510,9 @@ function leadsStart(){
   fetch(cloudBase()+'/rest/v1/'+SUPA_LEADS+'?select=id,data,updated_ts,deleted',{headers:cloudHeaders()})
     .then(function(r){if(!r.ok)throw r.status;return r.json();})
     .then(function(arr){ applyLeads(arr); leadsPushRows(state.knocks); cloudStatus('live'); })
-    .catch(function(){ cloudStatus('offline'); });
+    .catch(function(st){ cloudStatus('offline');
+      if((st===401||st===403)&&!authed()&&!window._signNudged){ window._signNudged=1;
+        setTimeout(function(){ try{toast('<b>\ud83d\udd10 Sign in to sync leads</b> \u2014 the team database now requires a rep login','Sign in',function(){authSheet();},9000);}catch(e){} },2500); } });
   leadsPollTimer=setInterval(leadsPull,5000);
 }
 function leadsStop(){ if(leadsPollTimer){clearInterval(leadsPollTimer);leadsPollTimer=null;} }
@@ -5623,6 +5779,49 @@ function generateHiringDoc(info){
   });
 }
 
+
+/* ════════ SECURITY CHECK + APP LOCK SETTINGS ════════ */
+function securityCheckHTML(){
+  var ok='<span style="color:#00C853;font-weight:800">✓</span> ', bad='<span style="color:#ff6b6b;font-weight:800">✕</span> ', warn='<span style="color:#FFD700;font-weight:800">!</span> ';
+  var L=[], lk=window.KRLock&&KRLock.cfg();
+  L.push(lk?ok+'App lock is on (auto-locks after '+lk.mins+' min)':bad+'App lock is off — set a PIN below so a lost phone does not expose customers');
+  L.push(authed()?ok+'Signed in as '+esc((authUser()||{}).email||'rep'):warn+'Not signed in — team sync needs a rep login once the database is locked');
+  var db=window._dbOpen;
+  L.push(db===true?warn+'Team database runs in open auto-sync mode (no login, by choice). Leads can no longer be bulk-deleted, but anyone with this page link could read them — keep the link inside the team.'
+        :db===false?ok+'Team database refuses anonymous access'
+        :warn+'Team database check '+((state.cloud&&state.cloud.on)?'running…':'skipped (sync is off)'));
+  var t=state.lastBackupTs||0;
+  L.push(t&&Date.now()-t<7*864e5?ok+'Backed up in the last 7 days':warn+'No backup in the last 7 days');
+  L.push(ok+'Backups never include your login token · CSV exports are formula-safe · cloud records are cleaned before display · admin unlock re-locks after 10 min');
+  return L.join('<br>');
+}
+function probeDbOpen(cb){
+  if(!(state.cloud&&state.cloud.on)||!cloudBase()){window._dbOpen=undefined;cb&&cb();return;}
+  fetch(cloudBase()+'/rest/v1/'+SUPA_LEADS+'?select=id&limit=1',{headers:{'apikey':cloudKey(),'Authorization':'Bearer '+cloudKey()}})
+    .then(function(r){ if(!r.ok){window._dbOpen=false;return null;} return r.json(); })
+    .then(function(a){ if(a!==null&&a!==undefined)window._dbOpen=Array.isArray(a)&&a.length>0; })
+    .catch(function(){}).then(function(){cb&&cb();});
+}
+function pinSheet(mode){
+  var needOld=(mode==='change'||mode==='off');
+  openSheet('<div class="sheet-title">📱 '+(mode==='off'?'Turn off app lock':mode==='change'?'Change PIN':'Set an app PIN')+'</div>'+
+    '<div class="sheet-desc">'+(mode==='off'?'Enter your current PIN.':'4–8 digits. You will need it every time the app has been idle or in the background.')+'</div>'+
+    (needOld?'<div class="field"><label>Current PIN</label><input id="pinOld" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>':'')+
+    (mode!=='off'?'<div class="field"><label>New PIN</label><input id="pinNew" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>'+
+      '<div class="field"><label>Confirm PIN</label><input id="pinNew2" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div>':'')+
+    '<div class="sheet-row"><button class="btn-line" onclick="closeSheet()">Cancel</button><button class="btn" id="pinSave">'+(mode==='off'?'Turn off':'Save PIN')+'</button></div>');
+  $('#pinSave').onclick=function(){
+    var oldV=needOld?(($('#pinOld')||{}).value||''):'', n1=(($('#pinNew')||{}).value||''), n2=(($('#pinNew2')||{}).value||'');
+    if(mode!=='off'){ if(!/^\d{4,8}$/.test(n1)){toast('PIN must be 4–8 digits');return;} if(n1!==n2){toast('PINs do not match');return;} }
+    var chk=needOld?KRLock.verify(oldV):Promise.resolve(true);
+    chk.then(function(ok){
+      if(!ok){toast('Current PIN is wrong');return;}
+      if(mode==='off'){KRLock.clear();closeSheet();toast('App lock turned off');return;}
+      var mins=(KRLock.cfg()||{}).mins||5;
+      return KRLock.set(n1,mins).then(function(){closeSheet();toast('🔒 App lock on — auto-locks after '+mins+' min');});
+    }).catch(function(){toast('⚠ This browser cannot set a PIN (needs https)');});
+  };
+}
 function settingsSheet(){
   var _local={}; state.reps.forEach(function(r){_local[r.id]=1;});
   var _replist=state.reps.slice();
@@ -5662,6 +5861,14 @@ function settingsSheet(){
     (authed()
       ? '<div class="help-note" style="margin:2px 0 8px">Signed in as <b>'+esc((authUser()||{}).email||'you')+'</b>. Your work syncs securely to your account.</div><button class="btn-line" id="authOut" style="margin-bottom:16px">Sign out</button>'
       : '<div class="help-note" style="margin:2px 0 8px">Sign in so your work syncs under your name and locked lead sharing works across the team.</div><button class="btn" id="authIn" style="margin-bottom:16px">🔐 Sign in / create account</button>')+
+    '<div class="section-lbl" style="margin-top:2px">🛡 Security check</div>'+
+    '<div id="secCheck" class="help-note" style="margin:2px 0 14px;line-height:1.7">'+securityCheckHTML()+'</div>'+
+    '<div class="section-lbl" style="margin-top:2px">📱 App lock</div>'+
+    ((window.KRLock&&KRLock.cfg())
+      ? '<label class="toggle-row"><span>Auto-lock after</span><select id="lockMins" style="background:transparent;color:inherit;border:1px solid var(--border2);border-radius:8px;padding:4px 6px">'+
+          [1,5,15,30].map(function(m){return '<option value="'+m+'"'+(KRLock.cfg().mins===m?' selected':'')+'>'+m+' min</option>';}).join('')+'</select></label>'+
+        '<div class="sheet-row" style="margin:8px 0 16px"><button class="btn-line" id="lockNow">🔒 Lock now</button><button class="btn-line" id="pinChange">Change PIN</button><button class="btn-line" id="pinOff">Turn off</button></div>'
+      : '<div class="help-note" style="margin:2px 0 8px">Off — anyone holding this phone can open your customer list. A PIN locks the app whenever it has been idle or in the background.</div><button class="btn" id="pinSet" style="margin-bottom:16px">🔒 Set app PIN</button>')+
     '<div class="section-lbl" style="margin-top:2px">🔒 Customer data &amp; privacy</div>'+
     '<label class="toggle-row"><span>Share customer leads to the cloud</span>'+
       '<input type="checkbox" id="cloudShareLeads"'+(c.shareLeads?' checked':'')+'></label>'+
@@ -5707,7 +5914,13 @@ function settingsSheet(){
   var _csl=$('#cloudShareLeads'); if(_csl)_csl.onchange=function(){ state.cloud.shareLeads=_csl.checked; persist(); toast(_csl.checked?'\u26a0 Leads will now sync \u2014 lock your database with the SQL button':'\u2713 Customer info stays on this device'); };
   var _rls=$('#copyRls'); if(_rls)_rls.onclick=function(){ var sql=RLS_SQL; var show=function(){openSheet('<div class="sheet-title">\ud83d\udd12 Lock-down SQL</div><div class="sheet-desc">Paste in Supabase \u203a SQL editor \u203a Run.</div><pre class="q-sql">'+esc(sql)+'</pre><button class="btn-line" style="margin-top:10px" onclick="closeSheet()">Close</button>');}; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sql).then(function(){toast('\u2713 Security SQL copied \u2014 paste in Supabase');},show);}else{show();} };
   var _scp=$('#copyScope'); if(_scp)_scp.onclick=function(){ var sql=SCOPE_SQL; var show=function(){openSheet('<div class="sheet-title">\ud83d\udc65 Per-rep scoping SQL</div><div class="sheet-desc">Run after the lock-down SQL. Set yourself as manager in step 5, then add each rep in step 7.</div><pre class="q-sql">'+esc(sql)+'</pre><button class="btn-line" style="margin-top:10px" onclick="closeSheet()">Close</button>');}; if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(sql).then(function(){toast('\u2713 Scoping SQL copied \u2014 paste in Supabase');},show);}else{show();} };
-  $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(state,null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
+  var _ps=$('#pinSet'); if(_ps)_ps.onclick=function(){pinSheet('set');};
+  var _pc=$('#pinChange'); if(_pc)_pc.onclick=function(){pinSheet('change');};
+  var _po=$('#pinOff'); if(_po)_po.onclick=function(){pinSheet('off');};
+  var _ln=$('#lockNow'); if(_ln)_ln.onclick=function(){closeSheet();KRLock.lock();};
+  var _lm=$('#lockMins'); if(_lm)_lm.onchange=function(){KRLock.setMins(+_lm.value);toast('Auto-lock after '+_lm.value+' min');};
+  probeDbOpen(function(){var el=$('#secCheck'); if(el)el.innerHTML=securityCheckHTML();});
+  $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(backupSafeState(),null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
   $('#expCsv').onclick=function(){
     var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Notes']];
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
@@ -5717,7 +5930,7 @@ function settingsSheet(){
         k.commission||'',k.notes||'']);
     });
     var csv=rows.map(function(r){return r.map(function(c){
-      c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(',');}).join('\n');
+      c=csvSafe(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(',');}).join('\n');
     download('knockradar-knocks-'+todayKey()+'.csv',csv,'text/csv');
   };
   $('#impBtn').onclick=function(){$('#impFile').click();};
@@ -5727,7 +5940,10 @@ function settingsSheet(){
     rd.onload=function(){
       try{
         var data=JSON.parse(rd.result);
-        if(!data.knocks)throw 0;
+        if(!data||!Array.isArray(data.knocks))throw 0;
+        data.knocks=data.knocks.map(sanitizeKnock).filter(Boolean);
+        data.reps=(Array.isArray(data.reps)?data.reps:[]).filter(function(r){return r&&SAFE_ID.test(String(r.id||''));}).map(function(r){return {id:r.id,name:safeStr(r.name,60)||'Rep',color:safeColor(r.color),createdTs:Number(r.createdTs)||Date.now()};});
+        data.outages=Array.isArray(data.outages)?data.outages:[];
         if(confirm('Merge '+data.knocks.length+' knocks from this backup into your data?')){
           var seen={};state.knocks.forEach(function(k){seen[k.id]=k;});
           data.knocks.forEach(function(k){
