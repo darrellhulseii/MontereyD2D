@@ -44,10 +44,10 @@ input,select,textarea{outline:none}
 /* APP BAR */
 .appbar{flex-shrink:0;height:54px;display:flex;align-items:center;padding:0 14px;gap:10px;
   background:linear-gradient(180deg,#0a1726,#081320);border-bottom:1px solid var(--border);z-index:20}
-.brand{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:1.5px;color:var(--white);line-height:1}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.2px;color:var(--white);line-height:.95;position:relative;padding-left:16px;white-space:nowrap}
 .brand span{color:var(--sky)}
 .brand::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sky);
-  margin-right:7px;vertical-align:1px;box-shadow:0 0 0 0 rgba(0,174,239,.6);animation:radar 2.4s infinite}
+  position:absolute;left:0;top:50%;margin-top:-4.5px;box-shadow:0 0 0 0 rgba(0,174,239,.6);animation:radar 2.4s infinite}
 @keyframes radar{0%{box-shadow:0 0 0 0 rgba(0,174,239,.55)}70%{box-shadow:0 0 0 13px rgba(0,174,239,0)}100%{box-shadow:0 0 0 0 rgba(0,174,239,0)}}
 .ab-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .conn-dot{display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-weight:600;
@@ -58,6 +58,7 @@ input,select,textarea{outline:none}
 .ab-btn{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--border2);
   font-size:17px;display:flex;align-items:center;justify-content:center}
 .ab-btn:active{background:rgba(0,174,239,.18)}
+@media (max-width:440px){.appbar{gap:8px;padding:0 10px}.ab-right{gap:6px}.ab-btn{width:34px;height:34px;font-size:16px}.conn-dot{font-size:0;gap:0}}
 
 /* SCREENS */
 .screens{flex:1;min-height:0;position:relative}
@@ -1072,10 +1073,11 @@ a.btn-line{text-decoration:none}
 </script>
 
 <div class="appbar">
-  <div class="brand">KNOCK<span>RADAR</span></div>
+  <div class="brand">COMPLETE<br><span>HOME APP</span></div>
   <button class="rep-chip" id="repChip"><span class="rep-dot"></span><span class="rep-chip-name">Rep</span></button>
   <div class="ab-right">
     <div class="conn-dot" id="connDot">··</div>
+    <button class="ab-btn" id="crimeHdrBtn" title="SpotCrime+ live crime map" aria-label="SpotCrime+ live crime map">🛡️</button>
     <button class="ab-btn" id="helpBtn" title="Help & guide" aria-label="Help">?</button>
     <button class="ab-btn" id="settingsBtn">⚙</button>
   </div>
@@ -1127,6 +1129,7 @@ a.btn-line{text-decoration:none}
     </div>
     <div class="map-ctrls">
       <button id="locateBtn" title="Center on my location">◎</button>
+      <button id="crimeMapBtn" title="SpotCrime+ live crime map">🛡️</button>
       <button id="outageBtn" title="Toggle outage layer">⚡</button>
       <button id="routeBtn" title="Optimized walking route through my New pins + leads">🧭</button>
       <button id="teamBtn" title="Live team map + coverage">👥</button>
@@ -1337,7 +1340,7 @@ a.btn-line{text-decoration:none}
 
 <div class="install-banner" id="installBanner">
   <span class="ib-icon">📲</span>
-  <div class="ib-text"><b>Add to your home screen</b><span>Open KnockRadar like a real app</span></div>
+  <div class="ib-text"><b>Add to your home screen</b><span>Open Complete Home App like a real app</span></div>
   <button class="ib-go" id="ibGo">Add</button>
   <button class="ib-x" id="ibClose" aria-label="Dismiss">✕</button>
 </div>
@@ -1357,7 +1360,7 @@ a.btn-line{text-decoration:none}
 <div class="hlp-ov" id="hlpOverlay" role="dialog" aria-modal="true" aria-label="Help">
   <div class="hlp-card">
     <button class="hlp-x" id="hlpClose" aria-label="Close">✕</button>
-    <div class="hlp-title">Welcome to KnockRadar 👋</div>
+    <div class="hlp-title">Welcome to Complete Home App 👋</div>
     <div class="hlp-sub">Your door-to-door command center. Here's the 60-second tour.</div>
     <div class="hlp-steps">
       <div class="hlp-step"><span class="hlp-n">1</span><div><b>Pick your name</b> — tap the chip at the top to set who's knocking.</div></div>
@@ -6584,7 +6587,7 @@ function settingsSheet(){
   var _ln=$('#lockNow'); if(_ln)_ln.onclick=function(){closeSheet();KRLock.lock();};
   var _lm=$('#lockMins'); if(_lm)_lm.onchange=function(){KRLock.setMins(+_lm.value);toast('Auto-lock after '+_lm.value+' min');};
   probeDbOpen(function(){var el=$('#secCheck'); if(el)el.innerHTML=securityCheckHTML();});
-  $('#expJson').onclick=function(){download('knockradar-backup-'+todayKey()+'.json',JSON.stringify(backupSafeState(),null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
+  $('#expJson').onclick=function(){download('complete-home-app-backup-'+todayKey()+'.json',JSON.stringify(backupSafeState(),null,2),'application/json');state.lastBackupTs=Date.now();persist();var bs=$('#bkStatus');if(bs)bs.innerHTML=backupStatusText();toast('✓ Backup downloaded — keep it somewhere safe');};
   $('#expCsv').onclick=function(){
     var rows=[['Rep','Disposition','Date','Time','First Name','Address','Phone','Scheduled','Products','Value-Added','Commission','Notes']];
     state.knocks.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(k){
@@ -6595,7 +6598,7 @@ function settingsSheet(){
     });
     var csv=rows.map(function(r){return r.map(function(c){
       c=csvSafe(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(',');}).join('\n');
-    download('knockradar-knocks-'+todayKey()+'.csv',csv,'text/csv');
+    download('complete-home-app-knocks-'+todayKey()+'.csv',csv,'text/csv');
   };
   $('#impBtn').onclick=function(){$('#impFile').click();};
   $('#impFile').onchange=function(e){
@@ -6793,17 +6796,17 @@ function installSheet(){
   if(p==='ios')
     steps=[['Tap the <b>Share</b> button','the square with an ↑ arrow at the bottom of Safari'],
       ['Choose <b>Add to Home Screen</b>','scroll the list if you don\u2019t see it right away'],
-      ['Tap <b>Add</b>','KnockRadar lands on your home screen']];
+      ['Tap <b>Add</b>','Complete Home App lands on your home screen']];
   else if(p==='android')
     steps=[['Tap the <b>⋮</b> menu','top-right corner of Chrome'],
       ['Choose <b>Add to Home screen</b>','or “Install app” if shown'],
-      ['Tap <b>Add</b>','KnockRadar lands on your home screen']];
+      ['Tap <b>Add</b>','Complete Home App lands on your home screen']];
   else
     steps=[['Open the browser menu','or the install icon in the address bar'],
       ['Choose <b>Install</b> / <b>Add to Home Screen</b>',''],
-      ['Confirm','KnockRadar opens in its own window']];
+      ['Confirm','Complete Home App opens in its own window']];
   openSheet(
-    '<div class="sheet-title">📲 Add KnockRadar</div>'+
+    '<div class="sheet-title">📲 Add Complete Home App</div>'+
     '<div class="sheet-desc">Install it once and launch straight from your home screen — full screen, no browser bar.</div>'+
     steps.map(function(s,i){
       return '<div class="ib-step"><span class="n">'+(i+1)+'</span><span>'+s[0]+
@@ -6931,6 +6934,7 @@ function init(){
       else { toast('Location unavailable \u2014 enable GPS / permissions'); }
     },12000,6);
   };
+  ['#crimeHdrBtn','#crimeMapBtn'].forEach(function(sel){var b=$(sel); if(b)b.onclick=function(){try{window.open('https://spotcrime.com/map','_blank','noopener,noreferrer');}catch(e){location.href='https://spotcrime.com/map';}};});
   $('#outageBtn').onclick=function(){
     outageVisible=!outageVisible;
     $('#outageBtn').classList.toggle('on',outageVisible);
