@@ -9,6 +9,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
 <title>Complete Home App</title>
+<link rel="preconnect" href="https://spotcrime.com">
+<link rel="dns-prefetch" href="https://spotcrime.com">
 <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://maps.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ddlqenoqhsuygwuajeja.supabase.co" crossorigin>
@@ -513,6 +515,7 @@ table.rate td.barcell{width:34%;padding:7px 8px}
 .crime-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;
   font-size:12px;color:var(--faint);text-align:center;padding:16px;pointer-events:none}
 #crimeFrame{position:relative;z-index:1}
+.crime-wrap.ok .crime-loading{display:none}
 .mi-note{font-size:11px;color:var(--faint);line-height:1.5;margin-bottom:10px;border-left:2px solid var(--gold);padding-left:8px}
 .mi-rg{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--sky);margin:13px 0 6px}
 .cr-head,.cr-row2{display:grid;grid-template-columns:1fr 44px 44px;gap:6px;align-items:center}
@@ -1128,6 +1131,25 @@ a.btn-line{text-decoration:none}
   <!-- INTEL -->
   <section class="screen" id="screen-radar">
     <div class="scr-title">📡 Field Intel</div>
+    <div class="section-lbl" style="margin-top:4px">🛡️ SpotCrime+ Live Crime Map</div>
+    <div class="card" id="crimeCard">
+      <div class="card-h">🛡️ SpotCrime+ Live Crime Map</div>
+      <div class="crime-note" style="margin:0 0 9px">Recent incidents around your knock area. Pick a city or tap 📍 to auto-pick the closest one. Tap any marker for details.</div>
+      <div class="crime-row">
+        <select id="crimeCity" aria-label="Crime map city"></select>
+        <button type="button" id="crimeNear" title="Use my location">📍 Near me</button>
+      </div>
+      <div class="crime-wrap">
+        <div class="crime-loading">🛡️ Loading SpotCrime…<br>If this stays blank, use the buttons below.</div>
+        <iframe id="crimeFrame" src="about:blank" allow="geolocation" referrerpolicy="no-referrer-when-downgrade" title="SpotCrime+ live crime map" loading="eager"></iframe>
+      </div>
+      <div class="crime-links">
+        <a id="crimeMapLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>🗺️</span>Live map</a>
+        <a id="crimeTrendLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📈</span>Trends</a>
+        <a id="crimeStatsLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📊</span>Analytics</a>
+      </div>
+      <div class="crime-note" id="crimeMeta" style="margin-top:8px"></div>
+    </div>
     <div class="scr-sub">Weather, your connection, competitor outages and ISP pricing for your territory.</div>
 
     <div class="city-bar" id="cityBar"></div>
@@ -1179,25 +1201,6 @@ a.btn-line{text-decoration:none}
     <div class="section-lbl">Logged Outages</div>
     <div id="outageList"></div>
 
-    <div class="section-lbl">🛡️ Live Crime Map</div>
-    <div class="card" id="crimeCard">
-      <div class="card-h">🛡️ SpotCrime Live Crime Map</div>
-      <div class="crime-note" style="margin:0 0 9px">Recent incidents around your knock area. Pick a city or tap 📍 to auto-pick the closest one. Tap any marker for details.</div>
-      <div class="crime-row">
-        <select id="crimeCity" aria-label="Crime map city"></select>
-        <button type="button" id="crimeNear" title="Use my location">📍 Near me</button>
-      </div>
-      <div class="crime-wrap">
-        <div class="crime-loading">🛡️ Loading SpotCrime…<br>If this stays blank, use the buttons below.</div>
-        <iframe id="crimeFrame" src="about:blank" allow="geolocation" referrerpolicy="no-referrer-when-downgrade" title="SpotCrime live crime map"></iframe>
-      </div>
-      <div class="crime-links">
-        <a id="crimeMapLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>🗺️</span>Live map</a>
-        <a id="crimeTrendLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📈</span>Trends</a>
-        <a id="crimeStatsLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📊</span>Analytics</a>
-      </div>
-      <div class="crime-note" id="crimeMeta" style="margin-top:8px"></div>
-    </div>
   </section>
 
   <!-- PRESS -->
@@ -3923,12 +3926,12 @@ function selectCity(i){
 function openIntel(){
   if(intelReady)return;
   intelReady=true;
+  try{renderCrimeSpot();}catch(e){}
   buildCityBar();
   selectCity(cityIdx);
   loadPublicOutages();
   renderMarketIntel();
   renderFiberNews();
-  try{renderCrimeSpot();}catch(e){}
 }
 /* ════════ SPOTCRIME — live crime map (Intel) ════════ */
 var CRIME_CITIES=[
@@ -3979,9 +3982,31 @@ function renderCrimeSpot(){
   var pref=crimeLoadPref();
   if(pref>=0&&pref<CRIME_CITIES.length)crimeSelect(pref,'');
   else{crimeSelect(0,''); crimeNearMe(false);}
-  /* load the embed only when the Intel tab is opened, so it never slows app start */
-  var fr=$('#crimeFrame'); if(fr&&fr.getAttribute('src')==='about:blank')fr.src='https://spotcrime.com/map';
+  crimeWarm();
 }
+/* Start the SpotCrime+ map as early as possible without slowing app start:
+   - first tap/press on the Intel tab (before the click even fires)
+   - otherwise in idle time after the app is up, so it's already loaded when Intel opens
+   - skipped in idle on Save-Data / 2G so we never burn a rep's data in the background */
+function crimeWarm(){
+  var fr=document.getElementById('crimeFrame');
+  if(!fr||fr.getAttribute('src')!=='about:blank')return;
+  fr.addEventListener('load',function(){if(fr.getAttribute('src')!=='about:blank'){var w=fr.parentNode;if(w)w.classList.add('ok');}},{once:false});
+  fr.src='https://spotcrime.com/map';
+}
+(function(){
+  function hook(){
+    var t=document.querySelector('.tab[data-tab="radar"]');
+    if(t){['pointerdown','touchstart','mouseenter','focus'].forEach(function(ev){t.addEventListener(ev,crimeWarm,{once:true,passive:true});});}
+    var c=navigator.connection||{}, slow=c.saveData||/2g/.test(c.effectiveType||'');
+    if(!slow){
+      var go=function(){try{crimeWarm();}catch(e){}};
+      if('requestIdleCallback' in window)setTimeout(function(){requestIdleCallback(go,{timeout:4000});},2500);
+      else setTimeout(go,3500);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hook);else hook();
+})();
 function nearestCity(){
   if(curPos&&crimeReady&&crimeLoadPref()<0)crimeSelect(crimeNearestIdx(curPos.lat,curPos.lng),'closest to you');
   if(!curPos)return;
