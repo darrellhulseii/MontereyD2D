@@ -587,6 +587,12 @@ table.rate td.barcell{width:34%;padding:7px 8px}
 .prv-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.5px;color:var(--ink)}
 .prv-score{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);margin-top:1px}
 .prv-line{font-size:11.5px;line-height:1.45;color:var(--muted);margin-top:6px}
+.adt-aw{display:flex;flex-direction:column;gap:6px}
+.adt-aw-row{display:flex;gap:10px;align-items:flex-start;text-decoration:none;color:inherit;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:8px 10px}
+.adt-aw-yr{flex:0 0 40px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--gold)}
+.adt-aw-b{display:flex;flex-direction:column;min-width:0}
+.adt-aw-a{font-size:12.5px;line-height:1.35;color:var(--ink);font-weight:600}
+.adt-aw-by{font-size:11px;color:var(--muted);margin-top:2px}
 .prv-l{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--sky);margin-bottom:1px}
 .press-item{font-size:12.5px;line-height:1.55;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--border2)}
 .press-item:last-child{border-bottom:0}
@@ -3175,33 +3181,55 @@ function renderRadar(){
    rolling window always stays current instead of going stale. Frontier and EarthLink are the
    team's own products and are intentionally excluded from this competitor feed. */
 var PUBLIC_OUTAGES=[
-  /* Documented, sourced outage events. d:[year, month(0-idx), day]. keep:1 = landmark, always shown. */
-  {d:[2026,6,29], provider:'Spectrum', mins:120, hub:'Central & South LA \u2014 reports from 90011, 90014, 90017, 90022, 90047, 90060, 90063, 91042',
-   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/charter-communications/5368361-los-angeles-los-angeles-county-california-united-states'},
-  {d:[2026,6,14], provider:'Cox', mins:60, hub:'Anaheim, Orange County \u2014 internet & Wi-Fi reports (92801)',
-   counties:['Orange'], src:'Is The Service Down', url:'https://istheservicedown.com/problems/cox-communications/5323810-anaheim-orange-county-california-united-states'},
+  /* Re-verified 11/7/26. d:[year, month(0-idx), day]. counties = the county where the problem actually was
+     (Los Angeles / Kern / Amador events show a tag but don't count toward the territory tiles).
+     mins:null = duration not published. det:1 = tracker-detected report spike (not provider-confirmed).
+     keep:1 = landmark, always shown. */
+  {d:[2026,10,6], provider:'Spectrum', mins:31, det:1,
+   hub:'Inland Empire — IsTheServiceDown flagged report spikes Nov 6 (31, 17 and 14 min windows); local internet reports in the prior week from Riverside, Moreno Valley, Perris, Corona and Jurupa Valley (Oct 30–Nov 5)',
+   counties:['Riverside'], src:'IsTheServiceDown', url:'https://istheservicedown.com/problems/charter-communications/5387877-riverside-riverside-county-california-united-states'},
+  {d:[2026,10,3], provider:'Spectrum', mins:null,
+   hub:'Bakersfield (93308–93313), Delano & Lamont — Election Day morning internet/TV reports, ~6:50–7:45am; no cause confirmed. California led the U.S. in Spectrum reports over the prior 48 hrs',
+   counties:['Kern'], src:'IBTimes', url:'https://www.ibtimes.com.au/spectrum-outage-reports-bakersfield-internet-tv-disruptions-1877881'},
+  {d:[2026,10,3], provider:'AT&T', mins:null,
+   hub:'Amador County, Lockeford to Plymouth — fiber lines cut and stripped near Hwy 124/88 (Ione) from ~3:30pm; several arrests',
+   counties:['Amador'], src:'CBS Sacramento', url:'https://www.cbsnews.com/sacramento/news/amador-county-fiber-line-cut-att-outage/'},
+  {d:[2026,9,26], provider:'Spectrum', mins:121,
+   hub:'Torrance, Gardena, El Segundo, Hawthorne & Lawndale — 8:55–10:56pm, 37 reports (~37× normal), 76% home internet; no cause given',
+   counties:['Los Angeles'], src:'GeoBlackout', url:'https://geoblackout.com/us/live/outage-spectrum-california-2026-10-26'},
+  {d:[2026,9,26], provider:'AT&T', mins:null,
+   hub:'Multi-region — 2,000+ Downdetector reports by 2:15pm PT, mostly 5G home internet and broadband; locations and cause not published',
+   counties:[], src:'GV Wire', url:'https://gvwire.com/2026/10/26/att-down-for-thousands-of-users-according-to-downdetector/'},
+  {d:[2026,9,19], provider:'Spectrum', mins:null,
+   hub:'California City & surrounding communities — fiber lines cut by vandals; Spectrum calls it “the latest in a number of attacks”; restored the morning of 10/19',
+   counties:['Kern'], src:'Inside Towers', url:'https://insidetowers.com/spectrum-restores-service-after-fiber-lines-cut-by-vandals-in-california/'},
+  {d:[2026,9,16], provider:'Spectrum', mins:19, det:1,
+   hub:'High Desert — report spikes Oct 16 (19, 15 and 7 min) and an open-ended spike Oct 19; local reports from Victorville, Hesperia, Apple Valley & Adelanto',
+   counties:['San Bernardino'], src:'IsTheServiceDown', url:'https://istheservicedown.com/problems/charter-communications/5406222-victorville-san-bernardino-county-california-united-states'},
+  {d:[2026,9,14], provider:'Spectrum', mins:null,
+   hub:'Anaheim (Wi-Fi/broadband) and Fallbrook — user-reported outage, Fallbrook restoration estimate 10pm; not a confirmed region-wide event',
+   counties:['Orange','San Diego'], src:'Sunday Guardian', url:'https://sundayguardianlive.com/world/spectrum-outage-today-is-spectrum-down-in-the-us-users-report-wi-fi-failures-in-anaheim-broadband-problems-in-fallbrook-and-service-disruptions-in-apollo-beach-check-downdetector-status-305398/'},
+  {d:[2026,9,14], provider:'Xfinity', mins:32, det:1,
+   hub:'San Jose & South Bay — report spikes Oct 14 (30 min) and Oct 17 (32 min); San Jose/Los Gatos internet, Wi-Fi & TV reports Oct 7–9',
+   counties:['Santa Clara'], src:'IsTheServiceDown', url:'https://istheservicedown.com/problems/comcast-xfinity/5392171-san-jose-santa-clara-county-california-united-states'},
   {d:[2026,6,7], provider:'Spectrum', mins:600, keep:1,
-   hub:'Santa Clarita Valley \u2014 fiber lines cut in a criminal attack; techs spliced 700+ fibers to restore service',
-   counties:['San Bernardino'], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
-  {d:[2026,5,25], provider:'Spectrum', mins:125, hub:'TV and internet outage \u2014 2 hr 5 min, never officially acknowledged',
-   counties:['Riverside'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
-  {d:[2026,3,9], provider:'Spectrum', mins:122, hub:'Internet and Wi-Fi outage \u2014 2 hr 2 min',
-   counties:['San Bernardino'], src:'StatusGator', url:'https://statusgator.com/services/spectrum'},
+   hub:'Santa Clarita Valley — fiber lines cut in a criminal attack; techs spliced 700+ fibers to restore service',
+   counties:['Los Angeles'], src:'SCVNews', url:'https://scvnews.com/spectrum-fiber-optic-lines-cut-in-the-scv-area-result-in-outages/'},
   {d:[2025,5,15], provider:'Spectrum', mins:1440, keep:1,
-   hub:'Van Nuys fiber cut by vandals on Father\u2019s Day \u2014 25,000+ LA reports, spread to Ventura, Anaheim & Santa Ana; $25,000 reward, full-day bill credit',
-   counties:['Orange'], src:'ABC7 Los Angeles', url:'https://abc7.com/post/spectrum-customers-los-angeles-area-report-internet-outages-fiber-cut-vandalism/16760120/'}
+   hub:'Van Nuys fiber cut by vandals on Father’s Day — 25,000+ LA reports, spread to Ventura, Anaheim & Santa Ana; $25,000 reward, full-day bill credit',
+   counties:['Los Angeles','Orange'], src:'ABC7 Los Angeles', url:'https://abc7.com/post/spectrum-customers-los-angeles-area-report-internet-outages-fiber-cut-vandalism/16760120/'}
 ];
 var radarOutages=[];
 function loadPublicOutages(){
   var cut=Date.now()-31*864e5, now=Date.now();
   radarOutages=PUBLIC_OUTAGES.map(function(o){
     var ts=(o.ago!=null)?(now-o.ago*864e5):new Date(o.d[0],o.d[1],o.d[2],12,0,0).getTime();
-    return {ts:ts,provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties,src:o.src,url:o.url,keep:o.keep};
+    return {ts:ts,provider:o.provider,mins:o.mins,hub:o.hub,counties:o.counties,src:o.src,url:o.url,keep:o.keep,det:o.det};
   }).filter(function(o){return o.keep||o.ts>=cut;});
   var fb=$('#outageFeed');
   if(fb)fb.innerHTML='<span class="og-dot live"></span>'+radarOutages.length+
-    ' documented competitor outage events \u2014 each links to its published source. '+
-    'Landmark incidents stay pinned; others roll off after 30 days. For live status check Downdetector or the carrier status page.';
+    ' competitor outage events \u2014 re-verified Nov 7, 2026; each links to its source. '+
+    '\u201cReport spike\u201d = tracker-detected, not carrier-confirmed. Pinned landmarks stay; others roll off after 30 days. For live status at an address, use the carrier\u2019s outage page.';
   renderCountyStrip();renderOutageGraph();renderPublicOutages();
 }
 function countyCounts(){
@@ -3231,8 +3259,9 @@ function renderPublicOutages(){
       var tags=(o.counties||[]).map(function(n){return '<span class="og-ev-ca">'+esc(n)+'</span>';}).join('');
       return '<div class="og-ev"><span class="og-ev-d">'+(dt.getMonth()+1)+'/'+dt.getDate()+'</span>'+
         '<div class="og-ev-b"><div class="og-ev-p">'+esc(o.provider)+'</div>'+
-        '<div class="og-ev-m">'+esc(o.hub)+' · down ~'+o.mins+' min</div>'+
+        '<div class="og-ev-m">'+esc(o.hub)+(o.mins?' · '+(o.det?'spike ~':'down ~')+o.mins+' min':' · duration not published')+'</div>'+
         '<div class="og-ev-tags">'+tags+(o.keep?'<span class="og-ev-ca" style="background:rgba(255,215,0,.15);color:#FFD700">PINNED</span>':'')+
+        (o.det?'<span class="og-ev-ca" style="background:rgba(0,174,239,.12);color:#00AEEF">REPORT SPIKE</span>':'')+
         (o.url?'<a class="og-ev-ca" href="'+esc(o.url)+'" target="_blank" rel="noopener noreferrer" style="text-decoration:none">'+esc(o.src||'source')+' \u2197</a>':'')+
         '</div></div></div>';
     }).join('');
@@ -3315,8 +3344,10 @@ var COMP_COMPLAINTS=[
     {src:'X · San Bernardino', t:'Repeated bill increases — told them flatly they had lost a customer for good.'},
     {src:'X · Running Springs', t:'Forced into a worse modem, then locked out with no internet at all — for $88 a month.'},
     {src:'X · Eastvale', t:'All-day outage; got an automated "resolved" call 12 hours after service had already returned.'},
-    {src:'News · CBS LA', t:'Outage hit thousands across LA, Orange, Riverside and Ventura counties with no restoration estimate.'},
-    {src:'News · CNN', t:'A Van Nuys fiber cut from vandalism took down LA plus Anaheim and Santa Ana in Orange County.'},
+    {src:'IsTheServiceDown · Oct 30–Nov 5 2026', t:'Fresh internet-down reports from Riverside, Moreno Valley, Perris, Corona and Jurupa Valley, plus Spectrum-wide report spikes on Nov 6.'},
+    {src:'News · CBS LA (Jul 2020)', t:'Outage hit thousands across LA, Orange, Riverside and Ventura counties with no restoration estimate.'},
+    {src:'News · CNN (Jun 2025)', t:'A Van Nuys fiber cut from vandalism took down LA plus Anaheim and Santa Ana in Orange County.'},
+    {src:'News · Inside Towers (Oct 2026)', t:'Vandals cut Spectrum fiber again — California City knocked offline; Spectrum calls it the latest in a string of attacks on its lines.'},
     {src:'Pattern · IsTheServiceDown', t:'Heaviest repeat-report cities: Ontario, San Bernardino, Riverside, Colton, Rialto, Fontana, Corona, Moreno Valley, Jurupa Valley, Rancho Cucamonga.'}
   ]},
   {group:'🟣 Spectrum — South Bay (Morgan Hill · Gilroy)', items:[
@@ -3328,12 +3359,39 @@ var COMP_COMPLAINTS=[
     {src:'News · Morgan Hill Times', t:'A north-Gilroy crash knocked out Charter/Spectrum and Verizon across Morgan Hill for most of a day.'}
   ]},
   {group:'🔴 Xfinity / Comcast — San Jose & Bay Area', items:[
+    {src:'IsTheServiceDown · Oct 2026', t:'Xfinity report spikes Oct 14 and Oct 17 (30+ min each) with San Jose and Los Gatos internet, Wi-Fi and TV reports earlier in the month.'},
     {src:'News · Mar 16 2026', t:'Bay Area outage drew 7,000+ reports, peaking 9:14am — clusters in San Jose, Oakland, Marin and the Peninsula, mid-workday.'},
     {src:'X · San Jose', t:'Most of the Bay offline from Xfinity — called it embarrassing for Silicon Valley.'},
     {src:'X · San Jose', t:'Shopped other offers after a price hike and says his connection was then throttled.'},
     {src:'X · San Jose', t:'Outage dragged past 24 hours with the restore time constantly changing.'},
     {src:'News · CBS SF', t:'A 54,000-report Bay Area outage was so big the Marin Sheriff told people to stop calling 911 about it.'}
   ]}
+];
+/* ADT awards — from ADT's own Awards page (newsroom.adt.com/awards, read 11/7/26) plus two
+   2026 recognitions published elsewhere (Lifestory Research; Forbes via ADT newsroom). */
+var ADT_AWARDS=[
+  {yr:'2026', a:'America\u2019s Most Trusted\u00ae Home Security System \u2014 #1 (Net Trust Quotient 105.8, ahead of Ring 105.0 and Brinks 103.4)', by:'Lifestory Research', url:'https://www.lifestoryresearch.com/2026-americas-most-trusted-home-security-system-brands'},
+  {yr:'2026', a:'America\u2019s Most Trustworthy Companies \u2014 highest-ranked smart home security company', by:'Newsweek / Statista', url:'https://www.globenewswire.com/news-release/2026/05/12/3293051/0/en/Newsweek-Recognizes-ADT-As-Top-Home-Security-Brand-in-America-This-Year.html'},
+  {yr:'2026', a:'Most Trusted Brands U.S.', by:'Newsweek / BrandSpark', url:'https://www.globenewswire.com/news-release/2026/05/12/3293051/0/en/Newsweek-Recognizes-ADT-As-Top-Home-Security-Brand-in-America-This-Year.html'},
+  {yr:'2026', a:'America\u2019s Best Customer Service', by:'Newsweek / Statista', url:'https://newsroom.adt.com/awards'},
+  {yr:'2026', a:'Buyer\u2019s Choice Award \u2014 Best Customer Service', by:'ConsumerAffairs (customer reviews)', url:'https://newsroom.adt.com/corporate-news/adt-earns-two-2026-buyers-choice-awards-from-consumeraffairs-based-on-customer-reviews'},
+  {yr:'2026', a:'Buyer\u2019s Choice Award \u2014 Best Product Offering', by:'ConsumerAffairs (customer reviews)', url:'https://newsroom.adt.com/corporate-news/adt-earns-two-2026-buyers-choice-awards-from-consumeraffairs-based-on-customer-reviews'},
+  {yr:'2026', a:'America\u2019s Best Companies 2026', by:'TIME', url:'https://newsroom.adt.com/awards'},
+  {yr:'2026', a:'Best In-Home Medical Alert System', by:'U.S. News & World Report', url:'https://newsroom.adt.com/awards'},
+  {yr:'2026', a:'America\u2019s Best Employers for Women', by:'Forbes', url:'https://newsroom.adt.com/corporate-news/adt-named-to-forbes-americas-best-employers-for-women-2026-list'},
+  {yr:'2025', a:'Most Trusted Brands U.S.', by:'Newsweek / BrandSpark', url:'https://newsroom.adt.com/awards'},
+  {yr:'2025', a:'America\u2019s Best Customer Service', by:'Newsweek / Statista', url:'https://newsroom.adt.com/awards'},
+  {yr:'2024', a:'Monitoring Center of the Year', by:'TMA (The Monitoring Association)', url:'https://newsroom.adt.com/awards'},
+  {yr:'2024', a:'Best Employers for New Grads', by:'Forbes', url:'https://newsroom.adt.com/awards'},
+  {yr:'2023', a:'America\u2019s Most Innovative Companies', by:'Fortune', url:'https://newsroom.adt.com/awards'},
+  {yr:'2023', a:'Most Trusted Home Security Provider in America', by:'Newsweek', url:'https://newsroom.adt.com/awards'},
+  {yr:'2022', a:'America\u2019s Most Trustworthy Companies', by:'Newsweek', url:'https://newsroom.adt.com/awards'},
+  {yr:'2022', a:'Most Trusted Brands in America \u2014 Family & Home', by:'Reader\u2019s Digest', url:'https://newsroom.adt.com/awards'},
+  {yr:'2022', a:'Best Home Security Companies of 2022', by:'Forbes Home', url:'https://newsroom.adt.com/awards'},
+  {yr:'2021', a:'Editor\u2019s Choice \u2014 ADT Command', by:'PCMag', url:'https://newsroom.adt.com/awards'},
+  {yr:'2021', a:'CE Pro 100 \u2014 No. 1', by:'CE Pro', url:'https://newsroom.adt.com/awards'},
+  {yr:'\u2014', a:'CES Innovation Awards Honoree \u2014 Blue by ADT Smart Home Hub', by:'CES (Consumer Technology Association)', url:'https://newsroom.adt.com/awards'},
+  {yr:'\u2014', a:'CRN Security 100 \u2014 ADT Cybersecurity', by:'CRN', url:'https://newsroom.adt.com/awards'}
 ];
 var ISP_VERDICT=[
   {p:'Frontier',cls:'frontier',grade:'B+',tag:'Fiber strong · DSL weak · Verizon acquiring',
@@ -3411,11 +3469,11 @@ var PROVIDER_REVIEWS=[
    sites:'ACSI cable 67; Xfinity Fiber 77 where available.',
    social:'Throttling after price-shopping; Bay Area mass outages (7,000+ in Mar 2026; 54,000 in 2021).',
    hood:'Directional — South Bay threads = outage frustration and switch interest.'},
-  {name:'Cox', tier:'B-', overall:'≈3.2/5',
+  {name:'Cox → now Spectrum', tier:'B-', overall:'≈3.2/5 (legacy Cox rating)',
    f:{sp:'B',re:'B-',va:'C+',su:'B-',rp:'B-'},
    awards:'Mostly community / sustainability recognition (Cox Conserves); residential ACSI climbing to 68–72. No recent residential #1 satisfaction award.',
    sites:'ACSI 68–72 (climbing).',
-   social:'OC outage spikes and data-cap gripes; lower volume than Spectrum.',
+   social:'Charter closed the Cox deal 8/19/26 and switched Cox to the Spectrum brand 9/16/26 — legacy Cox internet customers fell by 77,000 in Q3 (pro forma). Expect new-bill, new-app confusion at ex-Cox doors.',
    hood:'Directional — moderate; concentrated in OC pockets (Santa Ana, Irvine).'},
   {name:'T-Mobile 5G Home', tier:'B+', overall:'≈3.8/5',
    f:{sp:'B-',re:'B',va:'A-',su:'B+',rp:'A-'},
@@ -3457,7 +3515,8 @@ var PRESS=[
      {date:'Apr 27 2026', t:'Verizon Q1 2026: adjusted EPS $1.28, up 7.6% and the best quarterly growth since 2021; record adjusted EBITDA of $13.4B; $2.5B of buybacks and a 20th straight annual dividend increase. Full-year adjusted EPS growth guidance raised to 5\u20136%.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizons-transformation-actions-deliver-growth-profitability-1q26-company-raises-adjusted-eps'},
      {date:'Apr 27 2026', t:'On the same call: Frontier integration on track for over $1 billion in run-rate cost synergies by 2028, and a goal to exceed 32 million fiber passings by year-end.', src:'Motley Fool transcript', url:'https://www.fool.com/earnings/call-transcripts/2026/04/27/verizon-vz-q1-2026-earnings-transcript/'},
      {date:'Jul 2026', t:'Verizon Forward \u2014 up to $30/mo off Fiber for households on Lifeline, Pell Grant and other federal assistance programs \u2014 becomes available to Frontier customers in California by the end of July 2026. A real answer for price-sensitive doors.', src:'Verizon', url:'https://www.verizon.com/articles/home/verizon-acquires-frontier/'},
-     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'}
+     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'},
+     {date:'Oct 27 2026', t:'Verizon Q3 2026: 314,000 broadband net adds \u2014 155,000 fiber and 159,000 fixed wireless \u2014 for 17.4 million broadband connections. More than half of new fiber customers chose 1 Gig or faster, and fiber passings are on track to top 32 million by year-end.', src:'Cord Cutters News', url:'https://cordcuttersnews.com/as-comcast-keeps-losing-customers-verizon-added-314000-internet-customers-in-record-q3/'}
    ]},
   {group:'\ud83d\udd35 AT&T Fiber in California',
    lead:'Know the competition\u2019s real numbers. AT&T Fiber is a strong product \u2014 do not attack its reliability. Compete on price, the Mobile + Home stack and the price guarantee.',
@@ -3465,7 +3524,8 @@ var PRESS=[
      {date:'May 20 2026', t:'AT&T committed $19 billion to California fiber and wireless through 2030 \u2014 its largest-ever state infrastructure commitment, reaching $35 billion invested over 2021\u20132030. Includes fiber to 4 million+ more households and businesses and 1,200+ new cell sites.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-makes-ca-commitment.html'},
      {date:'May 20 2026', t:'Same announcement: AT&T begins upgrading customers to fiber and wireless and will discontinue copper-based services in parts of California on or after June 1, 2027 \u2014 useful context for homes still on old copper phone service.', src:'PR Newswire', url:'https://www.prnewswire.com/news-releases/att-makes-19-billion-commitment-to-bring-high-speed-connectivity-to-california-302778184.html'},
      {date:'May 2025', t:'AT&T agreed to acquire Lumen\u2019s Mass Markets fiber business for $5.75 billion all-cash \u2014 roughly 1 million fiber subscribers and 4 million passings, raising its target to 60 million fiber locations by end of 2030.', src:'AT&T Newsroom', url:'https://about.att.com/story/2025/lumen-mass-markets-fiber-business.html'},
-     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'}
+     {date:'Feb 2 2026', t:'AT&T closed the $5.75B Lumen deal, expanding AT&T Fiber to 32 states. CEO John Stankey said AT&T will raise its build to 4 million passings in 2026 and 5 million in later years. Note: the acquired markets are Denver, Seattle, Las Vegas and similar \u2014 not California.', src:'AT&T Newsroom', url:'https://about.att.com/story/2026/att-lumen-deal-close.html'},
+     {date:'Oct 21 2026', t:'AT&T Q3 2026: a record 769,000 internet net adds \u2014 442,000 fiber and 327,000 fixed wireless. Fiber now reaches more than 39 million locations, with 40 million-plus targeted by the end of 2026 and 60 million-plus by 2030.', src:'AT&T 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/0000732717/000073271726000370/t-3q2026exhibit991.htm'}
    ]},
   {group:'\ud83d\udfe2 EarthLink Fiber',
    lead:'EarthLink is our secondary product. It rides partner networks rather than owning most of its plant, and has grown by acquiring regional fixed-wireless operators.',
@@ -3474,6 +3534,13 @@ var PRESS=[
      {date:'Oct 1 2024', t:'EarthLink acquired Minnesota fixed-wireless provider Nextera Communications \u2014 its fifth business-internet acquisition in a single year, part of a steady roll-up of regional operators.', src:'EarthLink Newsroom', url:'https://www.earthlink.net/media/press-releases/earthlink-acquires-minnesota-based-fixed-wireless-provider-nextera-communications/'},
      {date:'2023\u201324', t:'The acquisition run also included BroadAspect and QX.net, with EarthLink stating its ambition to build the largest, most reliable fixed-wireless network for small and medium businesses nationwide.', src:'Telecompetitor', url:'https://www.telecompetitor.com/earthlink-stays-true-to-fwa-with-nextera-acquisition/'}
    ]},
+  {group:'\ud83d\udcc9 Cable Competitors \u2014 Spectrum, Cox & Xfinity',
+   lead:'The cable companies are losing internet customers every quarter. Use the numbers to explain why neighbors are switching \u2014 never to bash.',
+   items:[
+     {date:'Aug 19 2026', t:'Charter closed its Cox merger, adding 11M+ passings and 5M+ customer relationships; on Sep 16 Spectrum products and pricing launched across the legacy Cox footprint, including a free year of Spectrum Mobile for eligible customers and a $1,000 Savings Guarantee on bundles.', src:'Charter 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/0001091667/000109166726000072/chtrex991earningsrelease93.htm'},
+     {date:'Oct 22 2026', t:'Comcast Q3 2026: lost 144,000 broadband customers (vs. 91,000 a year earlier), ending at 28.34 million; added 368,000 mobile lines. Revenue fell 6.1% to $29.3 billion.', src:'Broadband Breakfast', url:'https://broadbandbreakfast.com/comcast-loses-144-000-broadband-subscribers-in-third-quarter/'},
+     {date:'Nov 6 2026', t:'Charter Q3 2026: pro forma internet customers down 233,000 (legacy Charter \u2212156,000, legacy Cox \u221277,000) to 34.3 million total; mobile lines up 508,000. Announced a $2 billion opex-savings program and plans to bring Cox customer service back to the U.S. over 18 months.', src:'Charter 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/0001091667/000109166726000072/chtrex991earningsrelease93.htm'}
+   ]},
   {group:'\ud83d\udd12 ADT \u2014 Our Security Product',
    lead:'We sell ADT through Direct Protection Security, an ADT Authorized Dealer. Lead with the Google partnership and the Origin AI acquisition \u2014 the pitch is a smarter system, not just an alarm.',
    items:[
@@ -3481,7 +3548,10 @@ var PRESS=[
      {date:'2024', t:'ADT\u2019s Trusted Neighbor feature uses Google Nest cameras and facial recognition to let a cleared neighbor, sitter or service pro in \u2014 disarming the system and granting temporary access when it recognizes a familiar face. A door-demo feature nobody else has.', src:'CEPro', url:'https://www.cepro.com/news/adt-trusted-neighbor-feature-uses-facial-recognotion-software-google-nest/137723/'},
      {date:'Feb 24 2026', t:'ADT acquired Origin AI for $170 million in cash \u2014 200+ patents in AI Wi-Fi sensing that detects human presence and motion with no cameras, audio or wearables. Expected to cut false alarms and support aging-in-place; new offerings begin rolling out in 2027.', src:'ADT 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/1703056/000170305626000005/adt-20260224.htm'},
      {date:'Mar 2 2026', t:'Full-year 2025: revenue up 5% to $5.1 billion, adjusted EPS up 19%, all 2025 guidance metrics achieved, recurring monthly revenue of $359 million, $791 million returned to shareholders, and a new $1.5 billion buyback authorization.', src:'ADT Newsroom', url:'https://newsroom.adt.com/financial/adt-reports-fourth-quarter-and-full-year-2025-earnings-results-announces-new-1-5-billion-share-repurchase-authorization'},
-     {date:'Apr 30 2026', t:'Q1 2026: revenue $1,279 million (up 1%), GAAP EPS up 25%, adjusted free cash flow up 83%. ADT was added to the S&P SmallCap 600 index effective Feb. 9, 2026.', src:'ADT Newsroom', url:'https://newsroom.adt.com/financial/adt-reports-first-quarter-2026-financial-results'}
+     {date:'Apr 30 2026', t:'Q1 2026: revenue $1,279 million (up 1%), GAAP EPS up 25%, adjusted free cash flow up 83%. ADT was added to the S&P SmallCap 600 index effective Feb. 9, 2026.', src:'ADT Newsroom', url:'https://newsroom.adt.com/financial/adt-reports-first-quarter-2026-financial-results'},
+     {date:'Oct 2026', t:'ADT was named the third-party professional installer for Apple\u2019s new smart home lineup \u2014 ADT Partner Services installs and services select products for U.S. Apple Retail customers starting this fall. ADT Blu is now sold on Walmart.com.', src:'CE Pro', url:'https://www.cepro.com/news/adt-to-be-acquired-by-thrive-holdings-in-15-3b-take-private-deal/629540/'},
+     {date:'Oct 29 2026', t:'ADT agreed to be taken private by Thrive Holdings (Josh Kushner\u2019s Thrive Capital; OpenAI holds a stake) for $10 a share in cash \u2014 about $7.6B equity, $15.3B including debt, a 45.6% premium. Expected to close Q1 2027 pending a shareholder vote and antitrust review; a go-shop runs to Nov 28. ADT says privacy policies stay the same and runs independently until close. Nothing announced yet about the authorized-dealer program.', src:'CE Pro', url:'https://www.cepro.com/news/adt-to-be-acquired-by-thrive-holdings-in-15-3b-take-private-deal/629540/'},
+     {date:'Nov 3 2026', t:'Q3 2026: revenue up 4% to $1,349 million, recurring monthly revenue $360 million, GAAP EPS $0.20 (up 18%). Guidance withdrawn because of the pending Thrive deal. ADT+ added Unusual Activity Alerts and is rolling out to dealer-generated customers; Origin AI presence sensing is planned for a 2027 launch.', src:'ADT 8-K (SEC)', url:'https://www.sec.gov/Archives/edgar/data/0001703056/000170305626000113/q32026adtearningsrelease-e.htm'}
    ]},
   {group:'\ud83d\udfe3 Vivint \u2014 Security Competitor',
    lead:'Vivint (owned by NRG since 2023) is the door-to-door competitor you\u2019ll meet most. Respect the product, know the news, never bash at the door.',
@@ -3697,8 +3767,9 @@ var FIBER_NEWS=[
     'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
     'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
     'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.',
+    'Oct 27, 2026 \u2014 Verizon Q3: 314,000 broadband net adds (155,000 fiber + 159,000 fixed wireless), 17.4M broadband connections; more than half of new fiber customers picked 1 Gig or faster. Fiber passings to top 32M by year-end, 40\u201350M medium-term.',
     'Oct 2026 on Frontier.com: Fiber 500 first month free through 10/5/26, and a Ring doorbell + camera bundle on 2 Gig and up through 5/8/27. NFL Sunday Ticket (9/22) and the D2D 2 Months On Us (9/30) have ended.'
-  ], src:'Verizon & Frontier press releases, Broadband Communities, DCD (Jan\u2013May 2026)'},
+  ], src:'Verizon & Frontier press releases, Cord Cutters News, Broadband Communities, DCD (Jan\u2013Oct 2026)'},
   {co:'EarthLink', ours:true, color:'#f7901e', items:[
     'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
     'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
@@ -3712,15 +3783,23 @@ var FIBER_NEWS=[
     'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
     'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
     'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.',
+    'Oct 21, 2026 \u2014 AT&T Q3: record 769,000 internet net adds (442,000 fiber + 327,000 fixed wireless); fiber now passes 39M+ locations, aiming for 40M+ by year-end.',
     'May 2026: $19B California connectivity commitment through 2030. 9/29/26: simplified fiber plans priced to reward AT&T wireless households, plus an expanded build-a-plan for wireless.'
-  ], src:'AT&T newsroom, Lumen IR, Light Reading, RCR Wireless, Kalkine (Jan\u2013Sep 2026)'},
+  ], src:'AT&T newsroom & Q3 8-K, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Oct 2026)'},
   {co:'Spectrum & Cox (cable)', ours:false, color:'#0a6ea8', items:[
     'Aug 20, 2026: Charter closed its Cox merger; on 9/16/26 Cox service switched to the Spectrum brand. Equipment and service carried over \u2014 nothing required from customers on day one.',
     'Former Cox plans renamed: Spectrum Internet 100 $30, 500 $40, 1 Gig $60 \u2014 each for 1 year, then a step-up. Cox TV moved to app-based Spectrum Stream TV ($75\u2013$145 promo packages).',
     'Cox internet customers are being offered a free year of Spectrum Mobile \u2014 the hook that pulls phones onto the cable bill.',
     'Free Amazon Prime with Spectrum Internet (since 8/17/26) at flagged addresses, for new and existing customers.',
+    'Nov 6, 2026 \u2014 Charter Q3: pro forma internet customers fell 233,000 (legacy Spectrum \u2212156,000, legacy Cox \u221277,000). Now pushing a $1,000 Savings Guarantee on bundles and symmetrical speeds in some markets; Cox customer service moving back to the U.S. over 18 months.',
     'Door angle: ex-Cox households are getting new bills, new app and new TV. Ask what changed on theirs \u2014 a fiber price guarantee in writing beats a one-year promo.'
-  ], src:'Charter newsroom, AZFamily, WAVY, Homelinkd (Aug\u2013Sep 2026)'}
+  ], src:'Charter newsroom & Q3 8-K, AZFamily, WAVY, Homelinkd (Aug\u2013Nov 2026)'},
+  {co:'Xfinity & T-Mobile', ours:false, color:'#7b3fe4', items:[
+    'Oct 22, 2026 \u2014 Comcast Q3: lost 144,000 broadband customers (worse than the 91,000 a year ago), down to 28.34M; added 368,000 mobile lines \u2014 about 18% of its internet customers now have an Xfinity Mobile line.',
+    'South Bay angle: Xfinity is leaning on mobile bundles to hold customers while fiber rivals sell gig service for $30\u2013$40. Ask what the bill is without the phone discount.',
+    'Oct 28, 2026 \u2014 T-Mobile Q3: says it led the industry in fixed-wireless adds (no number disclosed) and is on pace for 15M 5G home internet customers by 2030; fiber target 3\u20134M customers by 2030.',
+    '5G home internet shares cell capacity \u2014 speeds swing at peak hours. Fiber is a dedicated line with symmetrical upload.'
+  ], src:'Broadband Breakfast, Comcast Q3 8-K, T-Mobile Q3 call (Oct 2026)'}
 ];
 var AT_T_COUNTERS=[
   {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $64.99 flat with AutoPay and no wireless required, and drops to $49.99 if they already have a Verizon postpaid line (Mobile + Home) \u2014 no carrier switch needed.'},
@@ -3730,7 +3809,7 @@ var AT_T_COUNTERS=[
 ];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
-  var h='<div class="mi-note">Re-checked against public sources Oct 2, 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
+  var h='<div class="mi-note">Re-checked against public sources Nov 7, 2026. Frontier &amp; EarthLink are our products; AT&T is a competitor. Great talking points \u2014 always confirm local availability before quoting.</div>';
   FIBER_NEWS.forEach(function(nw){
     h+='<div class="fn-card" style="border-left:3px solid '+nw.color+'">'+
        '<div class="fn-h"><span class="fn-co">'+esc(nw.co)+'</span><span class="fn-tag '+(nw.ours?'ours':'comp')+'">'+(nw.ours?'OURS':'COMPETITOR')+'</span></div>'+
@@ -3759,6 +3838,15 @@ function renderMarketIntel(){
        '</div>';
   });
   h+='</div>';
+  /* ADT awards */
+  h+='<div class="card"><div class="card-h">🛡️ ADT Awards &amp; Recognition</div>'+
+     '<div class="mi-note">Every award on ADT\u2019s official Awards page, plus 2026 wins published elsewhere \u2014 newest first. <b>Door line:</b> \u201cADT was named America\u2019s #1 most trusted home security brand in 2026 \u2014 by Lifestory Research and by Newsweek \u2014 and ConsumerAffairs customers gave it Best Customer Service.\u201d</div>'+
+     '<div class="adt-aw">'+ADT_AWARDS.map(function(w){
+       return '<a class="adt-aw-row" href="'+esc(w.url)+'" target="_blank" rel="noopener noreferrer"><span class="adt-aw-yr">'+esc(w.yr)+'</span>'+
+         '<span class="adt-aw-b"><span class="adt-aw-a">'+esc(w.a)+'</span><span class="adt-aw-by">'+esc(w.by)+' \u2197</span></span></a>';
+     }).join('')+'</div>'+
+     '<div class="mi-note" style="margin:8px 0 0">Heads-up: on Oct 29, 2026 ADT agreed to be acquired by Thrive Holdings (closing expected Q1 2027). ADT runs independently until then and says customer privacy policies won\u2019t change.</div>'+
+     '</div>';
   /* Top 10 Frontier territories */
   h+='<div class="card"><div class="card-h">🏆 Top 10 Frontier Territories — IE &amp; OC</div>'+
      '<div class="mi-note">Each city is graded on five factors — <b>fiber availability</b>, <b>outages vs the local competitor</b>, <b>speed delivered</b>, <b>fiber footprint</b>, and <b>recommendations</b> — shown as chips below. Availability, footprint and outage-edge are city-specific (FCC data + competitor complaint volume); <b>Speed</b> reflects Frontier\u2019s 7-Gig fiber and <b>Rec\u2019d</b> is provider-level (Frontier fiber ≈4.2–4.5/5, J.D. Power West #2) because per-city recommendation counts aren\u2019t public. Verify fiber at the exact address.</div>';
