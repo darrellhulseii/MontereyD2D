@@ -503,6 +503,16 @@ table.rate td.barcell{width:34%;padding:7px 8px}
   border:1px solid var(--border2)}
 #crimeFrame{width:100%;height:100%;border:0;display:block}
 .crime-note{font-size:11.5px;color:var(--faint);line-height:1.45}
+.crime-row{display:flex;gap:7px;align-items:center;margin:0 0 9px}
+.crime-row select{flex:1;min-width:0;background:var(--card2);color:inherit;border:1px solid var(--border2);border-radius:8px;padding:8px 9px;font:inherit;font-size:13px}
+.crime-row button{flex:0 0 auto;background:var(--card2);color:inherit;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.crime-links{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.crime-links a{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;text-decoration:none;color:inherit;
+  background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:9px 4px;font-size:12px;font-weight:600}
+.crime-links a span{font-size:17px}
+.crime-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;
+  font-size:12px;color:var(--faint);text-align:center;padding:16px;pointer-events:none}
+#crimeFrame{position:relative;z-index:1}
 .mi-note{font-size:11px;color:var(--faint);line-height:1.5;margin-bottom:10px;border-left:2px solid var(--gold);padding-left:8px}
 .mi-rg{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--sky);margin:13px 0 6px}
 .cr-head,.cr-row2{display:grid;grid-template-columns:1fr 44px 44px;gap:6px;align-items:center}
@@ -1171,13 +1181,22 @@ a.btn-line{text-decoration:none}
 
     <div class="section-lbl">🛡️ Live Crime Map</div>
     <div class="card" id="crimeCard">
-      <div class="card-h">🛡️ SpotCrime+ Live Crime Map</div>
-      <div class="crime-note" style="margin:0 0 9px">Live neighborhood crime around you — allow location and SpotCrime+ recenters on where you are right now. Tap any marker for incident details.</div>
-      <div class="crime-wrap">
-        <iframe id="crimeFrame" src="https://spotcrime.com/map" loading="lazy" allow="geolocation" referrerpolicy="no-referrer-when-downgrade" title="SpotCrime+ live crime map"></iframe>
+      <div class="card-h">🛡️ SpotCrime Live Crime Map</div>
+      <div class="crime-note" style="margin:0 0 9px">Recent incidents around your knock area. Pick a city or tap 📍 to auto-pick the closest one. Tap any marker for details.</div>
+      <div class="crime-row">
+        <select id="crimeCity" aria-label="Crime map city"></select>
+        <button type="button" id="crimeNear" title="Use my location">📍 Near me</button>
       </div>
-      <a class="btn-line" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer" style="margin-top:9px">🛡️ Open SpotCrime+ ↗</a>
-      <div class="crime-note" style="margin-top:8px">If the map area stays blank, your browser blocked the inline embed — tap the button above to open SpotCrime+ in a new tab.</div>
+      <div class="crime-wrap">
+        <div class="crime-loading">🛡️ Loading SpotCrime…<br>If this stays blank, use the buttons below.</div>
+        <iframe id="crimeFrame" src="about:blank" allow="geolocation" referrerpolicy="no-referrer-when-downgrade" title="SpotCrime live crime map"></iframe>
+      </div>
+      <div class="crime-links">
+        <a id="crimeMapLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>🗺️</span>Live map</a>
+        <a id="crimeTrendLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📈</span>Trends</a>
+        <a id="crimeStatsLink" href="https://spotcrime.com/map" target="_blank" rel="noopener noreferrer"><span>📊</span>Analytics</a>
+      </div>
+      <div class="crime-note" id="crimeMeta" style="margin-top:8px"></div>
     </div>
   </section>
 
@@ -2126,6 +2145,35 @@ var SEED_NEW_BB_20261107=[["", "39207 Robin Rd, Big Bear Lake, CA 92315", "Sold 
         try{if(typeof refreshMarkers==='function')refreshMarkers();}catch(e){}
         try{if(typeof toast==='function')toast('<b>'+added.length+' recent-mover leads loaded</b> · Big Bear Valley · geocoding now',null,null,5000);}catch(e){}
       },4400);
+    }
+  }catch(e){}
+})();
+/* ════════ RECENT MOVERS — Victorville, sold 10/8–11/7/26 (New) ════════ */
+var SEED_NEW_VV_20261107=[["", "13437 Earl Way, Victorville, CA 92395", "Sold 11/4/26 · $430,000 · NEW MOVER — needs internet", null, null],["", "12175 Cobblestone Dr, Victorville, CA 92392", "Sold 11/5/26 · $370,000 · NEW MOVER — needs internet", null, null],["", "15137 Corlita St, Victorville, CA 92394", "Sold 11/3/26 · $480,000 · NEW MOVER — needs internet", null, null],["", "13916 Burning Tree Dr, Victorville, CA 92395", "Sold 11/3/26 · $340,000 · NEW MOVER — needs internet", null, null],["", "11824 Bobcat Hills Ln, Victorville, CA 92392", "Sold 11/2/26 · $496,000 · NEW MOVER — needs internet", null, null],["", "10011 Solano Rd, Victorville, CA 92392", "Sold 10/30/26 · $550,000 · NEW MOVER — needs internet", null, null],["", "15645 Avion Ln, Victorville, CA 92394", "Sold 10/28/26 · $312,500 · NEW MOVER — needs internet", null, null],["", "14148 Estate Way, Victorville, CA 92394", "Sold 10/27/26 · $325,000 · NEW MOVER — needs internet", null, null],["", "13662 Calzado Ct, Victorville, CA 92392", "Sold 10/26/26 · $359,000 · NEW MOVER — needs internet", null, null],["", "17998 Pebble Beach Dr, Victorville, CA 92395", "Sold 10/26/26 · $460,000 · NEW MOVER — needs internet", null, null],["", "13559 Vox Ln, Victorville, CA 92392", "Sold 10/23/26 · $470,000 · NEW MOVER — needs internet", null, null],["", "13959 Driftwood Dr, Victorville, CA 92395", "Sold 10/21/26 · $430,000 · NEW MOVER — needs internet", null, null],["", "10648 Sea Venture Way, Victorville, CA 92392", "Sold 10/10/26 · $535,990 · NEW MOVER — needs internet", null, null],["", "12980 Autumnwood Dr, Victorville, CA 92395", "Sold 10/9/26 · $325,000 · NEW MOVER — needs internet", null, null],["", "13620 Lone Star Ln, Victorville, CA 92394", "Sold 10/9/26 · $444,012 · NEW MOVER — needs internet", null, null],["", "13010 Snowview Rd, Victorville, CA 92392", "Sold 10/8/26 · $480,000 · NEW MOVER — needs internet", null, null]];
+(function(){
+  try{
+    if(state.seedNewVV_20261107){return;}
+    var seen={};
+    state.knocks.forEach(function(k){var a=String(k.address||'').toLowerCase().trim();if(a)seen[a]=1;});
+    var added=[];
+    SEED_NEW_VV_20261107.forEach(function(r){
+      var addr=String(r[1]||'').trim(), key=addr.toLowerCase();
+      if(!addr||seen[key])return; seen[key]=1;
+      var rec={id:uid(),ts:Date.now(),updatedTs:Date.now(),repId:state.currentRepId,disp:'new',
+        firstName:'',address:addr,phone:'',notes:String(r[2]||''),schedule:null,
+        products:[],vas:[],commission:0,qty:{},lat:null,lng:null,source:'seed'};
+      state.knocks.push(rec); added.push(rec);
+    });
+    state.seedNewVV_20261107=1;
+    try{persist();}catch(e){}
+    if(added.length){
+      setTimeout(function(){
+        try{if(typeof leadsPushRows==='function')leadsPushRows(added);}catch(e){}
+        try{if(typeof geocodeLeads==='function')geocodeLeads(added);}catch(e){}
+        try{if(typeof renderAll==='function')renderAll();}catch(e){}
+        try{if(typeof refreshMarkers==='function')refreshMarkers();}catch(e){}
+        try{if(typeof toast==='function')toast('<b>'+added.length+' recent-mover leads loaded</b> · Victorville · geocoding now',null,null,5000);}catch(e){}
+      },4600);
     }
   }catch(e){}
 })();
@@ -3880,8 +3928,62 @@ function openIntel(){
   loadPublicOutages();
   renderMarketIntel();
   renderFiberNews();
+  try{renderCrimeSpot();}catch(e){}
+}
+/* ════════ SPOTCRIME — live crime map (Intel) ════════ */
+var CRIME_CITIES=[
+  ['Victorville',34.5362,-117.2928],['Hesperia',34.4264,-117.3009],['Apple Valley',34.5008,-117.1859],['Adelanto',34.5828,-117.4092],
+  ['Lucerne Valley',34.4439,-116.9675],['Big Bear Lake',34.2439,-116.9114],['Big Bear City',34.2611,-116.8450],
+  ['San Bernardino',34.1083,-117.2898],['Highland',34.1283,-117.2086],['Redlands',34.0556,-117.1825],['Mentone',34.0700,-117.1342],
+  ['Yucaipa',34.0336,-117.0431],['Calimesa',34.0039,-117.0617],['Beaumont',33.9294,-116.9773],['Banning',33.9256,-116.8764],
+  ['Moreno Valley',33.9425,-117.2297],['Riverside',33.9533,-117.3962],['Hemet',33.7475,-116.9720],['San Jacinto',33.7839,-116.9586],
+  ['Menifee',33.6971,-117.1850],['Lake Elsinore',33.6681,-117.3273],['Wildomar',33.5989,-117.2800],['Murrieta',33.5539,-117.2139],
+  ['Temecula',33.4936,-117.1484],['Winchester',33.7067,-117.0845],
+  ['San Jose',37.3382,-121.8863],['Morgan Hill',37.1305,-121.6544],['Gilroy',37.0058,-121.5683]
+];
+var crimeIdx=-1, crimeReady=false;
+function crimeSlug(n){return 'https://spotcrime.com/CA/'+encodeURIComponent(n);}
+function crimeLoadPref(){try{var v=localStorage.getItem('kr_crime_city');return v==null?-1:+v;}catch(e){return -1;}}
+function crimeSavePref(i){try{localStorage.setItem('kr_crime_city',String(i));}catch(e){}}
+function crimeNearestIdx(lat,lng){
+  var best=0,bd=1e18;
+  CRIME_CITIES.forEach(function(c,i){var dx=c[1]-lat, dy=(c[2]-lng)*Math.cos(lat*Math.PI/180), d=dx*dx+dy*dy; if(d<bd){bd=d;best=i;}});
+  return best;
+}
+function crimeSelect(i,why){
+  if(i<0||i>=CRIME_CITIES.length)i=0;
+  crimeIdx=i;
+  var c=CRIME_CITIES[i], sel=$('#crimeCity'); if(sel)sel.value=String(i);
+  var base=crimeSlug(c[0]);
+  var m=$('#crimeMapLink'), t=$('#crimeTrendLink'), a=$('#crimeStatsLink');
+  if(m)m.href='https://spotcrime.com/map';
+  if(t)t.href=base+'/trends';
+  if(a)a.href=base+'/analytics';
+  var meta=$('#crimeMeta');
+  if(meta)meta.innerHTML=esc(c[0])+', CA'+(why?' · '+esc(why):'')+' — the map follows your phone\'s location once you allow it. Trends and Analytics open SpotCrime\'s '+esc(c[0])+' report pages.';
+}
+function crimeNearMe(manual){
+  function use(lat,lng){var i=crimeNearestIdx(lat,lng); crimeSelect(i,'closest to you'); if(manual)crimeSavePref(i);}
+  if(curPos&&curPos.lat!=null){use(curPos.lat,curPos.lng);if(!manual)return;}
+  if(!navigator.geolocation){if(manual&&typeof toast==='function')toast('Location isn\'t available on this device');return;}
+  navigator.geolocation.getCurrentPosition(function(p){use(p.coords.latitude,p.coords.longitude);},
+    function(){if(manual&&typeof toast==='function')toast('Allow location to auto-pick your city');},
+    {enableHighAccuracy:false,maximumAge:300000,timeout:10000});
+}
+function renderCrimeSpot(){
+  if(crimeReady)return; crimeReady=true;
+  var sel=$('#crimeCity'); if(!sel)return;
+  sel.innerHTML=CRIME_CITIES.map(function(c,i){return '<option value="'+i+'">'+esc(c[0])+', CA</option>';}).join('');
+  sel.addEventListener('change',function(){var i=+sel.value; crimeSavePref(i); crimeSelect(i,'');});
+  var nb=$('#crimeNear'); if(nb)nb.addEventListener('click',function(){crimeNearMe(true);});
+  var pref=crimeLoadPref();
+  if(pref>=0&&pref<CRIME_CITIES.length)crimeSelect(pref,'');
+  else{crimeSelect(0,''); crimeNearMe(false);}
+  /* load the embed only when the Intel tab is opened, so it never slows app start */
+  var fr=$('#crimeFrame'); if(fr&&fr.getAttribute('src')==='about:blank')fr.src='https://spotcrime.com/map';
 }
 function nearestCity(){
+  if(curPos&&crimeReady&&crimeLoadPref()<0)crimeSelect(crimeNearestIdx(curPos.lat,curPos.lng),'closest to you');
   if(!curPos)return;
   var best=cityIdx, bd=1e9;
   CITIES.forEach(function(c,i){
