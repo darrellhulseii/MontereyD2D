@@ -3497,7 +3497,7 @@ function pFac(s){
     return '<span class="fac"><span class="fac-l">'+x[0]+'</span><span class="fac-g '+gradeCls(x[1])+'">'+esc(x[1])+'</span></span>';
   }).join('')+'</div>';
 }
-var PRESS_INTRO='California is in the middle of the biggest fiber build-out in its history. Two forces drive it: <b>Frontier</b> — bought back by <b>Verizon</b> in Jan 2026 — converting its old copper/DSL to fiber, and <b>AT&T</b> pouring record billions into fiber + 5G. <b>EarthLink</b> resells AT&T\u2019s fiber, growing right alongside that build. Below is the positive, sourced news from the last two years, with what each item means when you\u2019re at the door — plus home-security news for <b>ADT</b> (ours, via Direct Protection Security) and <b>Vivint</b> (competitor). Tap ↗ to open the article.';
+var PRESS_INTRO='California is in the middle of a major fiber build-out. Two forces drive it: <b>Frontier</b> — bought back by <b>Verizon</b> in Jan 2026 — converting its old copper/DSL to fiber, and <b>AT&T</b> pouring record billions into fiber + 5G. <b>EarthLink</b> resells AT&T\u2019s fiber, growing right alongside that build. Below is sourced news from the last two years, with what each item means when you\u2019re at the door — plus home-security news for <b>ADT</b> (ours, via Direct Protection Security) and <b>Vivint</b> (competitor). Tap ↗ to open the article.';
 var PRESS=[
   {group:'\ud83d\udfe0 Frontier \u2014 a Verizon Company',
    lead:'Every item below was verified against a primary source (company newsroom, SEC filing or named trade outlet) and links to it. If a customer challenges a claim, open the link \u2014 don\u2019t argue from memory.',
@@ -3515,7 +3515,7 @@ var PRESS=[
      {date:'Apr 27 2026', t:'Verizon Q1 2026: adjusted EPS $1.28, up 7.6% and the best quarterly growth since 2021; record adjusted EBITDA of $13.4B; $2.5B of buybacks and a 20th straight annual dividend increase. Full-year adjusted EPS growth guidance raised to 5\u20136%.', src:'Verizon Newsroom', url:'https://www.verizon.com/about/news/verizons-transformation-actions-deliver-growth-profitability-1q26-company-raises-adjusted-eps'},
      {date:'Apr 27 2026', t:'On the same call: Frontier integration on track for over $1 billion in run-rate cost synergies by 2028, and a goal to exceed 32 million fiber passings by year-end.', src:'Motley Fool transcript', url:'https://www.fool.com/earnings/call-transcripts/2026/04/27/verizon-vz-q1-2026-earnings-transcript/'},
      {date:'Jul 2026', t:'Verizon Forward \u2014 up to $30/mo off Fiber for households on Lifeline, Pell Grant and other federal assistance programs \u2014 becomes available to Frontier customers in California by the end of July 2026. A real answer for price-sensitive doors.', src:'Verizon', url:'https://www.verizon.com/articles/home/verizon-acquires-frontier/'},
-     {date:'Jul 24 2026', t:'Q2 2026: Verizon reported its highest adjusted EBITDA margin in company history and announced a dark fiber deal with Google valued at more than $1 billion. Fiber added 155,000 net customers; management says Frontier integration is running ahead of expectations.', src:'TechTimes', url:'https://www.techtimes.com/articles/321821/20260728/verizon-stock-pulls-back-record-margins-google-dark-fiber-deal-signal-new-era.htm'},
+     {date:'Jul 24 2026', t:'Q2 2026: Verizon announced a dark fiber deal with Google worth more than $1 billion to connect Google data centers, and reported 348,000 combined fiber and fixed wireless additions.', src:'Broadband Breakfast', url:'https://broadbandbreakfast.com/verizon-inks-1-billion-fiber-deal-with-google'},
      {date:'Oct 27 2026', t:'Verizon Q3 2026: 314,000 broadband net adds \u2014 155,000 fiber and 159,000 fixed wireless \u2014 for 17.4 million broadband connections. More than half of new fiber customers chose 1 Gig or faster, and fiber passings are on track to top 32 million by year-end.', src:'Cord Cutters News', url:'https://cordcuttersnews.com/as-comcast-keeps-losing-customers-verizon-added-314000-internet-customers-in-record-q3/'}
    ]},
   {group:'\ud83d\udd35 AT&T Fiber in California',
@@ -3766,34 +3766,33 @@ var FIBER_NEWS=[
     'Jan 20, 2026: Verizon closed its $20B acquisition \u2014 Frontier now operates as "Frontier, a Verizon Company."',
     'Combined Fios + Frontier network reaches about 30 million fiber locations across 31 states and DC.',
     'Verizon 5G + Frontier fiber now bundle together \u2014 the Mobile + Home savings you quote at the door.',
-    'California (CPUC) approval came with conditions: protect LifeLine / low-income customers, keep investing in Frontier communities, and protect rural and copper customers.',
+    'California (CPUC) approved the deal 5\u20130 on Jan 15, 2026 with conditions, including fiber to 75,000 new California locations within five years and 250 new cell sites.',
     'Oct 27, 2026 \u2014 Verizon Q3: 314,000 broadband net adds (155,000 fiber + 159,000 fixed wireless), 17.4M broadband connections; more than half of new fiber customers picked 1 Gig or faster. Fiber passings to top 32M by year-end, 40\u201350M medium-term.',
-    'Oct 2026 on Frontier.com: Fiber 500 first month free through 10/5/26, and a Ring doorbell + camera bundle on 2 Gig and up through 5/8/27. NFL Sunday Ticket (9/22) and the D2D 2 Months On Us (9/30) have ended.'
-  ], src:'Verizon & Frontier press releases, Cord Cutters News, Broadband Communities, DCD (Jan\u2013Oct 2026)'},
+    'Frontier.com (seen 10/2/26): Ring doorbell + camera bundle on Fiber 2 Gig and up through 5/8/27. Confirm current offers on the PV sheet before quoting.'
+  ], src:'Verizon newsroom, Light Reading, Cord Cutters News, Frontier.com (Jan\u2013Oct 2026)'},
   {co:'EarthLink', ours:true, color:'#f7901e', items:[
-    'Leaning hard into "real fiber" \u2014 100% fiber to the door, no coax handoff on the last stretch, symmetrical upload and download.',
-    'Fiber tiers run 100 Mbps to 5 Gig with no data caps; "real fiber" intro messaging from $24.95.',
-    'Network-rental model gives near-nationwide reach (~48 states) with a customer-service-first focus.',
-    'Keeps topping customer-satisfaction surveys for price and support. The retail-site intro promo (extended to 9/30/26) has ended \u2014 quote the PV sheet, not the website.'
-  ], src:'EarthLink.net, HighSpeedInternet, Allconnect, BroadbandNow (May\u2013Oct 2026)'},
+    'EarthLink Fiber runs up to 5 Gbps with symmetrical upload and download and no data caps; listed from $34.95/mo on BroadbandNow.',
+    'Rides partner networks (AT&T fiber in most of our California territory) rather than owning its own lines; available in about 48 states.',
+    'Honest note: ACSI ranks EarthLink Fiber last among fiber providers (69). The line is strong; sell on price and speed, and set install expectations clearly.',
+    'Quote the PV sheet, not the retail website \u2014 retail promos change often.'
+  ], src:'BroadbandNow, ACSI 2026'},
   {co:'AT&T Fiber', ours:false, color:'#00a8e0', items:[
-    'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, +1M subs, +4M passings (Denver, Seattle, Salt Lake City).',
-    'Footprint ~32M fiber locations end of 2025, targeting 40M+ by end of 2026 and 60M by 2030; build pace ramping 3M \u2192 4M \u2192 5M passings a year.',
-    'Won Ookla\u2019s first U.S. "Best Home Internet" award \u2014 about 369 Mbps median download, 309 up, 18 ms latency.',
-    'Copper + DSL shutdown: new copper orders stopped Oct 2025; FCC cleared discontinuing 30%+ of wire centers; physical decommission of ~500 wire centers (~10%) starts June 2026 \u2014 most of the footprint (except California) done by end of 2029.',
+    'Feb 2026: AT&T closed its $5.75B buy of Lumen\u2019s consumer fiber (incl. Quantum Fiber) \u2014 AT&T Fiber now in 32 states, about +1M subs and +4M passings, in markets like Denver and Seattle (not California).',
+    'Build pace raised to 4M new fiber passings in 2026 and 5M a year after that; targeting 40M+ locations by end of 2026 and 60M+ by 2030.',
+    'Feb 23, 2026: AT&T Fiber won Ookla\u2019s first-ever U.S. "Best Home Internet" award, based on Speedtest data from the second half of 2025.',
+    'Copper shutdown: in Jan 2026 the FCC granted AT&T\u2019s request to discontinue copper service at wire centers serving ~90,000 customers in 18 states (California excluded); those landlines can end from Nov 15, 2026. AT&T plans to retire the large majority of copper outside California by end of 2029; in California, copper discontinuation starts in parts of the state on or after June 1, 2027.',
     'DSL customers get pushed to fiber where built, or AT&T Internet Air (5G home) where not \u2014 a real opening, since those households are forced to shop.',
-    'Convergence bundle: 20% off AT&T Fiber only when paired with an AT&T postpaid unlimited line; new-customer intro as low as $27/mo (300M) for 12 months, then steps up. Lineup simplified to 300M / 500M / 1 Gig / 5 Gig.',
+    'Jun 7, 2026: AT&T simplified fiber to four tiers \u2014 300M / 500M / 1 Gig / 5 Gig. The advertised $35/mo start price requires bundling AT&T wireless (up to $25/mo off on 5 Gig, \u201csave up to $420 a year\u201d).',
     'Oct 21, 2026 \u2014 AT&T Q3: record 769,000 internet net adds (442,000 fiber + 327,000 fixed wireless); fiber now passes 39M+ locations, aiming for 40M+ by year-end.',
-    'May 2026: $19B California connectivity commitment through 2030. 9/29/26: simplified fiber plans priced to reward AT&T wireless households, plus an expanded build-a-plan for wireless.'
-  ], src:'AT&T newsroom & Q3 8-K, Lumen IR, Light Reading, RCR Wireless (Jan\u2013Oct 2026)'},
+    'May 20, 2026: $19B California fiber + wireless commitment through 2030 \u2014 fiber to 4M+ more locations and 1,200+ new cell sites.'
+  ], src:'AT&T newsroom & Q3 8-K, Broadband Breakfast, Light Reading, RTTNews (Jan\u2013Oct 2026)'},
   {co:'Spectrum & Cox (cable)', ours:false, color:'#0a6ea8', items:[
-    'Aug 20, 2026: Charter closed its Cox merger; on 9/16/26 Cox service switched to the Spectrum brand. Equipment and service carried over \u2014 nothing required from customers on day one.',
-    'Former Cox plans renamed: Spectrum Internet 100 $30, 500 $40, 1 Gig $60 \u2014 each for 1 year, then a step-up. Cox TV moved to app-based Spectrum Stream TV ($75\u2013$145 promo packages).',
+    'Aug 19, 2026: Charter closed its Cox merger; on 9/16/26 Spectrum products, pricing and packaging launched across the legacy Cox footprint. No action was required from Cox customers at close.',
     'Cox internet customers are being offered a free year of Spectrum Mobile \u2014 the hook that pulls phones onto the cable bill.',
-    'Free Amazon Prime with Spectrum Internet (since 8/17/26) at flagged addresses, for new and existing customers.',
+    'Aug 2026: free Amazon Prime \u2014 but only for low-income customers on Spectrum Internet Assist, not all Spectrum customers.',
     'Nov 6, 2026 \u2014 Charter Q3: pro forma internet customers fell 233,000 (legacy Spectrum \u2212156,000, legacy Cox \u221277,000). Now pushing a $1,000 Savings Guarantee on bundles and symmetrical speeds in some markets; Cox customer service moving back to the U.S. over 18 months.',
     'Door angle: ex-Cox households are getting new bills, new app and new TV. Ask what changed on theirs \u2014 a fiber price guarantee in writing beats a one-year promo.'
-  ], src:'Charter newsroom & Q3 8-K, AZFamily, WAVY, Homelinkd (Aug\u2013Nov 2026)'},
+  ], src:'Charter Q3 8-K, FOX5 Las Vegas, The Desk (Aug\u2013Nov 2026)'},
   {co:'Xfinity & T-Mobile', ours:false, color:'#7b3fe4', items:[
     'Oct 22, 2026 \u2014 Comcast Q3: lost 144,000 broadband customers (worse than the 91,000 a year ago), down to 28.34M; added 368,000 mobile lines \u2014 about 18% of its internet customers now have an Xfinity Mobile line.',
     'South Bay angle: Xfinity is leaning on mobile bundles to hold customers while fiber rivals sell gig service for $30\u2013$40. Ask what the bill is without the phone discount.',
@@ -3802,10 +3801,10 @@ var FIBER_NEWS=[
   ], src:'Broadband Breakfast, Comcast Q3 8-K, T-Mobile Q3 call (Oct 2026)'}
 ];
 var AT_T_COUNTERS=[
-  {obj:'"AT&T saves me 20% when I bundle."', ans:'That 20% only kicks in if they carry an AT&T postpaid unlimited line \u2014 a wireless lock-in, not a standalone internet discount \u2014 and the intro price steps up after 12 months. Frontier 1 Gig is $64.99 flat with AutoPay and no wireless required, and drops to $49.99 if they already have a Verizon postpaid line (Mobile + Home) \u2014 no carrier switch needed.'},
-  {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well (~369 Mbps median) \u2014 but that is a national average, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
-  {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring copper and DSL by 2029 and already stopped taking new DSL orders \u2014 those customers get moved to fiber or 5G either way. Better to pick the fiber that is available and installed now.'},
-  {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. EarthLink keeps topping customer-satisfaction surveys for price and support. Both are 100% fiber to the door, not fiber-to-the-neighborhood.'}
+  {obj:'"AT&T is cheaper when I bundle."', ans:'AT&T\u2019s advertised $35 start price and bundle savings require an AT&T wireless plan \u2014 a wireless lock-in, not a standalone internet discount. Frontier 1 Gig is $64.99 flat with AutoPay and no wireless required, and drops to $49.99 if they already have a Verizon postpaid line (Mobile + Home) \u2014 no carrier switch needed.'},
+  {obj:'"AT&T won the Ookla Best Home Internet award."', ans:'True, and AT&T fiber tests well \u2014 but that award is based on national averages, not this address. Frontier and EarthLink are also 100% fiber with symmetrical speeds. What counts is what is built to this home, and AT&T fiber has limited availability \u2014 on many blocks it is not even an option.'},
+  {obj:'"I already have AT&T, I will just keep my DSL."', ans:'AT&T is retiring most copper outside California by 2029, and in California starts discontinuing copper in parts of the state on or after June 1, 2027 \u2014 those customers get moved to fiber or wireless either way. Better to pick the fiber that is available and installed now.'},
+  {obj:'"AT&T is the bigger, safer name."', ans:'Frontier is now Frontier, a Verizon company, backed by Verizon and a ~30M-location fiber network. Both Frontier and EarthLink fiber run all the way to the home.'}
 ];
 function renderFiberNews(){
   var box=$('#fiberNews'); if(!box)return;
