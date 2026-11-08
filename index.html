@@ -825,6 +825,9 @@ a.btn-line{text-decoration:none}
 .chuzo-tx{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:9px}
 .chuzo-link{display:block;text-align:center;padding:11px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.4px}
 .chuzo-box.hot .chuzo-link{background:#ff4444}
+.chuzo-box.adt-buy{background:rgba(0,163,224,.08);border-color:rgba(0,163,224,.45)}
+.chuzo-box.adt-buy .chuzo-hd{color:#4fc3f7}
+.chuzo-box.adt-buy .chuzo-link{background:linear-gradient(135deg,#0061aa,#00a3e0)}
 .chuzo-ack{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13px;color:var(--white)}
 .chuzo-ack input{width:18px;height:18px;flex:none}
 .obj-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -2799,6 +2802,11 @@ function openDispositionForm(disp,ctx,editId){
       (isSold
         ? '<label class="chuzo-ack"><input type="checkbox" id="f_chuzo"> I\u2019ve entered this sale in Chuzo</label>'
         : '')+
+      '</div>';
+    if(isSold)salesBlock+='<div class="chuzo-box adt-buy">'+
+      '<div class="chuzo-hd">🛡️ An ADT purchase</div>'+
+      '<div class="chuzo-tx">Sold ADT? Submit the order in FillQuick.</div>'+
+      '<a class="chuzo-link" href="https://quikview.fillquick.com/" target="_blank" rel="noopener noreferrer">An ADT purchase</a>'+
       '</div>';
   }
   openSheet(
