@@ -2,9 +2,11 @@
    App shell (index.html): served straight from cache, then refreshed in the background.
    If a newer version is found, open pages get a "tap to update" prompt and the next
    open uses it automatically. Google Fonts are cached forever (they are versioned URLs).
+   ADT presentation slides (/adt-deck/) are cached on first view.
    Everything else (Supabase, Google Maps, weather, SpotCrime) goes to the network untouched. */
 var SHELL = 'kr-shell-v1';
 var FONTS = 'kr-fonts-v1';
+var DECK = 'kr-deck-v1';
 var SHELL_URL = new URL('./', self.registration.scope).href;
 
 self.addEventListener('install', function (e) {
@@ -22,7 +24,7 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (k) {
-        if (k !== SHELL && k !== FONTS) return caches.delete(k);
+        if (k !== SHELL && k !== FONTS && k !== DECK) return caches.delete(k);
       }));
     }).then(function () { return self.clients.claim(); })
   );
@@ -65,6 +67,16 @@ self.addEventListener('fetch', function (e) {
         return fetch(req).then(function (r) {
           if (r && r.ok) { var cp = r.clone(); caches.open(SHELL).then(function (c) { c.put(SHELL_URL, cp); }); }
           return r;
+        });
+      })
+    );
+    return;
+  }
+  if (req.method === 'GET' && req.url.indexOf('/adt-deck/') !== -1 && new URL(req.url).origin === self.location.origin) {
+    e.respondWith(
+      caches.open(DECK).then(function (c) {
+        return c.match(req).then(function (hit) {
+          return hit || fetch(req).then(function (r) { if (r && r.ok) c.put(req, r.clone()); return r; });
         });
       })
     );
