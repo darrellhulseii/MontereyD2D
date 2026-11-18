@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://*.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.open-meteo.com https://wttr.in https://speed.cloudflare.com https://overpass-api.de https://overpass.kumi.systems https://maps.googleapis.com https://*.supabase.co https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.ggpht.com; worker-src 'self' blob: https://*.googleapis.com; child-src 'self' blob: https://*.google.com; frame-src 'self' https://*.google.com https://*.googleapis.com https://spotcrime.com https://*.spotcrime.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.gstatic.com; font-src 'self' data: https://fonts.gstatic.com https://*.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.open-meteo.com https://wttr.in https://speed.cloudflare.com https://overpass-api.de https://overpass.kumi.systems https://maps.googleapis.com https://*.supabase.co https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.ggpht.com; worker-src 'self' blob: https://*.googleapis.com; child-src 'self' blob: https://*.google.com; frame-src 'self' https://*.google.com https://*.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<style id="krFrameGuard">html{display:none!important}</style>
+<script>
+/* Clickjacking guard: GitHub Pages can't send X-Frame-Options, so the app hides itself inside another site's frame. */
+(function(){var ok=true;try{ok=(window.self===window.top);}catch(e){ok=false;}
+  if(ok){var g=document.getElementById('krFrameGuard');if(g)g.parentNode.removeChild(g);}
+  else{try{window.top.location=window.self.location.href;}catch(e){}}})();
+</script>
 <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(), microphone=(), payment=()">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
@@ -1079,7 +1086,8 @@ a.btn-line{text-decoration:none}
     inp.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go();}};
     ov.querySelector('#krLockForgot').onclick=function(e){e.preventDefault();
       if(confirm('Reset the PIN? To protect customer info this ERASES everything saved on this phone. Leads synced to the team cloud come back after you sign in again. Continue?')){
-        try{['knockradar_v3','knockradar_v2','knockradar_v1',LK].forEach(function(k){localStorage.removeItem(k);});}catch(err){}
+        try{Object.keys(localStorage).forEach(function(k){if(/^(knockradar|kr_|cht_)/.test(k))localStorage.removeItem(k);});}catch(err){}
+        try{sessionStorage.clear();}catch(err){}
         location.reload();
       }};
     setTimeout(function(){try{inp.focus();}catch(e){}},60);
@@ -1785,6 +1793,8 @@ function migrate(){
   return null;
 }
 var state=loadState()||migrate()||{};
+/* Drop pre-v3 copies of the data so customer info isn't stored twice (only once the current copy exists). */
+setTimeout(function(){try{ if(localStorage.getItem(KEY)){ localStorage.removeItem('knockradar_v2'); localStorage.removeItem('knockradar_v1'); } }catch(e){}},4000);
 state.knocks=state.knocks||[]; state.outages=state.outages||[]; state.connDrops=state.connDrops||[];
 state.reps=state.reps||[]; state.cloud=state.cloud||{url:'',key:'',on:true}; if(state.cloud.shareLeads===undefined)state.cloud.shareLeads=true; if(!state.cloud._autoShare){state.cloud.shareLeads=true;state.cloud._autoShare=1;}
 state.radar=state.radar||{token:'',on:true,proxy:''};
@@ -6498,6 +6508,7 @@ function loadJsPDF(cb){
   if(_jspdfState===1)return;
   _jspdfState=1;
   var s=document.createElement('script');
+  s.crossOrigin='anonymous'; s.referrerPolicy='no-referrer';
   s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
   s.onload=function(){_jspdfState=2;var q=_jspdfQ;_jspdfQ=[];q.forEach(function(f){f(window.jspdf&&window.jspdf.jsPDF);});};
   s.onerror=function(){_jspdfState=0;var q=_jspdfQ;_jspdfQ=[];q.forEach(function(f){f(null);});};
@@ -6724,6 +6735,11 @@ function settingsSheet(){
     '<input type="file" id="leadFile" accept=".csv,.json,text/csv,application/json" style="display:none">'+
     '<div class="help-note" style="margin:-2px 0 10px">Lead files can be <b>CSV</b> or <b>JSON</b> with columns like name, address, phone, city, zip, notes. Each lead is mapped from its <b>address</b> automatically — no coordinates needed — and lands in Pipeline as 📇 Leads (they do not count as doors) for '+esc(currentRep().name)+'.</div>'+
     '<button class="btn-line btn-danger" id="clrBtn">⌫ Clear All Data</button>'+
+    '<div class="section-lbl" style="margin-top:16px">🔏 Privacy &amp; this device</div>'+
+    '<div class="help-note" style="margin:-2px 0 10px">'+privacyStatusText()+'</div>'+
+    '<button class="btn-line" id="privInfoBtn" style="margin-bottom:8px">ℹ️ Where your data goes</button>'+
+    (window.KRLock&&!KRLock.cfg()?'<button class="btn-line" id="privPinBtn" style="margin-bottom:8px">🔒 Set an app PIN (recommended)</button>':'')+
+    '<button class="btn-line btn-danger" id="eraseDevBtn">🧹 Sign out &amp; erase this device</button>'+
     '<div style="font-size:11.5px;color:var(--faint);margin-top:14px;text-align:center">'+
       'Complete Home Field System · saved on this device'+(storageOK?'':' · ⚠ storage unavailable')+'</div>'+
     '<button class="btn-line" style="margin-top:12px" onclick="closeSheet()">Close</button>'
@@ -6800,6 +6816,9 @@ function settingsSheet(){
   };
   $('#leadBtn').onclick=function(){$('#leadFile').click();};
   $('#leadFile').onchange=function(e){importLeads(e.target.files[0]);e.target.value='';};
+  var _pi=$('#privInfoBtn'); if(_pi)_pi.onclick=privacyInfoSheet;
+  var _pp=$('#privPinBtn'); if(_pp)_pp.onclick=function(){ pinSheet('set'); };
+  var _ed=$('#eraseDevBtn'); if(_ed)_ed.onclick=eraseThisDevice;
   $('#clrBtn').onclick=function(){
     requireAdmin(function(){
       if(confirm('Delete ALL knocks, outages and history on this device? This cannot be undone.')){
@@ -6808,6 +6827,37 @@ function settingsSheet(){
       }
     },'This wipes all knocks, outages and history on this device.');
   };
+}
+
+/* ════════ PRIVACY ════════ */
+function privacyStatusText(){
+  var bits=[];
+  bits.push(window.KRLock&&KRLock.cfg()?'🔒 App PIN is on (auto-locks after '+((KRLock.cfg().mins)||5)+' min idle)':'⚠️ No app PIN \u2014 anyone holding this phone can open customer info');
+  bits.push(authed()?'Signed in as '+esc((authUser()&&authUser().email)||'your account'):'Not signed in');
+  return bits.join(' \u00b7 ');
+}
+function privacyInfoSheet(){
+  openSheet('<div class="sheet-title">ℹ️ Where your data goes</div>'+
+    '<div class="sheet-desc" style="line-height:1.55">'+
+    '<b>On this phone:</b> leads, notes, sales and settings are saved in this browser. The app PIN keeps others from opening them; use <b>Sign out &amp; erase</b> before handing the phone to anyone.<br><br>'+
+    '<b>Team cloud (Supabase):</b> when you\u2019re signed in with lead sharing on, leads and stats sync to your team\u2019s database over an encrypted connection.<br><br>'+
+    '<b>Google Maps:</b> addresses are sent to Google to place them on the map and for directions.<br><br>'+
+    '<b>Weather and map areas:</b> only map coordinates go to Open-Meteo, wttr.in and OpenStreetMap (Overpass) \u2014 never names or phone numbers.<br><br>'+
+    '<b>Never sent anywhere by the app:</b> your PIN (only a salted hash stays on the phone) and the admin password (only a hash).'+
+    '</div><button class="btn-line" onclick="closeSheet()">Close</button>');
+}
+function eraseThisDevice(){
+  if(!confirm('Sign out and ERASE everything this app saved on this phone (leads, notes, sales, settings, PIN)?\n\nLeads already synced to the team cloud come back when you sign in again. Anything not synced is lost.'))return;
+  if(!confirm('Last check: erase this device now?'))return;
+  try{ if(typeof authSignOut==='function')authSignOut(); }catch(e){}
+  try{ if(typeof _persistTimer!=='undefined'){ clearTimeout(_persistTimer); _persistTimer=null; } }catch(e){}
+  window.persist=function(){}; window.persistFlush=function(){};
+  try{ Object.keys(localStorage).forEach(function(k){ if(/^(knockradar|kr_|cht_)/.test(k))localStorage.removeItem(k); }); }catch(e){}
+  try{ sessionStorage.clear(); }catch(e){}
+  var jobs=[];
+  try{ if(window.caches)jobs.push(caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k);}));})); }catch(e){}
+  try{ if(navigator.serviceWorker)jobs.push(navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));})); }catch(e){}
+  Promise.all(jobs).catch(function(){}).then(function(){ location.replace(location.pathname); });
 }
 
 /* ════════ LEAD IMPORT (CSV / JSON → pipeline leads) ════════ */
